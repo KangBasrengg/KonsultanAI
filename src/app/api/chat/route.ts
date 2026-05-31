@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { createClient } from "@/lib/supabase/server";
