@@ -1,0 +1,59 @@
+"use client";
+
+import { Heart } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import LogoImage from "@/components/images/LogoUpdated.png";
+
+export default function Footer() {
+  return (
+    <footer className="border-t border-putih/10 bg-navy-dark pt-16 pb-8">
+      <div className="container mx-auto px-6 lg:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="md:col-span-2 space-y-6">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
+                <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
+              </div>
+              <span className="font-bold text-xl tracking-tight text-putih">
+                Konsultan<span className="text-gold">AI</span>
+              </span>
+            </Link>
+            <p className="text-putih/60 max-w-sm leading-relaxed">
+              Memahami Hukum Indonesia Dengan Cepat, Mudah, dan Cerdas. Platform Legal Technology kebanggaan bangsa.
+            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-merah/10 border border-merah/30 text-merah text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-putih"></span>
+              Karya Anak Bangsa
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg mb-6">Tautan</h4>
+            <ul className="space-y-4 text-putih/60">
+              <li><Link href="#cara-kerja" className="hover:text-gold transition-colors">Cara Kerja</Link></li>
+              <li><Link href="#fitur" className="hover:text-gold transition-colors">Keunggulan</Link></li>
+              <li><Link href="#harga" className="hover:text-gold transition-colors">Harga Premium</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg mb-6">Legalitas</h4>
+            <ul className="space-y-4 text-putih/60">
+              <li><Link href="#" className="hover:text-gold transition-colors">Terms of Service</Link></li>
+              <li><Link href="#" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
+              <li><Link href="#" className="hover:text-gold transition-colors">Disclaimer</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-8 border-t border-putih/10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/40">
+          <p>© {new Date().getFullYear()} Muhammad Nuril & Bahrul Ilmi. All rights reserved.</p>
+          <p className="flex items-center gap-1">
+            Dibuat dengan <Heart className="w-4 h-4 text-merah fill-merah" /> di Indonesia
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
