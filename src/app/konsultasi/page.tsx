@@ -5,7 +5,7 @@ import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle } from "luc
 import Link from "next/link";
 import Image from "next/image";
 import LogoImage from "@/components/images/LogoUpdated.png";
-import { useChat } from "@ai-sdk/react";
+import { useChat, type UIMessage } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
 import UserDropdown from "@/components/konsultasi/UserDropdown";
@@ -25,14 +25,18 @@ function getMessageText(msg: any): string {
 
 export default function KonsultasiPage() {
   const { messages, setMessages, sendMessage, status, error } = useChat({
-    api: "/api/chat",
-    initialMessages: [
+    messages: [
       {
         id: "welcome-msg",
-        role: "assistant" as const,
-        content: "Halo! Saya KonsultanAI, asisten hukum Anda. Silakan ceritakan kronologi kejadian yang Anda alami, dan saya akan membantu menganalisis unsur pidananya berdasarkan KUHP terbaru."
+        role: "assistant",
+        parts: [
+          {
+            type: "text",
+            text: "Halo! Saya KonsultanAI, asisten hukum Anda. Silakan ceritakan kronologi kejadian yang Anda alami, dan saya akan membantu menganalisis unsur pidananya berdasarkan KUHP terbaru."
+          }
+        ]
       }
-    ]
+    ] as UIMessage[]
   });
 
   const [input, setInput] = useState("");
@@ -48,7 +52,7 @@ export default function KonsultasiPage() {
     if (!input.trim() || isLoading) return;
     const userMessage = input.trim();
     setInput("");
-    await sendMessage({ role: "user", content: userMessage });
+    await sendMessage({ text: userMessage });
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
