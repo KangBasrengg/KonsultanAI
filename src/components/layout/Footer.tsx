@@ -40,8 +40,8 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-lg mb-6">Legalitas</h4>
             <ul className="space-y-4 text-putih/60">
-              <li><Link href="#" className="hover:text-gold transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-gold transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
               <li><Link href="#" className="hover:text-gold transition-colors">Disclaimer</Link></li>
             </ul>
           </div>
