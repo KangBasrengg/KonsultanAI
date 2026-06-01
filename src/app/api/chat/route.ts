@@ -122,10 +122,18 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error("[Chat API] Error:", error?.message || error);
-    console.error("[Chat API] Full error:", JSON.stringify(error, null, 2));
+    
+    // DEBUG INFO: let's check if the API key was actually read from process.env
+    const apiKey = process.env.FREEMODEL_API_KEY || "";
+    
     return new Response(JSON.stringify({ 
       error: "Terjadi kesalahan saat menghubungi AI.",
-      details: error?.message || "Unknown error"
+      details: error?.message || "Unknown error",
+      debug: {
+        hasApiKey: !!apiKey,
+        keyLength: apiKey.length,
+        isCloudflare: !!process.env.CF_PAGES,
+      }
     }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
