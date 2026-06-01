@@ -79,10 +79,18 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: freemodel("gpt-5.4-mini"),
       system: SYSTEM_PROMPT,
-      messages: messages.map((m: any) => ({
-        role: m.role,
-        content: m.content,
-      })),
+      messages: messages.map((m: any) => {
+        let textContent = "";
+        if (typeof m.content === "string") {
+          textContent = m.content;
+        } else if (Array.isArray(m.parts)) {
+          textContent = m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("");
+        }
+        return {
+          role: m.role,
+          content: textContent,
+        };
+      }),
       onFinish: async ({ text }) => {
         if (text && lastUserMessage && userId) {
           try {
