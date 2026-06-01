@@ -92,6 +92,13 @@ export async function POST(req: Request) {
     const lastUserMessage = extractText(lastUserMsg);
     console.log("[Chat API] Calling AI with message:", lastUserMessage.substring(0, 100));
 
+    if (!apiKey) {
+      return new Response(JSON.stringify({ 
+        error: "API Key Freemodel tidak ditemukan di environment variables Cloudflare.",
+        details: "Mohon pastikan nama variabel FREEMODEL_API_KEY sudah benar dan sudah di-deploy ulang."
+      }), { status: 401, headers: { "Content-Type": "application/json" } });
+    }
+
     // 5. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
     const modelMessages = await convertToModelMessages(messages);
     console.log("[Chat API] Converted model messages count:", modelMessages.length);
