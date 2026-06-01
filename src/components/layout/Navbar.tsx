@@ -40,9 +40,10 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="#cara-kerja" className="text-putih/80 hover:text-gold transition-colors">Cara Kerja</Link>
-          <Link href="#fitur" className="text-putih/80 hover:text-gold transition-colors">Fitur</Link>
-          <Link href="#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
+          <Link href="/tentang" className="text-putih/80 hover:text-gold transition-colors">Tentang</Link>
+          <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold transition-colors">Cara Kerja</Link>
+          <Link href="/#fitur" className="text-putih/80 hover:text-gold transition-colors">Fitur</Link>
+          <Link href="/#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
           <Link href="/konsultasi" className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105">
             Coba Gratis
           </Link>
@@ -64,9 +65,10 @@ export default function Navbar() {
           animate={{ opacity: 1, height: "auto" }}
           className="md:hidden bg-navy-light border-t border-putih/10 mt-4 py-4 px-6 flex flex-col gap-4"
         >
-          <Link href="#cara-kerja" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Cara Kerja</Link>
-          <Link href="#fitur" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Fitur</Link>
-          <Link href="#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
+          <Link href="/tentang" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
+          <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Cara Kerja</Link>
+          <Link href="/#fitur" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Fitur</Link>
+          <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
           <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
             Coba Gratis
           </Link>
