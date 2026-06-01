@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { createClient } from "@/lib/supabase/server";
 
 // Initialize Freemodel.dev using OpenAI provider (as shown in the user's dashboard)
@@ -26,6 +26,18 @@ Skenario Jika Anda Tidak Yakin (Edge Case):
 
 Penting: Jawaban Anda harus terstruktur dengan baik (gunakan markdown bullet points, bold untuk penekanan, dan paragraf pendek).
 `;
+
+// Helper: extract plain text from a UIMessage (which uses parts array)
+function extractText(msg: any): string {
+  if (Array.isArray(msg.parts)) {
+    return msg.parts
+      .filter((p: any) => p.type === "text")
+      .map((p: any) => p.text)
+      .join("");
+  }
+  if (typeof msg.content === "string") return msg.content;
+  return "";
+}
 
 export async function POST(req: Request) {
   try {
@@ -72,25 +84,19 @@ export async function POST(req: Request) {
       console.error("[Chat API] Auth check failed (proceeding):", authError);
     }
 
-    // 3. Call AI via OpenAI-compatible endpoint
-    const lastUserMessage = messages[messages.length - 1]?.content || "";
+    // 3. Extract last user message text (for DB save)
+    const lastUserMsg = messages[messages.length - 1];
+    const lastUserMessage = extractText(lastUserMsg);
     console.log("[Chat API] Calling AI with message:", lastUserMessage.substring(0, 100));
 
+    // 4. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
+    const modelMessages = await convertToModelMessages(messages);
+
+    // 5. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
       model: freemodel("gpt-5.4-mini"),
       system: SYSTEM_PROMPT,
-      messages: messages.map((m: any) => {
-        let textContent = "";
-        if (typeof m.content === "string") {
-          textContent = m.content;
-        } else if (Array.isArray(m.parts)) {
-          textContent = m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("");
-        }
-        return {
-          role: m.role,
-          content: textContent,
-        };
-      }),
+      messages: modelMessages,
       onFinish: async ({ text }) => {
         if (text && lastUserMessage && userId) {
           try {
