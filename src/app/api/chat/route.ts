@@ -1,6 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, convertToModelMessages } from "ai";
 import { createClient } from "@/lib/supabase/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 // The system prompt as defined in the PRD (Section 26 & 27)
 const SYSTEM_PROMPT = `
@@ -39,8 +40,23 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     console.log("[Chat API] Received messages count:", messages?.length);
 
-    // 2. Initialize AI provider INSIDE the handler (Cloudflare Workers needs this)
-    const apiKey = process.env.FREEMODEL_API_KEY || "";
+    // 2. Initialize AI provider INSIDE the handler
+    // Bypass Next.js static evaluation and directly check Cloudflare Context
+    const envVarName = "FREEMODEL_API_KEY";
+    let apiKey = process.env[envVarName];
+    
+    if (!apiKey) {
+      try {
+        const cfContext = getCloudflareContext();
+        if (cfContext && cfContext.env) {
+          apiKey = cfContext.env[envVarName];
+        }
+      } catch (e) {
+        console.warn("[Chat API] getCloudflareContext failed", e);
+      }
+    }
+    
+    apiKey = apiKey || "";
     console.log("[Chat API] API key available:", apiKey ? "yes (length: " + apiKey.length + ")" : "NO - MISSING");
     
     const freemodel = createOpenAI({
