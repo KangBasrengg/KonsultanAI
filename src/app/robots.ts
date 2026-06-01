@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/konsultasi/', '/api/'], // Sembunyikan halaman privat dan API
     },
-    // Ganti dengan URL domain Cloudflare kamu nanti (contoh: https://konsultanai.pages.dev)
-    sitemap: 'https://konsultanai.pages.dev/sitemap.xml',
+    // Ganti dengan URL domain Vercel kamu nanti
+    sitemap: 'https://konsultan-ai.vercel.app/sitemap.xml',
   }
 }
