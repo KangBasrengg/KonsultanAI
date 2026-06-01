@@ -2,12 +2,6 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, convertToModelMessages } from "ai";
 import { createClient } from "@/lib/supabase/server";
 
-// Initialize Freemodel.dev using OpenAI provider (as shown in the user's dashboard)
-const freemodel = createOpenAI({
-  baseURL: "https://api.freemodel.dev/v1",
-  apiKey: process.env.FREEMODEL_API_KEY || "",
-});
-
 // The system prompt as defined in the PRD (Section 26 & 27)
 const SYSTEM_PROMPT = `
 Anda adalah AI Legal Assistant profesional yang berdedikasi dan ahli dalam Hukum Indonesia, khususnya KUHP Nasional terbaru.
@@ -45,7 +39,16 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     console.log("[Chat API] Received messages count:", messages?.length);
 
-    // 2. Check authentication
+    // 2. Initialize AI provider INSIDE the handler (Cloudflare Workers needs this)
+    const apiKey = process.env.FREEMODEL_API_KEY || "";
+    console.log("[Chat API] API key available:", apiKey ? "yes (length: " + apiKey.length + ")" : "NO - MISSING");
+    
+    const freemodel = createOpenAI({
+      baseURL: "https://api.freemodel.dev/v1",
+      apiKey: apiKey,
+    });
+
+    // 3. Check authentication
     let userId: string | null = null;
     let isPremium = false;
     
@@ -84,15 +87,16 @@ export async function POST(req: Request) {
       console.error("[Chat API] Auth check failed (proceeding):", authError);
     }
 
-    // 3. Extract last user message text (for DB save)
+    // 4. Extract last user message text (for DB save)
     const lastUserMsg = messages[messages.length - 1];
     const lastUserMessage = extractText(lastUserMsg);
     console.log("[Chat API] Calling AI with message:", lastUserMessage.substring(0, 100));
 
-    // 4. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
+    // 5. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
     const modelMessages = await convertToModelMessages(messages);
+    console.log("[Chat API] Converted model messages count:", modelMessages.length);
 
-    // 5. Call AI via OpenAI-compatible endpoint
+    // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
       model: freemodel("gpt-5.4-mini"),
       system: SYSTEM_PROMPT,
@@ -118,7 +122,7 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error("[Chat API] Error:", error?.message || error);
-    console.error("[Chat API] Stack:", error?.stack);
+    console.error("[Chat API] Full error:", JSON.stringify(error, null, 2));
     return new Response(JSON.stringify({ 
       error: "Terjadi kesalahan saat menghubungi AI.",
       details: error?.message || "Unknown error"
