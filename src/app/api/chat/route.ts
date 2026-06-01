@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       try {
         const cfContext = getCloudflareContext();
         if (cfContext && cfContext.env) {
-          apiKey = cfContext.env[envVarName];
+          apiKey = (cfContext.env as any)[envVarName];
         }
       } catch (e) {
         console.warn("[Chat API] getCloudflareContext failed", e);
