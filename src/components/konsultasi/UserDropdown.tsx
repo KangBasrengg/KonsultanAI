@@ -93,9 +93,13 @@ export default function UserDropdown() {
                 </p>
               </div>
               {!profile?.isPremium && (
-                <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-full font-semibold">
+                <Link
+                  href="/#harga"
+                  onClick={() => setIsOpen(false)}
+                  className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-full font-semibold hover:bg-gold hover:text-navy transition-colors"
+                >
                   Upgrade
-                </span>
+                </Link>
               )}
             </div>
 
