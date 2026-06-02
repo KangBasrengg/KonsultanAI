@@ -11,6 +11,7 @@ export interface UserProfile {
   fullName: string | null;
   isPremium: boolean;
   role: "user" | "admin";
+  tier: string;
   consultationCount: number;
   createdAt: string;
 }
