@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { ArrowLeft, Send, Image as ImageIcon, CheckCircle, Shield, X, MessageSquare, Clock } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -24,7 +24,7 @@ interface Message {
   created_at: string;
 }
 
-export default function UserChatPage() {
+function ChatContent() {
   const { user, isVerifying } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -449,3 +449,12 @@ export default function UserChatPage() {
     </div>
   );
 }
+
+export default function UserChatPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <ChatContent />
+    </Suspense>
+  );
+}
+
