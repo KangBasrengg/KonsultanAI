@@ -13,7 +13,7 @@ export async function GET() {
 
     const { data: profile } = await supabase
       .from("users")
-      .select("email, full_name, is_premium, created_at")
+      .select("email, full_name, is_premium, role, tier, created_at")
       .eq("id", user.id)
       .single();
 
@@ -27,6 +27,8 @@ export async function GET() {
       email: profile?.email || user.email,
       fullName: profile?.full_name || null,
       isPremium: profile?.is_premium || false,
+      role: profile?.role || "user",
+      tier: profile?.tier || "free",
       consultationCount: count || 0,
       createdAt: profile?.created_at || user.created_at,
     }), {

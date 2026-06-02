@@ -11,7 +11,7 @@ export default function TentangPage() {
   return (
     <main className="min-h-screen bg-navy text-putih flex flex-col">
       <Navbar />
-      
+
       <div className="flex-1 container mx-auto px-6 py-24 md:py-32 max-w-5xl">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gold/10 border border-gold/30 rounded-3xl mb-6 shadow-lg shadow-gold/20">

@@ -10,6 +10,9 @@ import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
 import UserDropdown from "@/components/konsultasi/UserDropdown";
 import HistoryPanel from "@/components/konsultasi/HistoryPanel";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useRouter } from "next/navigation";
+import LoadingScreen from "@/components/auth/LoadingScreen";
 
 // Helper: extract visible text from a message's parts array (AI SDK v3/v6 format)
 function getMessageText(msg: any): string {
@@ -43,6 +46,15 @@ export default function KonsultasiPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "streaming" || status === "submitted";
+  const { isVerifying, user } = useAuth();
+  const router = useRouter();
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isVerifying && !user) {
+      router.replace("/?login=true");
+    }
+  }, [isVerifying, user, router]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -119,6 +131,14 @@ export default function KonsultasiPage() {
 
     doc.save("Konsultasi-Hukum.pdf");
   };
+
+  if (isVerifying) {
+    return <LoadingScreen />;
+  }
+
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="min-h-screen bg-navy flex flex-col h-screen overflow-hidden">

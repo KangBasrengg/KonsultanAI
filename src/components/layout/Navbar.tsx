@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn, Shield } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 import LogoImage from "@/components/images/LogoUpdated.png";
 import Image from "next/image";
@@ -11,6 +12,7 @@ import Image from "next/image";
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAdmin, openAuthModal } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,9 +46,41 @@ export default function Navbar() {
           <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold transition-colors">Cara Kerja</Link>
           <Link href="/#fitur" className="text-putih/80 hover:text-gold transition-colors">Fitur</Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
-          <Link href="/konsultasi" className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105">
-            Coba Gratis
-          </Link>
+
+          {user ? (
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <Link 
+                  href="/admin" 
+                  className="flex items-center gap-1.5 text-gold/80 hover:text-gold transition-colors"
+                >
+                  <Shield className="w-4 h-4" />
+                  Admin
+                </Link>
+              )}
+              <Link href="/konsultasi" className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105">
+                Konsultasi
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => openAuthModal("login")}
+                className="flex items-center gap-1.5 text-putih/80 hover:text-gold transition-colors"
+              >
+                <LogIn className="w-4 h-4" />
+                Masuk
+              </button>
+              <button
+                type="button"
+                onClick={() => openAuthModal("register")}
+                className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105"
+              >
+                Daftar
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -69,9 +103,38 @@ export default function Navbar() {
           <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Cara Kerja</Link>
           <Link href="/#fitur" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Fitur</Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
-          <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
-            Coba Gratis
-          </Link>
+
+          {user ? (
+            <>
+              {isAdmin && (
+                <Link href="/admin" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Shield className="w-4 h-4" />
+                  Admin Dashboard
+                </Link>
+              )}
+              <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
+                Konsultasi
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => { openAuthModal("login"); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-2 text-putih/80 hover:text-gold"
+              >
+                <LogIn className="w-4 h-4" />
+                Masuk
+              </button>
+              <button
+                type="button"
+                onClick={() => { openAuthModal("register"); setIsMobileMenuOpen(false); }}
+                className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2"
+              >
+                Daftar Gratis
+              </button>
+            </>
+          )}
         </motion.div>
       )}
     </motion.nav>

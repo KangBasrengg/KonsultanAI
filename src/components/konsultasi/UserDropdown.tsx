@@ -1,41 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User as UserIcon, ChevronDown, LogOut, Crown, Clock, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-
-interface UserProfile {
-  email: string;
-  fullName: string | null;
-  isPremium: boolean;
-  consultationCount: number;
-  createdAt: string;
-}
+import { User as UserIcon, ChevronDown, LogOut, Crown, Clock, X, Shield } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import Link from "next/link";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile");
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-        }
-      } catch (e) {
-        console.error("Failed to load profile:", e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProfile();
-  }, []);
+  const { profile, isAdmin, logout, isLoading } = useAuth();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -49,10 +22,8 @@ export default function UserDropdown() {
   }, []);
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    setIsOpen(false);
+    await logout();
   };
 
   const initials = profile?.fullName
@@ -63,6 +34,8 @@ export default function UserDropdown() {
     ? new Date(profile.createdAt).toLocaleDateString("id-ID", { year: "numeric", month: "long" })
     : "";
 
+  const tierLabel = profile?.tier === "professional" ? "Professional" : profile?.tier === "basic" ? "Basic" : "Free Trial";
+
   return (
     <div ref={dropdownRef} className="relative">
       {/* Trigger Button */}
@@ -71,8 +44,10 @@ export default function UserDropdown() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 bg-navy-light border border-putih/10 px-3 py-2 rounded-lg hover:bg-putih/10 transition-colors"
       >
-        <div className="w-7 h-7 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xs font-bold">
-          {loading ? "..." : initials}
+        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+          isAdmin ? "bg-gold/20 text-gold" : "bg-gold/20 text-gold"
+        }`}>
+          {isLoading ? "..." : initials}
         </div>
         <ChevronDown className={`w-3.5 h-3.5 text-putih/50 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
@@ -83,12 +58,15 @@ export default function UserDropdown() {
           {/* Profile Header */}
           <div className="p-4 border-b border-putih/10 bg-navy-light/30">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-gold/20 text-gold flex items-center justify-center font-bold text-sm">
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm ${
+                isAdmin ? "bg-gold/20 text-gold" : "bg-gold/20 text-gold"
+              }`}>
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-putih font-semibold text-sm truncate">
+                <p className="text-putih font-semibold text-sm truncate flex items-center gap-1.5">
                   {profile?.fullName || "Pengguna"}
+                  {isAdmin && <Shield className="w-3 h-3 text-gold" />}
                 </p>
                 <p className="text-putih/40 text-xs truncate">
                   {profile?.email || "..."}
@@ -108,7 +86,7 @@ export default function UserDropdown() {
               <Crown className={`w-4 h-4 ${profile?.isPremium ? "text-gold" : "text-putih/30"}`} />
               <div className="flex-1">
                 <p className="text-xs font-semibold text-putih">
-                  {profile?.isPremium ? "Premium" : "Free Trial"}
+                  {tierLabel}
                 </p>
                 <p className="text-[10px] text-putih/40">
                   {profile?.isPremium ? "Akses tidak terbatas" : "1x konsultasi gratis"}
@@ -131,6 +109,21 @@ export default function UserDropdown() {
                 </p>
               </div>
             </div>
+
+            {/* Admin Link */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg bg-gold/5 border border-gold/15 hover:bg-gold/10 transition-colors"
+              >
+                <Shield className="w-4 h-4 text-gold" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-gold">Admin Dashboard</p>
+                  <p className="text-[10px] text-putih/40">Kelola pengguna</p>
+                </div>
+              </Link>
+            )}
 
             {/* Member Since */}
             {memberSince && (
