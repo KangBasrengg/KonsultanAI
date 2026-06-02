@@ -3,8 +3,12 @@
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useRouter } from "next/navigation";
 
 export default function PricingSection() {
+  const { user, openAuthModal } = useAuth();
+  const router = useRouter();
   const plans = [
     {
       name: "Free Trial",
@@ -104,15 +108,34 @@ export default function PricingSection() {
                 ))}
               </ul>
 
-              <Link href="/konsultasi">
-                <button className={`w-full py-3 rounded-xl font-bold transition-all ${
-                  plan.highlight 
-                    ? "bg-gold text-navy hover:bg-gold-light" 
-                    : "bg-navy-light text-putih hover:bg-putih/10"
-                }`}>
+              {plan.cta === "Berlangganan" ? (
+                <button 
+                  onClick={() => {
+                    if (!user) {
+                      openAuthModal("login");
+                    } else {
+                      router.push(`/chat?plan=${encodeURIComponent(plan.name)}`);
+                    }
+                  }}
+                  className={`w-full py-3 rounded-xl font-bold transition-all ${
+                    plan.highlight 
+                      ? "bg-gold text-navy hover:bg-gold-light" 
+                      : "bg-navy-light text-putih hover:bg-putih/10"
+                  }`}
+                >
                   {plan.cta}
                 </button>
-              </Link>
+              ) : (
+                <Link href="/konsultasi">
+                  <button className={`w-full py-3 rounded-xl font-bold transition-all ${
+                    plan.highlight 
+                      ? "bg-gold text-navy hover:bg-gold-light" 
+                      : "bg-navy-light text-putih hover:bg-putih/10"
+                  }`}>
+                    {plan.cta}
+                  </button>
+                </Link>
+              )}
             </motion.div>
           ))}
         </div>

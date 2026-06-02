@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Users, Crown, Shield, Search, 
   ChevronDown, Check, X, RefreshCw, 
-  BarChart3, UserCheck, TrendingUp 
+  BarChart3, UserCheck, TrendingUp, MessageSquare,
+  Clock, CheckCircle, ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +14,7 @@ import LogoImage from "@/components/images/LogoUpdated.png";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/auth/LoadingScreen";
+import { createClient } from "@/lib/supabase/client";
 
 interface UserData {
   id: string;
@@ -25,6 +27,19 @@ interface UserData {
   consultationCount: number;
 }
 
+interface ChatData {
+  id: string;
+  user_id: string;
+  plan: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    email: string;
+    full_name: string;
+  };
+}
+
 const TIER_CONFIG = {
   free: { label: "Free", color: "text-putih/50", bg: "bg-putih/5", border: "border-putih/10", badge: "bg-putih/10 text-putih/60" },
   basic: { label: "Basic", color: "text-blue-400", bg: "bg-blue-500/5", border: "border-blue-500/20", badge: "bg-blue-500/20 text-blue-300" },
@@ -34,8 +49,11 @@ const TIER_CONFIG = {
 export default function AdminDashboard() {
   const { profile, isLoading, isAdmin } = useAuth();
   const router = useRouter();
+  const supabase = createClient();
   const [users, setUsers] = useState<UserData[]>([]);
+  const [chats, setChats] = useState<ChatData[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingChats, setLoadingChats] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -63,9 +81,30 @@ export default function AdminDashboard() {
     }
   }, []);
 
+  const fetchChats = useCallback(async () => {
+    setLoadingChats(true);
+    try {
+      const { data } = await supabase
+        .from("chats")
+        .select(`
+          id, user_id, plan, status, created_at, updated_at,
+          user:users(email, full_name)
+        `)
+        .order("updated_at", { ascending: false });
+      if (data) setChats(data as any);
+    } catch (e) {
+      console.error("Failed to fetch chats:", e);
+    } finally {
+      setLoadingChats(false);
+    }
+  }, [supabase]);
+
   useEffect(() => {
-    if (isAdmin) fetchUsers();
-  }, [isAdmin, fetchUsers]);
+    if (isAdmin) {
+      fetchUsers();
+      fetchChats();
+    }
+  }, [isAdmin, fetchUsers, fetchChats]);
 
   const handleTierChange = async (userId: string, newTier: string) => {
     setUpdatingId(userId);
@@ -105,6 +144,8 @@ export default function AdminDashboard() {
   const totalUsers = users.length;
   const premiumUsers = users.filter(u => u.is_premium).length;
   const totalConsultations = users.reduce((sum, u) => sum + u.consultationCount, 0);
+  const openChats = chats.filter(c => c.status === "open").length;
+  const resolvedChats = chats.filter(c => c.status === "resolved").length;
 
   if (isLoading || !isAdmin) {
     return <LoadingScreen />;
@@ -136,6 +177,13 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link 
+              href="/admin/chat" 
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold text-navy font-bold text-sm hover:bg-gold-light transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Live Chat
+            </Link>
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-semibold">
               <Shield className="w-3.5 h-3.5" />
               {profile?.fullName || profile?.email}
@@ -146,7 +194,7 @@ export default function AdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -193,6 +241,24 @@ export default function AdminDashboard() {
               <span className="text-sm text-putih/60 font-medium">Total Konsultasi</span>
             </div>
             <p className="text-3xl font-bold text-putih">{totalConsultations}</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 group hover:border-orange-500/20 transition-colors"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <span className="text-sm text-putih/60 font-medium">Transaksi Masuk</span>
+            </div>
+            <p className="text-3xl font-bold text-putih">{chats.length}</p>
+            <p className="text-xs text-putih/40 mt-1">
+              <span className="text-green-400">{openChats} open</span> · <span className="text-putih/50">{resolvedChats} selesai</span>
+            </p>
           </motion.div>
         </div>
 
@@ -382,6 +448,118 @@ export default function AdminDashboard() {
                               </AnimatePresence>
                             </div>
                           )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Transactions Section */}
+        <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden">
+          <div className="p-4 border-b border-putih/10 flex flex-col md:flex-row gap-3 md:items-center justify-between">
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5 text-gold" />
+              <h2 className="font-bold text-lg">Status Transaksi</h2>
+              <span className="text-xs bg-putih/10 px-2 py-0.5 rounded-full text-putih/50">
+                {chats.length}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={fetchChats}
+                className="p-2 bg-navy border border-putih/15 rounded-lg hover:bg-putih/5 transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 text-putih/50 ${loadingChats ? "animate-spin" : ""}`} />
+              </button>
+              <Link
+                href="/admin/chat"
+                className="flex items-center gap-1.5 text-xs font-medium bg-gold text-navy px-3 py-2 rounded-lg hover:bg-gold-light transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Buka Live Chat
+              </Link>
+            </div>
+          </div>
+
+          {loadingChats ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+              <p className="text-putih/40 text-sm">Memuat data transaksi...</p>
+            </div>
+          ) : chats.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <MessageSquare className="w-10 h-10 text-putih/15" />
+              <p className="text-putih/40 text-sm">Belum ada transaksi</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-navy-dark/50 text-putih/50 text-xs uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 font-semibold">Pengguna</th>
+                    <th className="text-left py-3 px-4 font-semibold hidden md:table-cell">Paket</th>
+                    <th className="text-center py-3 px-4 font-semibold">Status</th>
+                    <th className="text-center py-3 px-4 font-semibold hidden sm:table-cell">Tanggal</th>
+                    <th className="text-center py-3 px-4 font-semibold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-putih/5">
+                  {chats.map((chat) => {
+                    const userName = chat.user?.full_name || chat.user?.email || "Unknown";
+                    const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+                    return (
+                      <tr key={chat.id} className="hover:bg-putih/[0.02] transition-colors">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-putih/10 flex items-center justify-center text-xs font-bold text-putih/70 shrink-0">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-putih truncate">{userName}</p>
+                              <p className="text-xs text-putih/40 md:hidden">{chat.plan}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 hidden md:table-cell">
+                          <span className="text-gold font-semibold text-xs bg-gold/10 px-2.5 py-1 rounded-full">
+                            {chat.plan}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                            chat.status === "open" 
+                              ? "bg-orange-500/15 text-orange-400" 
+                              : "bg-green-500/15 text-green-400"
+                          }`}>
+                            {chat.status === "open" ? (
+                              <><Clock className="w-3 h-3" /> Menunggu</>
+                            ) : (
+                              <><CheckCircle className="w-3 h-3" /> Selesai</>
+                            )}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center hidden sm:table-cell">
+                          <span className="text-putih/40 text-xs">
+                            {new Date(chat.created_at).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Link
+                            href="/admin/chat"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-gold hover:text-gold-light transition-colors"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            Balas
+                          </Link>
                         </td>
                       </tr>
                     );
