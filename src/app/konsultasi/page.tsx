@@ -7,7 +7,7 @@ import Image from "next/image";
 import LogoImage from "@/components/images/LogoUpdated.png";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
-import jsPDF from "jspdf";
+import { exportConsultationPDF } from "@/lib/pdf-export";
 import UserDropdown from "@/components/konsultasi/UserDropdown";
 import HistoryPanel from "@/components/konsultasi/HistoryPanel";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -77,59 +77,7 @@ export default function KonsultasiPage() {
   const handleExportPDF = () => {
     // Only export if there is actual conversation
     if (messages.length <= 1) return alert("Belum ada percakapan untuk diekspor.");
-
-    const doc = new jsPDF();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    let yPos = 20;
-
-    // Title
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text("Laporan Konsultasi AI Legal", 20, yPos);
-    yPos += 10;
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100);
-    doc.text(`Tanggal: ${new Date().toLocaleString("id-ID")}`, 20, yPos);
-    yPos += 15;
-
-    // Content
-    messages.forEach((msg) => {
-      // Skip the initial welcome message to save space
-      if (msg.id === "welcome-msg") return;
-
-      const roleStr = msg.role === "user" ? "KRONOLOGI (USER)" : "ANALISIS (KONSULTAN AI)";
-      const text = getMessageText(msg);
-
-      if (yPos > pageHeight - 30) {
-        doc.addPage();
-        yPos = 20;
-      }
-
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(msg.role === "user" ? 0 : 0, 51, 102); // Navy blue for user, default for AI
-      doc.text(roleStr, 20, yPos);
-      yPos += 6;
-
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0);
-      
-      const splitText = doc.splitTextToSize(text, 170);
-      splitText.forEach((line: string) => {
-        if (yPos > pageHeight - 20) {
-          doc.addPage();
-          yPos = 20;
-        }
-        doc.text(line, 20, yPos);
-        yPos += 6;
-      });
-      yPos += 10; // Extra space between messages
-    });
-
-    doc.save("Konsultasi-Hukum.pdf");
+    exportConsultationPDF(messages as any);
   };
 
   if (isVerifying) {
