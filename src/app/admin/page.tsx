@@ -132,11 +132,15 @@ export default function AdminDashboard() {
       const { data, error } = await supabase
         .from("bookings")
         .select(`
-          id, amount, status, created_at, payment_method,
+          id, consultation_rate, status, created_at, payment_status,
           client:users(full_name, email),
           advocate:advocates(full_name)
         `)
         .order("created_at", { ascending: false });
+        
+      if (error) {
+        console.error("Supabase Bookings Error:", error);
+      }
         
       if (!error && data) {
         setBookings(data);
@@ -866,7 +870,7 @@ export default function AdminDashboard() {
                           <td className="py-3 px-4 font-medium">{booking.client?.full_name || booking.client?.email}</td>
                           <td className="py-3 px-4 text-gold">{booking.advocate?.full_name}</td>
                           <td className="py-3 px-4 text-center font-bold">
-                            Rp {booking.amount.toLocaleString("id-ID")}
+                            Rp {(booking.consultation_rate || 0).toLocaleString("id-ID")}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
