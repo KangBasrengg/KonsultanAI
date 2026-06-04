@@ -1,12 +1,20 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
-import { ArrowLeft, Send, Image as ImageIcon, CheckCircle, Shield, X, MessageSquare, Clock } from "lucide-react";
+import { ArrowLeft, Send, Image as ImageIcon, CheckCircle, Shield, X, MessageSquare, Clock, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import LoadingScreen from "@/components/auth/LoadingScreen";
+
+// Declare Midtrans Snap global object
+declare global {
+  interface Window {
+    snap: any;
+  }
+}
 
 interface Chat {
   id: string;
@@ -38,7 +46,16 @@ function ChatContent() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000); // Hide after 5 seconds
+  };
 
   // Redirect if not logged in
   useEffect(() => {
@@ -234,9 +251,108 @@ function ChatContent() {
       setImagePreview(null);
     } catch (err) {
       console.error("Failed to send message:", err);
-      alert("Gagal mengirim pesan. Silakan coba lagi.");
+      showNotification("Gagal mengirim pesan. Silakan coba lagi.", "error");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!activeChatId || !user || !activeChat) return;
+
+    // Free Trial bypass
+    if (activeChat.plan === "Free Trial") {
+      setIsPaying(true);
+      try {
+        await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
+        
+        // Upgrade User Plan
+        await supabase.from("users").update({ 
+          tier: activeChat.plan,
+          is_premium: true 
+        }).eq("id", user.id);
+        
+        await supabase.from("messages").insert({
+          chat_id: activeChatId,
+          sender_id: user.id, // using user.id as fallback, but ideally admin id
+          content: `Admin: Terima kasih telah mengaktifkan ${activeChat.plan}! Layanan Anda sudah aktif. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.`
+        });
+        
+        showNotification(`${activeChat.plan} berhasil diaktifkan!`, "success");
+        if (typeof (window as any).refreshProfile === 'function') (window as any).refreshProfile();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsPaying(false);
+      }
+      return;
+    }
+
+    setIsPaying(true);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatId: activeChatId,
+          planName: activeChat.plan,
+          userEmail: user.email,
+          userName: user.user_metadata?.full_name || user.email?.split('@')[0]
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error || 'Failed to get payment token');
+
+      if (window.snap) {
+        window.snap.pay(data.token, {
+          onSuccess: async function (result: any) {
+            console.log('Payment success:', result);
+            
+            // 1. Update chat status
+            await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
+            
+            // 2. Update user plan
+            await supabase.from("users").update({ 
+              tier: activeChat.plan,
+              is_premium: true 
+            }).eq("id", user.id);
+
+            // 3. Send automated thank you message
+            await supabase.from("messages").insert({
+              chat_id: activeChatId,
+              sender_id: user.id,
+              content: `Admin: Terima kasih atas pembayaran Anda untuk ${activeChat.plan}. Transaksi berhasil (Order ID: ${result.order_id}). Akun Anda telah diupgrade otomatis! Selamat menikmati layanan kami.`
+            });
+            
+            showNotification("Pembayaran berhasil! Transaksi selesai dan plan diperbarui.", "success");
+            
+            // 4. Force refresh profile globally if possible
+            // In a real app we'd call the refreshProfile from AuthContext
+            window.location.reload(); 
+          },
+          onPending: function (result: any) {
+            console.log('Payment pending:', result);
+            showNotification("Menunggu pembayaran. Silakan selesaikan pembayaran Anda.", "info");
+          },
+          onError: function (result: any) {
+            console.error('Payment error:', result);
+            showNotification("Pembayaran gagal. Silakan coba lagi.", "error");
+          },
+          onClose: function () {
+            console.log('Payment popup closed');
+            showNotification("Pembayaran dibatalkan atau belum diselesaikan.", "info");
+          }
+        });
+      } else {
+        showNotification("Sistem pembayaran belum siap. Silakan refresh halaman.", "error");
+      }
+    } catch (err) {
+      console.error('Payment initialization error:', err);
+      showNotification("Gagal memproses pembayaran. Silakan coba lagi nanti.", "error");
+    } finally {
+      setIsPaying(false);
     }
   };
 
@@ -330,10 +446,19 @@ function ChatContent() {
                       Transaksi Selesai
                     </span>
                   )}
+                  {activeChat?.status === "open" && (
+                    <button
+                      onClick={handlePayment}
+                      disabled={isPaying}
+                      className="text-xs font-bold bg-gold text-navy px-3 py-1.5 rounded-lg hover:bg-gold-light transition-colors shadow-lg disabled:opacity-50"
+                    >
+                      {isPaying ? "Memproses..." : "Bayar Sekarang"}
+                    </button>
+                  )}
                 </div>
                 {activeChat?.status === "open" && (
                   <p className="text-xs text-putih/50 mt-1">
-                    Silakan unggah bukti pembayaran di sini. Admin akan segera memproses.
+                    Silakan klik "Bayar Sekarang" untuk membayar via Midtrans, atau unggah bukti transfer manual.
                   </p>
                 )}
               </div>
@@ -446,6 +571,37 @@ function ChatContent() {
           )}
         </div>
       </div>
+
+      {/* Floating Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border ${
+              notification.type === 'success' 
+                ? 'bg-green-900/90 border-green-500/50 text-green-50' 
+                : notification.type === 'error'
+                ? 'bg-red-900/90 border-red-500/50 text-red-50'
+                : 'bg-navy border-gold/50 text-putih'
+            } backdrop-blur-md`}
+          >
+            {notification.type === 'success' && <CheckCircle className="w-6 h-6 text-green-400" />}
+            {notification.type === 'error' && <AlertCircle className="w-6 h-6 text-red-400" />}
+            {notification.type === 'info' && <Shield className="w-6 h-6 text-gold" />}
+            
+            <p className="font-medium text-sm">{notification.message}</p>
+            
+            <button 
+              onClick={() => setNotification(null)}
+              className="ml-2 p-1 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

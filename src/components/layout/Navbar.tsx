@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, LogIn, Shield } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { createClient } from "@/lib/supabase/client";
 
 import LogoImage from "@/components/images/LogoUpdated.png";
 import Image from "next/image";
@@ -12,7 +13,25 @@ import Image from "next/image";
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin, openAuthModal } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { user, profile, isAdmin, openAuthModal } = useAuth();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,24 +62,88 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/tentang" className="text-putih/80 hover:text-gold transition-colors">Tentang</Link>
-          <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold transition-colors">Cara Kerja</Link>
-          <Link href="/#fitur" className="text-putih/80 hover:text-gold transition-colors">Fitur</Link>
+          <Link href="/konsultasi" className="text-putih/80 hover:text-gold transition-colors">Konsultasi AI</Link>
+          <Link href="/marketplace" className="text-putih/80 hover:text-gold transition-colors flex items-center gap-1">
+            <Scale className="w-3.5 h-3.5" />
+            Marketplace
+          </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
 
           {user ? (
-            <div className="flex items-center gap-3">
-              {isAdmin && (
-                <Link 
-                  href="/admin" 
-                  className="flex items-center gap-1.5 text-gold/80 hover:text-gold transition-colors"
-                >
-                  <Shield className="w-4 h-4" />
-                  Admin
-                </Link>
-              )}
-              <Link href="/konsultasi" className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105">
-                Konsultasi
-              </Link>
+            <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-putih/10 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-sm">
+                  {profile?.fullName ? profile.fullName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col items-start hidden lg:flex">
+                  <span className="text-sm font-semibold text-putih leading-tight max-w-[100px] truncate">
+                    {profile?.fullName || user.email?.split("@")[0]}
+                  </span>
+                  <span className="text-xs text-gold capitalize leading-tight">
+                    {profile?.role || "User"}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-putih/50 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full right-0 mt-2 w-56 bg-navy-dark border border-putih/15 rounded-2xl shadow-2xl overflow-hidden py-2"
+                  >
+                    <div className="px-4 py-3 border-b border-putih/10 mb-2 lg:hidden">
+                      <p className="font-semibold text-putih truncate">{profile?.fullName || user.email}</p>
+                      <p className="text-xs text-gold capitalize">{profile?.role || "User"}</p>
+                    </div>
+                    
+                    <Link href="/konsultasi" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                      <Scale className="w-4 h-4" />
+                      Konsultasi AI
+                    </Link>
+
+                    <Link href="/konsultasi-advokat" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                      <MessageSquare className="w-4 h-4" />
+                      Chat Advokat
+                    </Link>
+                    
+                    {profile?.role === "advokat" && (
+                      <Link href="/advokat" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                        <User className="w-4 h-4" />
+                        Dashboard Advokat
+                      </Link>
+                    )}
+                    
+                    {isAdmin && (
+                      <Link href="/admin" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                        <Shield className="w-4 h-4" />
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    
+                    <div className="h-px bg-putih/10 my-2 mx-4" />
+                    
+                    <Link href="/pengaturan" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                      <Settings className="w-4 h-4" />
+                      Pengaturan
+                    </Link>
+                    
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-merah hover:bg-merah/10 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Keluar
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <div className="flex items-center gap-3">
@@ -100,8 +183,11 @@ export default function Navbar() {
           className="md:hidden bg-navy-light border-t border-putih/10 mt-4 py-4 px-6 flex flex-col gap-4"
         >
           <Link href="/tentang" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
-          <Link href="/#cara-kerja" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Cara Kerja</Link>
-          <Link href="/#fitur" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Fitur</Link>
+          <Link href="/konsultasi" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
+          <Link href="/marketplace" className="text-putih/80 hover:text-gold flex items-center gap-1.5" onClick={() => setIsMobileMenuOpen(false)}>
+            <Scale className="w-3.5 h-3.5" />
+            Marketplace Advokat
+          </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
 
           {user ? (
@@ -112,9 +198,26 @@ export default function Navbar() {
                   Admin Dashboard
                 </Link>
               )}
+              {profile?.role === "advokat" && (
+                <Link href="/advokat" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Scale className="w-4 h-4" />
+                  Dashboard Advokat
+                </Link>
+              )}
               <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
-                Konsultasi
+                Mulai Konsultasi AI
               </Link>
+              <Link href="/pengaturan" className="flex items-center justify-center gap-2 text-putih border border-putih/20 py-3 rounded-xl font-bold mt-2 hover:bg-putih/5 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                <Settings className="w-4 h-4" />
+                Pengaturan
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 text-merah border border-merah/20 bg-merah/5 py-3 rounded-xl font-bold mt-2 hover:bg-merah/10 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Keluar
+              </button>
             </>
           ) : (
             <>

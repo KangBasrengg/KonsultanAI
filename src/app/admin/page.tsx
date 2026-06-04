@@ -6,7 +6,7 @@ import {
   ArrowLeft, Users, Crown, Shield, Search, 
   ChevronDown, Check, X, RefreshCw, 
   BarChart3, UserCheck, TrendingUp, MessageSquare,
-  Clock, CheckCircle, ExternalLink
+  Clock, CheckCircle, ExternalLink, Scale, FileText, Briefcase
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,6 +58,9 @@ export default function AdminDashboard() {
   const [tierFilter, setTierFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"users" | "advocates">("users");
+  const [advocates, setAdvocates] = useState<any[]>([]);
+  const [loadingAdvocates, setLoadingAdvocates] = useState(true);
 
   // Redirect non-admins
   useEffect(() => {
@@ -99,12 +102,43 @@ export default function AdminDashboard() {
     }
   }, [supabase]);
 
+  const fetchAdvocates = async () => {
+    setLoadingAdvocates(true);
+    try {
+      const res = await fetch("/api/admin/advocates");
+      if (res.ok) {
+        const data = await res.json();
+        setAdvocates(data.advocates || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingAdvocates(false);
+    }
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
       fetchChats();
+      fetchAdvocates();
     }
   }, [isAdmin, fetchUsers, fetchChats]);
+
+  const handleVerifyAdvocate = async (advocateId: string, action: "approved" | "rejected") => {
+    try {
+      const res = await fetch("/api/admin/advocates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ advocateId, action }),
+      });
+      if (res.ok) {
+        setAdvocates(prev => prev.map(a => a.id === advocateId ? { ...a, verification_status: action } : a));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleTierChange = async (userId: string, newTier: string) => {
     setUpdatingId(userId);
@@ -262,8 +296,31 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
 
-        {/* Users Table Section */}
-        <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden">
+        {/* Tabs */}
+        <div className="flex items-center gap-4 border-b border-putih/10 pb-2">
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`font-bold pb-2 border-b-2 transition-colors ${activeTab === "users" ? "border-gold text-gold" : "border-transparent text-putih/50 hover:text-putih"}`}
+          >
+            Pengguna
+          </button>
+          <button
+            onClick={() => setActiveTab("advocates")}
+            className={`font-bold pb-2 border-b-2 transition-colors ${activeTab === "advocates" ? "border-gold text-gold" : "border-transparent text-putih/50 hover:text-putih"}`}
+          >
+            Verifikasi Advokat
+            {advocates.filter(a => a.verification_status === "pending").length > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {advocates.filter(a => a.verification_status === "pending").length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {activeTab === "users" ? (
+          <div className="space-y-8">
+            {/* Users Table Section */}
+            <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden">
           {/* Table Header / Controls */}
           <div className="p-4 border-b border-putih/10 flex flex-col md:flex-row gap-3 md:items-center justify-between">
             <div className="flex items-center gap-3">
@@ -569,7 +626,90 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+          </div>
+        ) : (
+          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex items-center gap-3 border-b border-putih/10 pb-4">
+              <Scale className="w-5 h-5 text-gold" />
+              <h2 className="font-bold text-lg">Verifikasi Advokat</h2>
+            </div>
+            
+            {loadingAdvocates ? (
+              <div className="flex justify-center py-10"><RefreshCw className="w-6 h-6 animate-spin text-gold" /></div>
+            ) : advocates.length === 0 ? (
+              <p className="text-center text-putih/50 py-10">Belum ada data pendaftaran advokat.</p>
+            ) : (
+              <div className="space-y-4">
+                {advocates.map(adv => (
+                  <div key={adv.id} className="bg-navy border border-putih/10 rounded-xl p-5 flex flex-col md:flex-row gap-6">
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-bold text-lg text-putih">{adv.full_name}</h3>
+                          <p className="text-sm text-putih/60">{adv.email} • {adv.phone}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                          adv.verification_status === "pending" ? "bg-orange-500/20 text-orange-400" :
+                          adv.verification_status === "approved" ? "bg-green-500/20 text-green-400" :
+                          "bg-red-500/20 text-red-400"
+                        }`}>
+                          {adv.verification_status.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-putih/50 text-xs mb-1">NIA & Organisasi</p>
+                          <p>{adv.license_number} ({adv.organization})</p>
+                        </div>
+                        <div>
+                          <p className="text-putih/50 text-xs mb-1">Pengalaman</p>
+                          <p>{adv.experience_years} Tahun</p>
+                        </div>
+                        <div className="col-span-2 bg-putih/5 p-3 rounded-lg border border-putih/10">
+                          <p className="text-putih/50 text-xs mb-1 font-semibold text-gold">Informasi Rekening Bank (Private)</p>
+                          <p className="font-medium">{adv.bank_name} - {adv.bank_account}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-putih/50 text-xs mb-2">Dokumen Terlampir</p>
+                          <div className="flex flex-wrap gap-2">
+                            {adv.documents?.map((doc: any) => (
+                              <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs hover:bg-blue-500/20">
+                                <FileText className="w-3.5 h-3.5" />
+                                {doc.document_type}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {adv.verification_status === "pending" && (
+                      <div className="flex flex-row md:flex-col gap-2 justify-center border-t md:border-t-0 md:border-l border-putih/10 pt-4 md:pt-0 md:pl-6 min-w-[140px]">
+                        <button
+                          onClick={() => handleVerifyAdvocate(adv.id, "approved")}
+                          className="flex-1 bg-green-500/20 text-green-400 hover:bg-green-500/30 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Check className="w-4 h-4" />
+                          Setujui
+                        </button>
+                        <button
+                          onClick={() => handleVerifyAdvocate(adv.id, "rejected")}
+                          className="flex-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                        >
+                          <X className="w-4 h-4" />
+                          Tolak
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
+
 
       {/* Click outside to close dropdown */}
       {openDropdownId && (

@@ -22,7 +22,7 @@ export default function HeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-navy-light border border-gold/30 text-gold mb-8">
             <span className="flex h-2 w-2 rounded-full bg-merah animate-pulse"></span>
-            <span className="text-sm font-medium">Berdasarkan KUHP Nasional Terbaru</span>
+            <span className="text-sm font-medium">Mencakup Seluruh Bidang Hukum Indonesia</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-tight">
@@ -59,7 +59,7 @@ export default function HeroSection() {
           {[
             { icon: <Scale className="w-6 h-6" />, title: "Analisis Instan", desc: "Hasil analisis dalam < 10 detik" },
             { icon: <Shield className="w-6 h-6" />, title: "Privasi Terjamin", desc: "Data & riwayat kasus aman" },
-            { icon: <BookOpen className="w-6 h-6" />, title: "KUHP Terbaru", desc: "Database hukum selalu update" },
+            { icon: <BookOpen className="w-6 h-6" />, title: "Database Hukum Lengkap", desc: "Perdata, Pidana, Bisnis & Lainnya" },
           ].map((feature, idx) => (
             <div key={idx} className="flex flex-col items-center p-6 rounded-2xl bg-navy-light/50 border border-putih/5 backdrop-blur-sm">
               <div className="p-3 bg-gold/10 text-gold rounded-xl mb-4">
