@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, Instagram } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import LogoImage from "@/components/images/LogoUpdated.png";
@@ -9,7 +9,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-putih/10 bg-navy-dark pt-16 pb-8">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           <div className="md:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-2">
               <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
@@ -43,6 +43,23 @@ export default function Footer() {
               <li><Link href="/terms-of-service" className="hover:text-gold transition-colors">Terms of Service</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
               <li><Link href="#" className="hover:text-gold transition-colors">Disclaimer</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg mb-6">Dukungan</h4>
+            <ul className="space-y-4 text-putih/60">
+              <li>
+                <a href="https://www.instagram.com/konsultanai/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold transition-colors group">
+                  <div className="p-2 bg-putih/5 rounded-lg group-hover:bg-gold/10 transition-colors">
+                    <Instagram className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-putih">Laporkan Bug?</p>
+                    <p className="text-xs">Hubungi Kami</p>
+                  </div>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
