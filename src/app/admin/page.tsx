@@ -55,6 +55,9 @@ export default function AdminDashboard() {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingChats, setLoadingChats] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [tierFilter, setTierFilter] = useState<string>("all");
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"users" | "advocates" | "bookings">("users");
   const [transactionTab, setTransactionTab] = useState<"consultations" | "listings">("consultations");
   const [advocates, setAdvocates] = useState<any[]>([]);
