@@ -129,21 +129,42 @@ export default function AdminDashboard() {
   const fetchBookings = useCallback(async () => {
     setLoadingBookings(true);
     try {
-      const { data, error } = await supabase
+      // Fetch bookings with advocate details
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from("bookings")
         .select(`
-          id, consultation_rate, status, created_at, payment_status,
-          client:users(full_name, email),
+          id, consultation_rate, status, created_at, payment_status, user_id,
           advocate:advocates(full_name)
         `)
         .order("created_at", { ascending: false });
         
-      if (error) {
-        console.error("Supabase Bookings Error:", error);
+      if (bookingsError) {
+        console.error("Supabase Bookings Error:", bookingsError);
+        return;
       }
         
-      if (!error && data) {
-        setBookings(data);
+      if (bookingsData && bookingsData.length > 0) {
+        // Fetch user details separately to avoid foreign key issues to auth.users
+        const userIds = [...new Set(bookingsData.map(b => b.user_id))];
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("id, full_name, email")
+          .in("id", userIds);
+          
+        const userMap = new Map();
+        if (usersData) {
+          usersData.forEach(u => userMap.set(u.id, u));
+        }
+        
+        // Merge data
+        const mergedBookings = bookingsData.map(b => ({
+          ...b,
+          client: userMap.get(b.user_id) || { full_name: "Unknown", email: "" }
+        }));
+        
+        setBookings(mergedBookings);
+      } else {
+        setBookings([]);
       }
     } catch (e) {
       console.error("Failed to fetch bookings:", e);
