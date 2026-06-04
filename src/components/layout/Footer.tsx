@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Instagram } from "lucide-react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import LogoImage from "@/components/images/LogoUpdated.png";
@@ -52,7 +52,22 @@ export default function Footer() {
               <li>
                 <a href="https://www.instagram.com/konsultanai/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold transition-colors group">
                   <div className="p-2 bg-putih/5 rounded-lg group-hover:bg-gold/10 transition-colors">
-                    <Instagram className="w-4 h-4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-4 h-4"
+                    >
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                    </svg>
                   </div>
                   <div>
                     <p className="font-medium text-sm text-putih">Laporkan Bug?</p>
