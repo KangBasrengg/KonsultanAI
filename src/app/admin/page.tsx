@@ -55,12 +55,18 @@ export default function AdminDashboard() {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingChats, setLoadingChats] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [tierFilter, setTierFilter] = useState<string>("all");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "advocates">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "advocates" | "bookings">("users");
+  const [transactionTab, setTransactionTab] = useState<"consultations" | "listings">("consultations");
   const [advocates, setAdvocates] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [listings, setListings] = useState<any[]>([]);
   const [loadingAdvocates, setLoadingAdvocates] = useState(true);
+  const [loadingBookings, setLoadingBookings] = useState(true);
+  const [loadingListings, setLoadingListings] = useState(true);
+  
+  // Edit user state
+  const [editUserModal, setEditUserModal] = useState<{isOpen: boolean, user: UserData | null}>({isOpen: false, user: null});
+  const [editFormData, setEditFormData] = useState({full_name: "", role: ""});
 
   // Redirect non-admins
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function AdminDashboard() {
     }
   }, [supabase]);
 
-  const fetchAdvocates = async () => {
+  const fetchAdvocates = useCallback(async () => {
     setLoadingAdvocates(true);
     try {
       const res = await fetch("/api/admin/advocates");
@@ -115,15 +121,60 @@ export default function AdminDashboard() {
     } finally {
       setLoadingAdvocates(false);
     }
-  };
+  }, []);
+
+  const fetchBookings = useCallback(async () => {
+    setLoadingBookings(true);
+    try {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
+          id, amount, status, created_at, payment_method,
+          client:users(full_name, email),
+          advocate:advocates(full_name)
+        `)
+        .order("created_at", { ascending: false });
+        
+      if (!error && data) {
+        setBookings(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch bookings:", e);
+    } finally {
+      setLoadingBookings(false);
+    }
+  }, [supabase]);
+
+  const fetchListings = useCallback(async () => {
+    setLoadingListings(true);
+    try {
+      const { data, error } = await supabase
+        .from("listings")
+        .select(`
+          id, payment_amount, listing_status, listing_start_date, listing_expired_date, payment_order_id,
+          advocate:advocates(full_name)
+        `)
+        .order("listing_start_date", { ascending: false });
+        
+      if (!error && data) {
+        setListings(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch listings:", e);
+    } finally {
+      setLoadingListings(false);
+    }
+  }, [supabase]);
 
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
       fetchChats();
       fetchAdvocates();
+      fetchBookings();
+      fetchListings();
     }
-  }, [isAdmin, fetchUsers, fetchChats]);
+  }, [isAdmin, fetchUsers, fetchChats, fetchAdvocates, fetchBookings, fetchListings]);
 
   const handleVerifyAdvocate = async (advocateId: string, action: "approved" | "rejected") => {
     try {
@@ -160,6 +211,32 @@ export default function AdminDashboard() {
       }
     } catch (e) {
       console.error("Failed to update tier:", e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editUserModal.user) return;
+    setUpdatingId(editUserModal.user.id);
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({
+          full_name: editFormData.full_name,
+          role: editFormData.role
+        })
+        .eq("id", editUserModal.user.id);
+
+      if (error) throw error;
+      
+      setUsers(prev => prev.map(u => 
+        u.id === editUserModal.user?.id ? { ...u, full_name: editFormData.full_name, role: editFormData.role } : u
+      ));
+      setEditUserModal({isOpen: false, user: null});
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("Gagal memperbarui pengguna");
     } finally {
       setUpdatingId(null);
     }
@@ -315,6 +392,12 @@ export default function AdminDashboard() {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className={`font-bold pb-2 border-b-2 transition-colors ${activeTab === "bookings" ? "border-gold text-gold" : "border-transparent text-putih/50 hover:text-putih"}`}
+          >
+            Transaksi Advokat
+          </button>
         </div>
 
         {activeTab === "users" ? (
@@ -466,7 +549,7 @@ export default function AdminDashboard() {
                                 ) : (
                                   <TrendingUp className="w-3 h-3" />
                                 )}
-                                Ubah Tier
+                                Opsi
                                 <ChevronDown className={`w-3 h-3 transition-transform ${openDropdownId === u.id ? "rotate-180" : ""}`} />
                               </button>
 
@@ -484,12 +567,15 @@ export default function AdminDashboard() {
                                         : "top-full mt-1 origin-top-right"
                                     } w-44 bg-navy-dark border border-putih/15 rounded-xl shadow-2xl z-50 overflow-hidden`}
                                   >
+                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-b border-putih/10 uppercase tracking-wider">
+                                      Tingkat AI
+                                    </div>
                                     {Object.entries(TIER_CONFIG).map(([key, config]) => (
                                       <button
                                         key={key}
                                         type="button"
                                         onClick={() => handleTierChange(u.id, key)}
-                                        className={`w-full flex items-center justify-between px-3 py-2.5 text-sm hover:bg-putih/5 transition-colors ${
+                                        className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-putih/5 transition-colors ${
                                           u.tier === key ? config.color + " font-semibold" : "text-putih/70"
                                         }`}
                                       >
@@ -500,6 +586,20 @@ export default function AdminDashboard() {
                                         {u.tier === key && <Check className="w-3.5 h-3.5" />}
                                       </button>
                                     ))}
+                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-y border-putih/10 uppercase tracking-wider mt-1">
+                                      Manajemen
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setOpenDropdownId(null);
+                                        setEditFormData({full_name: u.full_name || "", role: u.role});
+                                        setEditUserModal({isOpen: true, user: u});
+                                      }}
+                                      className="w-full text-left px-3 py-2.5 text-sm text-putih hover:bg-putih/5 transition-colors flex items-center gap-2"
+                                    >
+                                      Edit Profil
+                                    </button>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
@@ -627,7 +727,7 @@ export default function AdminDashboard() {
           )}
         </div>
           </div>
-        ) : (
+        ) : activeTab === "advocates" ? (
           <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden p-6 space-y-6">
             <div className="flex items-center gap-3 border-b border-putih/10 pb-4">
               <Scale className="w-5 h-5 text-gold" />
@@ -707,8 +807,189 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        ) : (
+          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-putih/10 pb-4">
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-gold" />
+                <h2 className="font-bold text-lg">Riwayat Keuangan</h2>
+              </div>
+              <div className="flex items-center gap-2 bg-navy border border-putih/10 rounded-lg p-1">
+                <button
+                  onClick={() => setTransactionTab("consultations")}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors ${transactionTab === "consultations" ? "bg-putih/10 text-putih" : "text-putih/50 hover:text-putih"}`}
+                >
+                  Konsultasi (Klien ➡️ Advokat)
+                </button>
+                <button
+                  onClick={() => setTransactionTab("listings")}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors ${transactionTab === "listings" ? "bg-putih/10 text-putih" : "text-putih/50 hover:text-putih"}`}
+                >
+                  Listing (Advokat ➡️ Platform)
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={transactionTab === "consultations" ? fetchBookings : fetchListings}
+                className="hidden sm:block p-2 bg-navy border border-putih/15 rounded-lg hover:bg-putih/5 transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 text-putih/50 ${(transactionTab === "consultations" ? loadingBookings : loadingListings) ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+            
+            {transactionTab === "consultations" ? (
+              // Consultations Table
+              loadingBookings ? (
+                <div className="flex justify-center py-10"><RefreshCw className="w-6 h-6 animate-spin text-gold" /></div>
+              ) : bookings.length === 0 ? (
+                <p className="text-center text-putih/50 py-10">Belum ada transaksi konsultasi advokat.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-navy-dark/50 text-putih/50 text-xs uppercase tracking-wider">
+                        <th className="text-left py-3 px-4 font-semibold">ID</th>
+                        <th className="text-left py-3 px-4 font-semibold">Klien</th>
+                        <th className="text-left py-3 px-4 font-semibold">Advokat</th>
+                        <th className="text-center py-3 px-4 font-semibold">Nominal</th>
+                        <th className="text-center py-3 px-4 font-semibold">Status</th>
+                        <th className="text-center py-3 px-4 font-semibold">Tanggal</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-putih/5">
+                      {bookings.map((booking) => (
+                        <tr key={booking.id} className="hover:bg-putih/[0.02] transition-colors">
+                          <td className="py-3 px-4 text-xs font-mono text-putih/50">{booking.id.split('-')[0]}</td>
+                          <td className="py-3 px-4 font-medium">{booking.client?.full_name || booking.client?.email}</td>
+                          <td className="py-3 px-4 text-gold">{booking.advocate?.full_name}</td>
+                          <td className="py-3 px-4 text-center font-bold">
+                            Rp {booking.amount.toLocaleString("id-ID")}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                              booking.status === "completed" 
+                                ? "bg-green-500/15 text-green-400" 
+                                : booking.status === "pending"
+                                  ? "bg-orange-500/15 text-orange-400"
+                                  : "bg-red-500/15 text-red-400"
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-putih/50 text-xs">
+                            {new Date(booking.created_at).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            ) : (
+              // Listings Table
+              loadingListings ? (
+                <div className="flex justify-center py-10"><RefreshCw className="w-6 h-6 animate-spin text-gold" /></div>
+              ) : listings.length === 0 ? (
+                <p className="text-center text-putih/50 py-10">Belum ada transaksi pembayaran listing.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-navy-dark/50 text-putih/50 text-xs uppercase tracking-wider">
+                        <th className="text-left py-3 px-4 font-semibold">Order ID</th>
+                        <th className="text-left py-3 px-4 font-semibold">Advokat</th>
+                        <th className="text-center py-3 px-4 font-semibold">Nominal</th>
+                        <th className="text-center py-3 px-4 font-semibold">Status Listing</th>
+                        <th className="text-center py-3 px-4 font-semibold">Tgl Mulai</th>
+                        <th className="text-center py-3 px-4 font-semibold">Tgl Berakhir</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-putih/5">
+                      {listings.map((listing) => (
+                        <tr key={listing.id} className="hover:bg-putih/[0.02] transition-colors">
+                          <td className="py-3 px-4 text-xs font-mono text-putih/50">{listing.payment_order_id || listing.id.split('-')[0]}</td>
+                          <td className="py-3 px-4 font-medium text-gold">{listing.advocate?.full_name}</td>
+                          <td className="py-3 px-4 text-center font-bold text-green-400">
+                            +Rp {listing.payment_amount?.toLocaleString("id-ID") || "50.000"}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                              listing.listing_status === "active" 
+                                ? "bg-green-500/15 text-green-400" 
+                                : listing.listing_status === "expired"
+                                  ? "bg-red-500/15 text-red-400"
+                                  : "bg-putih/10 text-putih/50"
+                            }`}>
+                              {listing.listing_status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-putih/50 text-xs">
+                            {new Date(listing.listing_start_date).toLocaleDateString("id-ID")}
+                          </td>
+                          <td className="py-3 px-4 text-center text-putih/50 text-xs">
+                            {new Date(listing.listing_expired_date).toLocaleDateString("id-ID")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            )}
+          </div>
         )}
       </main>
+
+      {/* Edit User Modal */}
+      {editUserModal.isOpen && editUserModal.user && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setEditUserModal({isOpen: false, user: null})}>
+          <div className="bg-navy-light border border-putih/10 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-xl mb-4 text-putih">Edit Pengguna</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-putih/70 mb-1">Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={editFormData.full_name}
+                  onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                  className="w-full bg-navy border border-putih/15 rounded-lg px-4 py-2 text-putih focus:outline-none focus:border-gold/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-putih/70 mb-1">Role</label>
+                <select
+                  value={editFormData.role}
+                  onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
+                  className="w-full bg-navy border border-putih/15 rounded-lg px-4 py-2 text-putih focus:outline-none focus:border-gold/40"
+                >
+                  <option value="user">User</option>
+                  <option value="advocate">Advocate</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-lg text-xs text-orange-400">
+                <span className="font-bold block mb-1">Peringatan:</span>
+                Mengubah Role dapat memberikan akses khusus ke pengguna ini.
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setEditUserModal({isOpen: false, user: null})}
+                className="flex-1 bg-putih/10 hover:bg-putih/20 text-putih py-2 rounded-xl font-bold transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleUpdateUser}
+                disabled={updatingId !== null}
+                className="flex-1 bg-gold hover:bg-gold-light text-navy py-2 rounded-xl font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {updatingId !== null ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Simpan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Click outside to close dropdown */}
