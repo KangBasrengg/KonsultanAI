@@ -6,7 +6,7 @@ import {
   ArrowLeft, Scale, Shield, Star, Briefcase, MapPin,
   DollarSign, Eye, Calendar, Settings, AlertCircle,
   Check, Crown, TrendingUp, Clock, RefreshCw, Wallet,
-  Building, ChevronRight, MessageSquare
+  Building, ChevronRight, MessageSquare, Award
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
