@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, MapPin, Star, Briefcase, Clock, ChevronDown, Scale, 
-  Filter, Award, ArrowRight, X, Lock
+  Search, MapPin, Briefcase, Clock, ChevronDown, Scale, 
+  Filter, Award, ArrowRight, X, Lock, Shield
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,7 +23,7 @@ export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedField, setSelectedField] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("rating");
+  const [sortBy, setSortBy] = useState<string>("experience");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAdvocate, setSelectedAdvocate] = useState<AdvocateWithDetails | null>(null);
 
@@ -38,7 +38,7 @@ export default function MarketplacePage() {
       // Fetch approved advocates with active listings
       const { data: advocateData } = await supabase
         .from("advocates")
-        .select("id, user_id, full_name, city, license_number, organization, experience_years, cases_handled, bio, photo_url, consultation_rate, verification_status, rating_avg, rating_count, created_at, updated_at")
+        .select("id, user_id, full_name, city, license_number, organization, experience_years, cases_handled, bio, photo_url, consultation_rate, verification_status, created_at, updated_at")
         .eq("verification_status", "approved");
 
       if (!advocateData) { setLoading(false); return; }
@@ -87,7 +87,6 @@ export default function MarketplacePage() {
       return matchesSearch && matchesField && matchesCity;
     })
     .sort((a, b) => {
-      if (sortBy === "rating") return b.rating_avg - a.rating_avg;
       if (sortBy === "experience") return b.experience_years - a.experience_years;
       if (sortBy === "price_low") return a.consultation_rate - b.consultation_rate;
       if (sortBy === "price_high") return b.consultation_rate - a.consultation_rate;
@@ -199,7 +198,6 @@ export default function MarketplacePage() {
                         onChange={(e) => setSortBy(e.target.value)}
                         className="w-full bg-navy border border-putih/15 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
-                        <option value="rating">Rating Tertinggi</option>
                         <option value="experience">Pengalaman Terbanyak</option>
                         <option value="price_low">Harga Terendah</option>
                         <option value="price_high">Harga Tertinggi</option>
@@ -279,10 +277,10 @@ export default function MarketplacePage() {
                           <span className="text-xs text-putih/40">{advocate.city}</span>
                         </div>
                       </div>
-                      {/* Rating */}
-                      <div className="flex items-center gap-1 bg-gold/10 px-2 py-1 rounded-lg shrink-0">
-                        <Star className="w-3.5 h-3.5 text-gold fill-gold" />
-                        <span className="text-xs font-bold text-gold">{advocate.rating_avg.toFixed(1)}</span>
+                      {/* Verified Badge */}
+                      <div className="flex items-center gap-1 bg-green-500/10 px-2 py-1 rounded-lg shrink-0">
+                        <Shield className="w-3.5 h-3.5 text-green-400" />
+                        <span className="text-xs font-bold text-green-400">Verified</span>
                       </div>
                     </div>
                   </div>
@@ -314,7 +312,7 @@ export default function MarketplacePage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Award className="w-3 h-3" />
-                      {advocate.rating_count} ulasan
+                      {advocate.cases_handled || 0} kasus
                     </span>
                   </div>
 
@@ -394,8 +392,8 @@ export default function MarketplacePage() {
                         <span className="flex items-center gap-1 text-xs text-putih/40">
                           <MapPin className="w-3 h-3" /> {selectedAdvocate.city}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-gold">
-                          <Star className="w-3 h-3 fill-gold" /> {selectedAdvocate.rating_avg.toFixed(1)} ({selectedAdvocate.rating_count})
+                        <span className="flex items-center gap-1 text-xs text-green-400">
+                          <Shield className="w-3 h-3" /> Terverifikasi
                         </span>
                       </div>
                     </div>
@@ -430,8 +428,8 @@ export default function MarketplacePage() {
                   </div>
                   <div className="bg-navy/50 rounded-xl p-3 text-center">
                     <Star className="w-4 h-4 text-gold mx-auto mb-1" />
-                    <p className="text-lg font-bold text-putih">{selectedAdvocate.rating_avg.toFixed(1)}</p>
-                    <p className="text-[10px] text-putih/40">Rating</p>
+                    <p className="text-lg font-bold text-putih">{selectedAdvocate.cases_handled || "—"}</p>
+                    <p className="text-[10px] text-putih/40">Kasus</p>
                   </div>
                 </div>
 

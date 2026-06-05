@@ -82,9 +82,25 @@ export default function Navbar() {
                   <span className="text-sm font-semibold text-putih leading-tight max-w-[100px] truncate">
                     {profile?.fullName || user.email?.split("@")[0]}
                   </span>
-                  <span className="text-xs text-gold capitalize leading-tight">
-                    {profile?.role || "User"}
-                  </span>
+                  <div className="flex items-center mt-0.5">
+                    {profile?.role === "admin" ? (
+                      <span className="text-[9px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
+                        Admin
+                      </span>
+                    ) : profile?.role === "advokat" ? (
+                      <span className="text-[9px] font-bold uppercase tracking-wider bg-gold/20 text-gold px-1.5 py-0.5 rounded border border-gold/30">
+                        Advokat
+                      </span>
+                    ) : (
+                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                        profile?.tier === "professional" ? "bg-gold/20 text-gold border-gold/30" : 
+                        profile?.tier === "basic" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" : 
+                        "bg-putih/10 text-putih/60 border-putih/20"
+                      }`}>
+                        {profile?.tier || "Free"}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-putih/50 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
               </button>

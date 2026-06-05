@@ -338,12 +338,6 @@ export default function ConsultationChatRoom() {
                   <span>{room.advocate.experience_years} Tahun Pengalaman</span>
                 </div>
               )}
-              {room.advocate.rating_avg !== undefined && (
-                <div className="flex items-center gap-3">
-                  <Star className="w-4 h-4 text-gold shrink-0" />
-                  <span>{room.advocate.rating_avg.toFixed(1)}/5.0 Rating</span>
-                </div>
-              )}
             </div>
             <button 
               onClick={() => setShowAdvocateProfile(false)}

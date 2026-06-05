@@ -28,13 +28,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Anda tidak dapat memesan layanan Anda sendiri." }, { status: 400 });
     }
 
-    // Get commission percent
+    // NEW MODEL: Flat service fee charged to CLIENT, advocate receives 100%
     const { data: setting } = await supabase.from("platform_settings").select("value").eq("key", "commission_percent").single();
-    const commissionPercent = setting ? parseInt(setting.value) : 10;
+    const serviceFeePercent = setting ? parseInt(setting.value) : 10;
 
     const rate = advocate.consultation_rate;
-    const platformFee = Math.round(rate * (commissionPercent / 100));
-    const advocateEarning = rate - platformFee;
+    const serviceFee = Math.round(rate * (serviceFeePercent / 100)); // Biaya jasa layanan digital
+    const totalPayment = rate + serviceFee; // Klien bayar tarif + biaya layanan
+    const advocateEarning = rate; // Advokat terima 100% tarifnya
 
     // Create booking
     const { data: booking, error: bookErr } = await supabase
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
         user_id: user.id,
         advocate_id: advocateId,
         consultation_rate: rate,
-        platform_fee: platformFee,
+        platform_fee: serviceFee,
         advocate_earning: advocateEarning,
         status: "pending",
         payment_status: "unpaid",
@@ -53,23 +54,31 @@ export async function POST(request: Request) {
 
     if (bookErr) throw bookErr;
 
-    // Create Midtrans transaction
+    // Create Midtrans transaction with itemized breakdown
     const orderId = `BK-${Date.now()}-${booking.id.substring(0, 8)}`;
     const parameter = {
       transaction_details: {
         order_id: orderId,
-        gross_amount: rate,
+        gross_amount: totalPayment,
       },
       customer_details: {
         first_name: user.user_metadata?.full_name || "User",
         email: user.email || "user@example.com",
       },
-      item_details: [{
-        id: `CONSULT-${advocateId.substring(0, 8)}`,
-        price: rate,
-        quantity: 1,
-        name: `Konsultasi: ${advocate.full_name}`,
-      }],
+      item_details: [
+        {
+          id: `CONSULT-${advocateId.substring(0, 8)}`,
+          price: rate,
+          quantity: 1,
+          name: `Konsultasi: ${advocate.full_name}`,
+        },
+        {
+          id: "SERVICE-FEE",
+          price: serviceFee,
+          quantity: 1,
+          name: "Biaya Jasa Layanan Digital",
+        },
+      ],
     };
 
     const transaction = await snap.createTransaction(parameter);
@@ -87,3 +96,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message || "Failed to create booking" }, { status: 500 });
   }
 }
+

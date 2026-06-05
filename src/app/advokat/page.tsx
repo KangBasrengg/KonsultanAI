@@ -208,11 +208,11 @@ export default function AdvocateDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-gold/10 text-gold"><Star className="w-5 h-5" /></div>
-              <span className="text-sm text-putih/60">Rating</span>
+              <div className="p-2 rounded-xl bg-gold/10 text-gold"><Award className="w-5 h-5" /></div>
+              <span className="text-sm text-putih/60">Kasus Ditangani</span>
             </div>
-            <p className="text-3xl font-bold">{advocate.rating_avg.toFixed(1)}</p>
-            <p className="text-xs text-putih/40">{advocate.rating_count} ulasan</p>
+            <p className="text-3xl font-bold">{advocate.cases_handled || 0}</p>
+            <p className="text-xs text-putih/40">Total Kasus</p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">

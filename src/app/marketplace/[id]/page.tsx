@@ -210,8 +210,8 @@ export default function AdvocateDetailPage() {
                       {advocate.city}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-gold" />
-                      {advocate.rating_avg.toFixed(1)} ({advocate.rating_count} Ulasan)
+                      <Award className="w-4 h-4 text-gold" />
+                      {advocate.cases_handled || 0} Kasus Ditangani
                     </div>
                   </div>
                 </div>
