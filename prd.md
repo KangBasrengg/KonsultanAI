@@ -448,3 +448,25 @@ Skenario jika AI menghadapi kasus yang tidak memiliki rujukan pasal pasti atau b
 1. **Prioritas Utama**: AI tetap diusahakan menjawab dengan menjabarkan prinsip dasar hukum atau delik umum yang paling mendekati kronologi masalah.
 2. **Disclaimer Ketidaktahuan**: Jika AI tidak dapat memberikan nomor pasal spesifik secara pasti, AI harus menyatakan hal tersebut secara jujur.
 3. **Rujukan Pemerintah**: AI harus merekomendasikan user untuk membaca rujukan langsung dari website resmi hukum pemerintah seperti **JDIH BPK RI** (jdih.bpk.go.id), **JDIH Kemenkumham**, atau **Direktori Putusan Mahkamah Agung**.
+
+---
+
+# 28. Roadmap Enterprise / Business Plan (Tahap Selanjutnya)
+
+Sebagai kelanjutan pengembangan untuk sektor B2B (Firma Hukum, Startup, Perusahaan), KonsultanAI akan mengembangkan fitur khusus di bawah payung paket langganan **Business Plan**:
+
+## 1. Sistem Akses Tim (Multi-User)
+- Pembuatan hierarki entitas bisnis (`companies` table).
+- 1 akun admin perusahaan (Company Admin) dapat menambahkan hingga 5 akun anggota tim (Member) dengan peran masing-masing.
+- Shared billing: Anggota tim tidak perlu membayar langganan individu; langganan dibebankan pada level perusahaan.
+
+## 2. Manajemen Dokumen Terpusat (Centralized Document Management)
+- **Shared Storage**: Semua dokumen kontrak bisnis, laporan kronologi AI, atau dokumen legal lainnya yang dibuat/diunggah oleh anggota tim akan masuk ke dalam 1 cloud storage aman yang terenkripsi per-perusahaan.
+- **Kolaborasi Draft**: Anggota tim dapat melihat histori konsultasi satu sama lain dalam lingkup perusahaan yang sama untuk menjaga sinkronisasi pemahaman kasus legal.
+- **Akses Cepat Draft Kontrak Bisnis**: Kumpulan template dan draft kontrak B2B yang dapat diakses, diedit, dan di-*download* secara eksklusif.
+
+## 3. UI/UX Khusus Business Dashboard
+- Dashboard baru (terpisah dari user reguler) yang fokus pada monitoring statistik penggunaan kuota AI bulanan perusahaan.
+- Halaman manajemen *Roles* (Admin, Editor, Viewer).
+
+*Fitur ini akan dibangun apabila validasi pasar awal melalui form penawaran email/WhatsApp menunjukkan minat yang tinggi dari klien korporat.*
