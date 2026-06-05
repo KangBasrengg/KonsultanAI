@@ -26,6 +26,8 @@ export default function SettingsPage() {
   // Advocate State
   const [advocate, setAdvocate] = useState<any>(null);
   const [bio, setBio] = useState("");
+  const [experienceYears, setExperienceYears] = useState<number | "">("");
+  const [casesHandled, setCasesHandled] = useState<number | "">("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -50,6 +52,8 @@ export default function SettingsPage() {
     if (data) {
       setAdvocate(data);
       setBio(data.bio || "");
+      setExperienceYears(data.experience_years || "");
+      setCasesHandled(data.cases_handled || "");
       setPhotoUrl(data.photo_url || "");
     }
   };
@@ -78,9 +82,13 @@ export default function SettingsPage() {
       const { error: userErr } = await supabase.from("users").update({ full_name: fullName }).eq("id", user.id);
       if (userErr) throw userErr;
 
-      // 3. Update Advocate table (Bio) if applicable
+      // 3. Update Advocate table (Bio, Experience, Cases) if applicable
       if (advocate) {
-        const { error: advErr } = await supabase.from("advocates").update({ bio }).eq("id", advocate.id);
+        const { error: advErr } = await supabase.from("advocates").update({ 
+          bio,
+          experience_years: experienceYears === "" ? null : Number(experienceYears),
+          cases_handled: casesHandled === "" ? null : Number(casesHandled)
+        }).eq("id", advocate.id);
         if (advErr) throw advErr;
       }
 
@@ -227,14 +235,36 @@ export default function SettingsPage() {
               </div>
 
               {advocate && (
-                <div>
-                  <label className="text-sm text-putih/60 mb-1.5 block">Biografi Singkat</label>
-                  <textarea 
-                    value={bio} 
-                    onChange={e => setBio(e.target.value)} 
-                    rows={4} 
-                    className="w-full bg-navy-light border border-putih/15 rounded-xl px-4 py-3 text-putih focus:outline-none focus:border-gold/40 resize-none" 
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-putih/60 mb-1.5 block">Tahun Pengalaman</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      value={experienceYears} 
+                      onChange={e => setExperienceYears(e.target.value === "" ? "" : Number(e.target.value))} 
+                      className="w-full bg-navy-light border border-putih/15 rounded-xl px-4 py-3 text-putih focus:outline-none focus:border-gold/40" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-putih/60 mb-1.5 block">Jumlah Kasus yang Ditangani</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      value={casesHandled} 
+                      onChange={e => setCasesHandled(e.target.value === "" ? "" : Number(e.target.value))} 
+                      className="w-full bg-navy-light border border-putih/15 rounded-xl px-4 py-3 text-putih focus:outline-none focus:border-gold/40" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-putih/60 mb-1.5 block">Biografi Singkat</label>
+                    <textarea 
+                      value={bio} 
+                      onChange={e => setBio(e.target.value)} 
+                      rows={4} 
+                      className="w-full bg-navy-light border border-putih/15 rounded-xl px-4 py-3 text-putih focus:outline-none focus:border-gold/40 resize-none" 
+                    />
+                  </div>
                 </div>
               )}
 

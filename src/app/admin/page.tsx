@@ -270,6 +270,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateBookingStatus = async (bookingId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase.from("bookings").update({ status: newStatus }).eq("id", bookingId);
+      if (error) throw error;
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: newStatus } : b));
+    } catch (e) {
+      console.error("Failed to update booking status:", e);
+    }
+  };
+
   // Filter users
   const filteredUsers = users.filter(u => {
     const matchesSearch =
@@ -894,15 +904,24 @@ export default function AdminDashboard() {
                             Rp {(booking.consultation_rate || 0).toLocaleString("id-ID")}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                              booking.status === "completed" 
-                                ? "bg-green-500/15 text-green-400" 
-                                : booking.status === "pending"
-                                  ? "bg-orange-500/15 text-orange-400"
-                                  : "bg-red-500/15 text-red-400"
-                            }`}>
-                              {booking.status}
-                            </span>
+                            <select
+                              value={booking.status}
+                              onChange={(e) => handleUpdateBookingStatus(booking.id, e.target.value)}
+                              className={`text-xs font-semibold px-2 py-1 rounded-md outline-none cursor-pointer appearance-none text-center ${
+                                booking.status === "completed" 
+                                  ? "bg-green-500/15 text-green-400 border border-green-500/30" 
+                                  : booking.status === "pending"
+                                    ? "bg-orange-500/15 text-orange-400 border border-orange-500/30"
+                                    : booking.status === "confirmed"
+                                      ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                                      : "bg-red-500/15 text-red-400 border border-red-500/30"
+                              }`}
+                            >
+                              <option value="pending" className="bg-navy text-putih">pending</option>
+                              <option value="confirmed" className="bg-navy text-putih">confirmed</option>
+                              <option value="completed" className="bg-navy text-putih">completed</option>
+                              <option value="cancelled" className="bg-navy text-putih">cancelled</option>
+                            </select>
                           </td>
                           <td className="py-3 px-4 text-center text-putih/50 text-xs">
                             {new Date(booking.created_at).toLocaleString("id-ID")}
