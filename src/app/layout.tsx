@@ -10,7 +10,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "AI Legal Assistant Indonesia - Konsultan Hukum Cerdas",
-  description: "Platform konsultasi hukum berbasis AI yang membantu masyarakat Indonesia memahami permasalahan hukum berdasarkan KUHP terbaru.",
+  description: "Platform konsultasi hukum berbasis AI yang membantu masyarakat Indonesia memahami permasalahan hukum di berbagai bidang, mulai dari pidana, perdata, ketenagakerjaan, hingga hukum bisnis.",
 };
 
 export default function RootLayout({

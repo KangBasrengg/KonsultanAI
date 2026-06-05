@@ -35,7 +35,7 @@ export default function KonsultasiPage() {
         parts: [
           {
             type: "text",
-            text: "Halo! Saya KonsultanAI, asisten hukum Anda. Silakan ceritakan kronologi kejadian yang Anda alami, dan saya akan membantu menganalisis unsur pidananya berdasarkan KUHP terbaru."
+            text: "Halo! Saya KonsultanAI, asisten hukum Anda. Silakan ceritakan kronologi kejadian yang Anda alami, dan saya akan membantu menganalisis aspek hukumnya serta merekomendasikan pasal-pasal yang relevan."
           }
         ]
       }

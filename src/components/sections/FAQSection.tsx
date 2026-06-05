@@ -15,8 +15,8 @@ export default function FAQSection() {
       a: "Sangat aman. Kami menggunakan sistem enkripsi dan kami tidak akan pernah membagikan riwayat kasus Anda kepada pihak ketiga. Privasi Anda adalah prioritas kami."
     },
     {
-      q: "KUHP versi mana yang digunakan oleh AI?",
-      a: "Sistem kami telah dilatih secara khusus menggunakan KUHP Nasional terbaru Indonesia serta regulasi dan undang-undang sektoral lain yang relevan dan terkini."
+      q: "Referensi hukum apa yang digunakan oleh AI?",
+      a: "Sistem kami merujuk pada seluruh peraturan perundang-undangan Indonesia yang berlaku, termasuk KUHP Nasional terbaru (UU No. 1/2023), KUH Perdata, UU Ketenagakerjaan, UU ITE, UU Perlindungan Konsumen, dan berbagai regulasi sektoral lainnya yang selalu diperbarui."
     },
     {
       q: "Metode pembayaran apa saja yang didukung?",

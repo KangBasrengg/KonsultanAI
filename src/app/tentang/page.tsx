@@ -21,7 +21,7 @@ export default function TentangPage() {
             Mewujudkan Keadilan Melalui <span className="text-gold">Akses Informasi</span>
           </h1>
           <p className="text-xl text-putih/70 max-w-3xl mx-auto leading-relaxed">
-            <strong className="text-putih font-bold">KonsultanAI</strong> adalah platform edukasi hukum yang menghadirkan kemudahan akses terhadap ketentuan KUHP (UU No.1 Tahun 2023) bagi seluruh masyarakat Indonesia. Berlandaskan asas fiksi hukum bahwa setiap warga negara dianggap mengetahui hukum yang berlaku, platform ini berkomitmen mewujudkan kesetaraan akses informasi hukum sebagaimana diamanatkan Pasal 28F UUD 1945 dan UU Keterbukaan Informasi Publik. Informasi yang disajikan bersifat edukatif dan tidak menggantikan pendampingan hukum profesional.
+            <strong className="text-putih font-bold">KonsultanAI</strong> adalah platform edukasi hukum yang menghadirkan kemudahan akses terhadap seluruh peraturan perundang-undangan Indonesia bagi masyarakat luas. Berlandaskan asas fiksi hukum bahwa setiap warga negara dianggap mengetahui hukum yang berlaku, platform ini berkomitmen mewujudkan kesetaraan akses informasi hukum sebagaimana diamanatkan Pasal 28F UUD 1945 dan UU Keterbukaan Informasi Publik. Informasi yang disajikan bersifat edukatif dan tidak menggantikan pendampingan hukum profesional.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function TentangPage() {
             <BookOpen className="w-10 h-10 text-gold mb-6 relative z-10" />
             <h3 className="text-xl font-bold mb-4 text-putih relative z-10">Fiksi Hukum & Edukasi</h3>
             <p className="text-putih/70 leading-relaxed relative z-10 text-sm">
-              Asas fiksi hukum (*presumptio iures de iure*) menyatakan bahwa setiap warga negara dianggap mengetahui hukum yang diundangkan. Tantangannya, KUHP Baru (UU No. 1 Tahun 2023) sangat kompleks. Kami menjembatani jurang pemahaman ini dengan menyediakan akses dan penjelasan pasal-pasal secara praktis. Asas fiksi hukum tidak lagi menjadi beban sepihak, melainkan hak yang difasilitasi dengan baik.
+              Asas fiksi hukum (*presumptio iures de iure*) menyatakan bahwa setiap warga negara dianggap mengetahui hukum yang diundangkan. Tantangannya, peraturan perundang-undangan Indonesia sangat kompleks dan terus berkembang. Kami menjembatani jurang pemahaman ini dengan menyediakan akses dan penjelasan pasal-pasal secara praktis di berbagai bidang hukum. Asas fiksi hukum tidak lagi menjadi beban sepihak, melainkan hak yang difasilitasi dengan baik.
             </p>
           </div>
 

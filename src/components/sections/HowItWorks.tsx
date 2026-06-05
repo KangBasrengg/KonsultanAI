@@ -13,7 +13,7 @@ export default function HowItWorks() {
     {
       icon: <Cpu className="w-8 h-8" />,
       title: "AI Menganalisis",
-      desc: "Teknologi NLP kami membedah unsur pidana dan mencocokkannya dengan KUHP terbaru."
+      desc: "Teknologi NLP kami mengidentifikasi bidang hukum yang relevan dan mencocokkannya dengan pasal-pasal dari undang-undang terkait."
     },
     {
       icon: <FileText className="w-8 h-8" />,

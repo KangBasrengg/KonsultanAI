@@ -38,7 +38,7 @@ export default function TermsOfServicePage() {
                 <strong>Penting:</strong> KonsultanAI adalah asisten kecerdasan buatan dan <strong>BUKAN pengganti dari penasihat hukum profesional, advokat, atau pengacara bersertifikat.</strong>
               </div>
               <p>
-                Analisis yang diberikan oleh KonsultanAI berdasarkan pada algoritma bahasa dan referensi KUHP. Hasil yang diberikan hanya bertujuan sebagai referensi awal dan panduan edukasi. Kami tidak bertanggung jawab atas kerugian atau konsekuensi hukum apa pun yang timbul akibat pengambilan keputusan berdasarkan hasil analisis platform ini.
+                Analisis yang diberikan oleh KonsultanAI berdasarkan pada algoritma bahasa dan referensi peraturan perundang-undangan Indonesia. Hasil yang diberikan hanya bertujuan sebagai referensi awal dan panduan edukasi. Kami tidak bertanggung jawab atas kerugian atau konsekuensi hukum apa pun yang timbul akibat pengambilan keputusan berdasarkan hasil analisis platform ini.
               </p>
             </section>
 

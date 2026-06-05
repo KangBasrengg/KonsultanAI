@@ -12,7 +12,7 @@ export default function Features() {
     },
     {
       title: "Rekomendasi Pasal",
-      desc: "Menemukan pasal KUHP terbaru dan UU sektoral yang paling relevan secara akurat.",
+      desc: "Menemukan pasal dari berbagai undang-undang Indonesia yang paling relevan dengan kronologi Anda secara akurat.",
       icon: <FileText className="w-6 h-6" />
     },
     {

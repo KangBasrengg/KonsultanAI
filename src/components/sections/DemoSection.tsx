@@ -24,11 +24,11 @@ export default function DemoSection() {
         <div className="flex-1 space-y-8">
           <h2 className="text-3xl md:text-5xl font-bold">Demo <span className="text-gold">Analisis Hukum</span></h2>
           <p className="text-putih/70 text-lg leading-relaxed">
-            Lihat bagaimana AI kami bekerja secara real-time. Cukup tuliskan kejadian, dan AI akan menganalisis unsur pidana serta merekomendasikan pasal yang relevan.
+            Lihat bagaimana AI kami bekerja secara real-time. Cukup tuliskan kronologi kejadian, dan AI akan mengidentifikasi bidang hukum yang relevan serta merekomendasikan pasal yang sesuai.
           </p>
-          
+
           <ul className="space-y-4">
-            {["Identifikasi Subjek & Objek Hukum", "Pemetaan Pasal KUHP", "Rekomendasi Tindakan Lanjutan"].map((item, idx) => (
+            {["Identifikasi Subjek & Objek Hukum", "Pemetaan Pasal Sesuai Bidang Hukum", "Rekomendasi Tindakan Lanjutan"].map((item, idx) => (
               <li key={idx} className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center text-gold">
                   <Scale className="w-3 h-3" />
@@ -74,7 +74,7 @@ export default function DemoSection() {
               )}
 
               {showResult && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-4"
@@ -96,13 +96,13 @@ export default function DemoSection() {
 
             <div className="p-4 bg-navy border-t border-putih/10">
               <div className="relative">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   disabled={showResult}
                   placeholder="Ketik kronologi Anda..."
                   className="w-full bg-navy-light border border-putih/10 rounded-full py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-gold"
                 />
-                <button 
+                <button
                   onClick={simulateDemo}
                   disabled={showResult || isTyping}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gold flex items-center justify-center text-navy hover:scale-105 transition-transform disabled:opacity-50"
