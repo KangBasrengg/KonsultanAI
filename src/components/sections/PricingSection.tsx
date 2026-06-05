@@ -170,7 +170,7 @@ export default function PricingSection() {
                   {plan.cta}
                 </button>
               ) : (
-                <Link href={plan.name === "Business" ? "https://wa.me/6281234567890?text=Halo%20tim%20KonsultanAI,%20saya%20tertarik%20dengan%20paket%20Business%20Tahunan." : "/konsultasi"} className="mt-auto">
+                <Link href={plan.name === "Business" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Business%20KonsultanAI" : "/konsultasi"} className="mt-auto">
                   <button className={`w-full py-3 rounded-xl font-bold transition-all ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
                       : "bg-navy-light text-putih hover:bg-putih/10"
