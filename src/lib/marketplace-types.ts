@@ -36,8 +36,8 @@ export interface Advocate {
   consultation_rate: number;
   verification_status: "pending" | "approved" | "rejected";
   rejection_reason: string | null;
-  rating_avg: number;
-  rating_count: number;
+  rating_avg?: number;
+  rating_count?: number;
   created_at: string;
   updated_at: string;
 }
