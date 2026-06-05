@@ -9,14 +9,16 @@ export default function StatsSection() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Ambil data jumlah awal
+    // Ambil data jumlah awal via RPC untuk bypass RLS (Row Level Security)
     const fetchCount = async () => {
-      const { count, error } = await supabase
-        .from("users")
-        .select("*", { count: "exact", head: true });
+      const { data, error } = await supabase.rpc("get_total_users_count");
         
-      if (!error && count !== null) {
-        setUserCount(count);
+      if (!error && data !== null) {
+        setUserCount(data);
+      } else {
+        // Fallback jika belum deploy RPC
+        const { count } = await supabase.from("users").select("*", { count: "exact", head: true });
+        setUserCount(count || 0);
       }
     };
 
