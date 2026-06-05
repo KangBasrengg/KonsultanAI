@@ -73,7 +73,7 @@ export default function PricingSection() {
         { name: "Semua Fitur Professional", inc: true },
         { name: "Akses Tim (5 Akun)", inc: true },
         { name: "Akses Draft Kontrak Bisnis", inc: true },
-        { name: "Diskon 20% Konsultasi Advokat", inc: true },
+        { name: "Manajemen Dokumen Terpusat", inc: true },
         { name: "Dukungan Prioritas 24/7", inc: true },
         { name: "Kustomisasi Template Laporan", inc: true },
       ],
@@ -170,7 +170,7 @@ export default function PricingSection() {
                   {plan.cta}
                 </button>
               ) : (
-                <Link href={plan.name === "Business" ? "mailto:sales@konsultanai.com" : "/konsultasi"} className="mt-auto">
+                <Link href={plan.name === "Business" ? "https://wa.me/6281234567890?text=Halo%20tim%20KonsultanAI,%20saya%20tertarik%20dengan%20paket%20Business%20Tahunan." : "/konsultasi"} className="mt-auto">
                   <button className={`w-full py-3 rounded-xl font-bold transition-all ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
                       : "bg-navy-light text-putih hover:bg-putih/10"
