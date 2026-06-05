@@ -1,13 +1,47 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function StatsSection() {
+  const [userCount, setUserCount] = useState<number | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Ambil data jumlah awal
+    const fetchCount = async () => {
+      const { count, error } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true });
+        
+      if (!error && count !== null) {
+        setUserCount(count);
+      }
+    };
+
+    fetchCount();
+
+    // Subscribe untuk mendengarkan pendaftaran user baru secara realtime
+    const channel = supabase.channel("public:users")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "users" }, () => {
+        setUserCount((prev) => (prev !== null ? prev + 1 : 1));
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "users" }, () => {
+        setUserCount((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
+
   const stats = [
-    { value: "10.000+", label: "Pengguna Aktif" },
+    { value: userCount !== null ? `${userCount}` : "...", label: "Total Pengguna" },
     { value: "85%", label: "Akurasi Analisis" },
     { value: "< 10s", label: "Waktu Respon" },
-    { value: "100+", label: "Pasal KUHP" },
+    { value: "Semua", label: "Bidang Hukum" },
   ];
 
   return (
