@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { ArrowLeft, Star, Briefcase, Award, MapPin, Scale, RefreshCw, CheckCircle2, Shield, Lock, User } from "lucide-react";
+import { ArrowLeft, Briefcase, Award, MapPin, Scale, RefreshCw, CheckCircle2, Shield, Lock, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 

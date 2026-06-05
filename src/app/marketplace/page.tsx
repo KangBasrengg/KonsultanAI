@@ -415,7 +415,7 @@ export default function MarketplacePage() {
                 )}
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="bg-navy/50 rounded-xl p-3 text-center">
                     <Briefcase className="w-4 h-4 text-gold mx-auto mb-1" />
                     <p className="text-lg font-bold text-putih">{selectedAdvocate.experience_years}</p>
@@ -423,11 +423,6 @@ export default function MarketplacePage() {
                   </div>
                   <div className="bg-navy/50 rounded-xl p-3 text-center">
                     <Award className="w-4 h-4 text-gold mx-auto mb-1" />
-                    <p className="text-lg font-bold text-putih">{selectedAdvocate.cases_handled || "—"}</p>
-                    <p className="text-[10px] text-putih/40">Kasus</p>
-                  </div>
-                  <div className="bg-navy/50 rounded-xl p-3 text-center">
-                    <Star className="w-4 h-4 text-gold mx-auto mb-1" />
                     <p className="text-lg font-bold text-putih">{selectedAdvocate.cases_handled || "—"}</p>
                     <p className="text-[10px] text-putih/40">Kasus</p>
                   </div>
