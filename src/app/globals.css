@@ -95,7 +95,7 @@ body {
 
 /* Make all putih-based borders clearly visible in light mode */
 .light [class*="border-putih"] {
-  border-color: #cbd5e1 !important; /* slate-300: clean visible border */
+  border-color: rgba(0, 0, 0, 0.2) !important; /* thin black border */
 }
 
 /* Add subtle shadow to cards and rounded containers in light mode */
@@ -106,5 +106,5 @@ body {
 
 /* Make divide lines visible in light mode */
 .light [class*="divide-putih"] > * + * {
-  border-color: #cbd5e1 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
 }
