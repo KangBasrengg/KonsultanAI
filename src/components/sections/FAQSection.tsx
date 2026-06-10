@@ -35,7 +35,7 @@ export default function FAQSection() {
 
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="border border-putih/10 rounded-2xl bg-navy-light/30 overflow-hidden">
+            <div key={idx} className="border border-putih/20 rounded-2xl bg-navy-light/30 overflow-hidden">
               <button 
                 onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
                 className="w-full text-left px-6 py-5 flex items-center justify-between font-semibold focus:outline-none"
@@ -63,3 +63,4 @@ export default function FAQSection() {
     </section>
   );
 }
+

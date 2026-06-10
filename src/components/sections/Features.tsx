@@ -53,7 +53,7 @@ export default function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="p-8 rounded-2xl bg-navy border border-putih/5 hover:border-gold/30 transition-colors group cursor-pointer"
+              className="p-8 rounded-2xl bg-navy border border-putih/15 hover:border-gold/40 transition-colors group cursor-pointer shadow-sm"
             >
               <div className="w-12 h-12 rounded-lg bg-navy-light flex items-center justify-center text-gold mb-6 group-hover:scale-110 transition-transform">
                 {feature.icon}

@@ -61,7 +61,7 @@ export default function HeroSection() {
             { icon: <Shield className="w-6 h-6" />, title: "Privasi Terjamin", desc: "Data & riwayat kasus aman" },
             { icon: <BookOpen className="w-6 h-6" />, title: "Database Hukum Lengkap", desc: "Perdata, Pidana, Bisnis & Lainnya" },
           ].map((feature, idx) => (
-            <div key={idx} className="flex flex-col items-center p-6 rounded-2xl bg-navy-light/50 border border-putih/5 backdrop-blur-sm">
+            <div key={idx} className="flex flex-col items-center p-6 rounded-2xl bg-navy-light/50 border border-putih/15 backdrop-blur-sm">
               <div className="p-3 bg-gold/10 text-gold rounded-xl mb-4">
                 {feature.icon}
               </div>
@@ -74,3 +74,4 @@ export default function HeroSection() {
     </section>
   );
 }
+

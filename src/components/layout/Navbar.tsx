@@ -6,6 +6,7 @@ import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, Mes
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import LogoImage from "@/components/images/LogoUpdated.png";
 import Image from "next/image";
@@ -71,6 +72,7 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+              <ThemeToggle />
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-putih/10 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
@@ -163,20 +165,13 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <button
                 type="button"
                 onClick={() => openAuthModal("login")}
-                className="flex items-center gap-1.5 text-putih/80 hover:text-gold transition-colors"
-              >
-                <LogIn className="w-4 h-4" />
-                Masuk
-              </button>
-              <button
-                type="button"
-                onClick={() => openAuthModal("register")}
                 className="bg-gold text-navy px-6 py-2.5 rounded-full font-bold hover:bg-gold-light transition-colors transform hover:scale-105"
               >
-                Daftar
+                Masuk
               </button>
             </div>
           )}
@@ -205,6 +200,11 @@ export default function Navbar() {
             Marketplace Advokat
           </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
+
+          <div className="flex items-center justify-between py-2 border-b border-t border-putih/10 my-2">
+            <span className="text-putih/80 text-sm font-medium">Tema Tampilan</span>
+            <ThemeToggle />
+          </div>
 
           {user ? (
             <>
@@ -240,17 +240,9 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => { openAuthModal("login"); setIsMobileMenuOpen(false); }}
-                className="flex items-center gap-2 text-putih/80 hover:text-gold"
-              >
-                <LogIn className="w-4 h-4" />
-                Masuk
-              </button>
-              <button
-                type="button"
-                onClick={() => { openAuthModal("register"); setIsMobileMenuOpen(false); }}
                 className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2"
               >
-                Daftar Gratis
+                Masuk
               </button>
             </>
           )}

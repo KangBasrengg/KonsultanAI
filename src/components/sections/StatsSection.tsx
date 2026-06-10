@@ -47,9 +47,9 @@ export default function StatsSection() {
   ];
 
   return (
-    <section className="py-12 border-y border-putih/10 bg-navy-dark/50">
+    <section className="py-12 border-y border-putih/20 bg-navy-dark/50">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-putih/10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-putih/20">
           {stats.map((stat, idx) => (
             <motion.div
               key={idx}
@@ -68,3 +68,4 @@ export default function StatsSection() {
     </section>
   );
 }
+

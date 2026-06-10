@@ -108,7 +108,7 @@ export default function PricingSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-[1400px] w-full mx-auto items-stretch">
           {plans.map((plan, idx) => (
             <motion.div
               key={idx}
@@ -117,8 +117,8 @@ export default function PricingSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.15 }}
               className={`relative flex flex-col rounded-3xl p-8 border ${plan.highlight
-                  ? "bg-navy-dark border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] md:-translate-y-4"
-                  : "bg-navy border-putih/10"
+                  ? "bg-navy-dark border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] md:scale-105 z-10"
+                  : "bg-navy border-putih/20"
                 }`}
             >
               {plan.highlight && (
@@ -131,8 +131,10 @@ export default function PricingSection() {
               <p className="text-sm text-putih/60 mb-6 h-10">{plan.desc}</p>
 
               <div className="mb-8">
-                <span className="text-4xl font-bold text-gold">{isAnnual ? plan.priceAnnual : plan.priceMonthly}</span>
-                {plan.period && <span className="text-putih/50 text-sm">{plan.period}</span>}
+                <div className="flex items-baseline gap-1 whitespace-nowrap">
+                  <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.priceAnnual : plan.priceMonthly}</span>
+                  {plan.period && <span className="text-putih/50 text-sm">{plan.period}</span>}
+                </div>
                 {isAnnual && plan.name !== "Free Trial" && (
                   <p className="text-xs text-green-400 mt-1 font-medium">
                     Ditagih {plan.name === "Basic Plan" ? "Rp 600.000" : plan.name === "Professional" ? "Rp 1.200.000" : "Rp 3.000.000"} per tahun
@@ -186,3 +188,4 @@ export default function PricingSection() {
     </section>
   );
 }
+

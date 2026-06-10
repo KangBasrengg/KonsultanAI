@@ -17,7 +17,7 @@ export default function DemoSection() {
   };
 
   return (
-    <section className="py-24 bg-navy relative overflow-hidden border-t border-putih/5">
+    <section className="py-24 bg-navy relative overflow-hidden border-t border-putih/15">
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="container mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12">
@@ -40,8 +40,8 @@ export default function DemoSection() {
         </div>
 
         <div className="flex-1 w-full max-w-lg">
-          <div className="bg-navy-light rounded-2xl border border-putih/10 overflow-hidden shadow-2xl">
-            <div className="p-4 bg-navy-dark border-b border-putih/10 flex items-center gap-3">
+          <div className="bg-navy-light rounded-2xl border border-putih/20 overflow-hidden shadow-2xl">
+            <div className="p-4 bg-navy-dark border-b border-putih/20 flex items-center gap-3">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-merah"></div>
                 <div className="w-3 h-3 rounded-full bg-gold"></div>
@@ -55,7 +55,7 @@ export default function DemoSection() {
                 <div className="w-8 h-8 rounded-full bg-putih/10 flex items-center justify-center shrink-0">
                   <User className="w-4 h-4" />
                 </div>
-                <div className="bg-navy border border-putih/10 rounded-2xl rounded-tl-none p-4 text-sm">
+                <div className="bg-navy border border-putih/20 rounded-2xl rounded-tl-none p-4 text-sm">
                   "Tetangga saya sering membakar sampah di sebelah rumah sampai asapnya masuk dan bikin sesak napas. Sudah ditegur tapi malah marah."
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default function DemoSection() {
                   <div className="bg-gold/10 border border-gold/20 rounded-2xl rounded-tl-none p-4 text-sm space-y-3">
                     <p className="font-semibold text-gold">Hasil Analisis Hukum:</p>
                     <p>Tindakan tersebut dapat dikategorikan sebagai gangguan (Hinder Ordonnantie) dan berpotensi melanggar ketentuan pidana.</p>
-                    <div className="p-3 bg-navy rounded-lg border border-putih/5">
+                    <div className="p-3 bg-navy rounded-lg border border-putih/15">
                       <span className="text-xs text-gold font-bold">Pasal 312 KUHP (Baru)</span>
                       <p className="mt-1 text-putih/80">"Setiap orang yang melakukan perbuatan yang mengakibatkan gangguan pada lingkungan..."</p>
                     </div>
@@ -94,13 +94,13 @@ export default function DemoSection() {
               )}
             </div>
 
-            <div className="p-4 bg-navy border-t border-putih/10">
+            <div className="p-4 bg-navy border-t border-putih/20">
               <div className="relative">
                 <input
                   type="text"
                   disabled={showResult}
                   placeholder="Ketik kronologi Anda..."
-                  className="w-full bg-navy-light border border-putih/10 rounded-full py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-gold"
+                  className="w-full bg-navy-light border border-putih/20 rounded-full py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-gold"
                 />
                 <button
                   onClick={simulateDemo}
@@ -117,3 +117,4 @@ export default function DemoSection() {
     </section>
   );
 }
+

@@ -150,6 +150,35 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
 
               {/* Form */}
               <div className="px-8 pb-8">
+                {/* Tabs */}
+                <div className="flex bg-navy p-1 rounded-xl mb-6 border border-putih/10 relative">
+                  <button
+                    type="button"
+                    onClick={() => { setIsLogin(true); setError(null); setSuccess(null); }}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${
+                      isLogin ? "text-navy" : "text-putih/60 hover:text-putih"
+                    }`}
+                  >
+                    Masuk
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsLogin(false); setError(null); setSuccess(null); }}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${
+                      !isLogin ? "text-navy" : "text-putih/60 hover:text-putih"
+                    }`}
+                  >
+                    Daftar
+                  </button>
+                  <motion.div
+                    className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gold rounded-lg shadow-md"
+                    initial={false}
+                    animate={{
+                      left: isLogin ? "4px" : "calc(50%)"
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                </div>
                 {/* Error message */}
                 <AnimatePresence>
                   {error && (
@@ -249,21 +278,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                   </button>
                 </form>
 
-                {/* Toggle login/register */}
-                <div className="mt-6 text-center text-sm text-putih/60">
-                  {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsLogin(!isLogin);
-                      setError(null);
-                      setSuccess(null);
-                    }}
-                    className="text-gold font-semibold hover:underline"
-                  >
-                    {isLogin ? "Daftar di sini" : "Masuk di sini"}
-                  </button>
-                </div>
               </div>
             </div>
           </motion.div>
