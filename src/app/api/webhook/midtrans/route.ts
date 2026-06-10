@@ -1,13 +1,6 @@
 import { NextResponse } from 'next/server';
-import midtransClient from 'midtrans-client';
 import crypto from 'crypto';
 // import { createClient } from '@supabase/supabase-js'; // Digunakan nanti untuk update database
-
-const core = new midtransClient.CoreApi({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
-});
 
 export async function POST(request: Request) {
   try {
@@ -23,21 +16,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid signature key' }, { status: 403 });
     }
 
-    // 2. Ambil status transaksi dari Midtrans
-    const transactionStatus = await core.transaction.notification(body);
-    
-    const orderId = transactionStatus.order_id;
-    const transactionStatusStr = transactionStatus.transaction_status;
-    const fraudStatus = transactionStatus.fraud_status;
+    // 2. Ambil data dari body notifikasi
+    const orderId = body.order_id;
+    const transactionStatus = body.transaction_status;
+    const fraudStatus = body.fraud_status;
 
-    console.log(`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatusStr}. Fraud status: ${fraudStatus}`);
+    console.log(`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`);
 
     // 3. Logika Update Database berdasarkan status
-    if (transactionStatusStr == 'capture' || transactionStatusStr == 'settlement') {
-      if (fraudStatus == 'challenge') {
+    if (transactionStatus === 'capture' || transactionStatus === 'settlement') {
+      if (fraudStatus === 'challenge') {
         // TODO: Pembayaran perlu direview manual
         console.log('Payment challenged by FDS');
-      } else if (fraudStatus == 'accept' || !fraudStatus) {
+      } else if (fraudStatus === 'accept' || !fraudStatus) {
         // TODO: Pembayaran Sukses! Update database user (is_premium = true)
         console.log('Payment Success! User should be upgraded to Premium.');
         
@@ -47,10 +38,10 @@ export async function POST(request: Request) {
         await supabase.from('users').update({ is_premium: true }).eq('email', body.customer_details.email);
         */
       }
-    } else if (transactionStatusStr == 'cancel' || transactionStatusStr == 'deny' || transactionStatusStr == 'expire') {
+    } else if (transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire') {
       // TODO: Pembayaran gagal/batal/kedaluwarsa. Update status di database.
       console.log('Payment failed or expired.');
-    } else if (transactionStatusStr == 'pending') {
+    } else if (transactionStatus === 'pending') {
       // TODO: Menunggu pembayaran
       console.log('Payment pending.');
     }
