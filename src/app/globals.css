@@ -92,3 +92,19 @@ body {
 .light [class*="text-putih/"] {
   color: #0b132b;
 }
+
+/* Make all putih-based borders clearly visible in light mode */
+.light [class*="border-putih"] {
+  border-color: #cbd5e1 !important; /* slate-300: clean visible border */
+}
+
+/* Add subtle shadow to cards and rounded containers in light mode */
+.light [class*="rounded-2xl"][class*="border"],
+.light [class*="rounded-xl"][class*="border"] {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Make divide lines visible in light mode */
+.light [class*="divide-putih"] > * + * {
+  border-color: #cbd5e1 !important;
+}
