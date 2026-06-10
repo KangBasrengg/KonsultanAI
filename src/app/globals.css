@@ -87,15 +87,14 @@ body {
   --tw-prose-td-borders: #e2e8f0;
 }
 
-/* Ensure all text-putih based content is readable in light mode */
-.light .text-putih,
-.light [class*="text-putih/"] {
-  color: #0b132b;
-}
-
 /* Make all putih-based borders clearly visible in light mode */
 .light [class*="border-putih"] {
-  border-color: rgba(0, 0, 0, 0.2) !important; /* thin black border */
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Allow gold hover borders to still show through */
+.light [class*="hover\:border-gold"]:hover {
+  border-color: var(--theme-gold) !important;
 }
 
 /* Add subtle shadow to cards and rounded containers in light mode */
@@ -106,5 +105,11 @@ body {
 
 /* Make divide lines visible in light mode */
 .light [class*="divide-putih"] > * + * {
-  border-color: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Restore hover interactivity in light mode */
+.light a:hover,
+.light button:hover {
+  transition: all 0.2s ease;
 }
