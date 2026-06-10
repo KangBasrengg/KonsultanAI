@@ -52,7 +52,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
+          <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-white/20 rounded-xl shadow-md overflow-hidden">
             <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
           </div>
           <span className="font-bold text-xl md:text-2xl tracking-tight text-putih">
@@ -75,7 +75,7 @@ export default function Navbar() {
               <ThemeToggle />
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-putih/20 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
+                className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-sm">
                   {profile?.fullName ? profile.fullName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
@@ -114,9 +114,9 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full right-0 mt-2 w-56 bg-navy-dark border border-putih/15 rounded-2xl shadow-2xl overflow-hidden py-2"
+                    className="absolute top-full right-0 mt-2 w-56 bg-navy-dark border border-white/15 rounded-2xl shadow-2xl overflow-hidden py-2"
                   >
-                    <div className="px-4 py-3 border-b border-putih/20 mb-2 lg:hidden">
+                    <div className="px-4 py-3 border-b border-white/20 mb-2 lg:hidden">
                       <p className="font-semibold text-putih truncate">{profile?.fullName || user.email}</p>
                       <p className="text-xs text-gold capitalize">{profile?.role || "User"}</p>
                     </div>
@@ -191,7 +191,7 @@ export default function Navbar() {
         <motion.div 
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          className="md:hidden bg-navy-light border-t border-putih/20 mt-4 py-4 px-6 flex flex-col gap-4"
+          className="md:hidden bg-navy-light border-t border-white/20 mt-4 py-4 px-6 flex flex-col gap-4"
         >
           <Link href="/tentang" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
           <Link href="/konsultasi" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
@@ -201,7 +201,7 @@ export default function Navbar() {
           </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
 
-          <div className="flex items-center justify-between py-2 border-b border-t border-putih/20 my-2">
+          <div className="flex items-center justify-between py-2 border-b border-t border-white/20 my-2">
             <span className="text-putih/80 text-sm font-medium">Tema Tampilan</span>
             <ThemeToggle />
           </div>
@@ -223,7 +223,7 @@ export default function Navbar() {
               <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
                 Mulai Konsultasi AI
               </Link>
-              <Link href="/pengaturan" className="flex items-center justify-center gap-2 text-putih border border-putih/20 py-3 rounded-xl font-bold mt-2 hover:bg-putih/5 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/pengaturan" className="flex items-center justify-center gap-2 text-putih border border-white/20 py-3 rounded-xl font-bold mt-2 hover:bg-putih/5 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
                 <Settings className="w-4 h-4" />
                 Pengaturan
               </Link>

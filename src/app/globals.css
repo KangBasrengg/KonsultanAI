@@ -113,3 +113,15 @@ body {
 .light button:hover {
   transition: all 0.2s ease;
 }
+
+/* Force all green status colors to gold (#a16207) in light mode for better contrast */
+.light .text-green-400,
+.light .text-green-500 {
+  color: #a16207 !important;
+}
+.light .bg-green-500\/10 {
+  background-color: rgba(161, 98, 7, 0.1) !important;
+}
+.light .bg-green-500\/20 {
+  background-color: rgba(161, 98, 7, 0.2) !important;
+}

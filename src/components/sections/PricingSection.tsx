@@ -166,7 +166,7 @@ export default function PricingSection() {
                   }}
                   className={`w-full py-3 rounded-xl font-bold transition-all mt-auto ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
-                      : "bg-navy-light text-putih hover:bg-putih/10"
+                      : "bg-navy-light text-putih border border-putih/20 hover:bg-putih/10"
                     }`}
                 >
                   {plan.cta}
@@ -175,7 +175,7 @@ export default function PricingSection() {
                 <Link href={plan.name === "Business" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Business%20KonsultanAI" : "/konsultasi"} className="mt-auto">
                   <button className={`w-full py-3 rounded-xl font-bold transition-all ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
-                      : "bg-navy-light text-putih hover:bg-putih/10"
+                      : "bg-navy-light text-putih border border-putih/20 hover:bg-putih/10"
                     }`}>
                     {plan.cta}
                   </button>
