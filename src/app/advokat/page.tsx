@@ -150,7 +150,7 @@ export default function AdvocateDashboard() {
   return (
     <div className="min-h-screen bg-navy text-putih">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-4 px-6 sticky top-0 z-40">
+      <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="w-9 h-9 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
@@ -206,7 +206,7 @@ export default function AdvocateDashboard() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-navy-light/40 border border-putih/20 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-xl bg-gold/10 text-gold"><Award className="w-5 h-5" /></div>
               <span className="text-sm text-putih/60">Kasus Ditangani</span>
@@ -215,7 +215,7 @@ export default function AdvocateDashboard() {
             <p className="text-xs text-putih/40">Total Kasus</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-navy-light/40 border border-putih/20 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400"><Briefcase className="w-5 h-5" /></div>
               <span className="text-sm text-putih/60">Pengalaman</span>
@@ -224,7 +224,7 @@ export default function AdvocateDashboard() {
             <p className="text-xs text-putih/40">Tahun</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-navy-light/40 border border-putih/20 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-xl bg-green-500/10 text-green-400"><Eye className="w-5 h-5" /></div>
               <span className="text-sm text-putih/60">Listing</span>
@@ -237,7 +237,7 @@ export default function AdvocateDashboard() {
             )}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-navy-light/40 border border-putih/20 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-xl bg-gold/10 text-gold"><DollarSign className="w-5 h-5" /></div>
               <span className="text-sm text-putih/60">Tarif</span>
@@ -248,7 +248,7 @@ export default function AdvocateDashboard() {
 
         {/* Tariff Settings */}
         {advocate.verification_status === "approved" && (
-          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl p-6">
+          <div className="bg-navy-light/30 border border-putih/20 rounded-2xl p-6">
             <h2 className="font-bold text-lg flex items-center gap-2 mb-6">
               <Settings className="w-5 h-5 text-gold" />
               Pengaturan Tarif
@@ -293,7 +293,7 @@ export default function AdvocateDashboard() {
 
         {/* Balance & Withdrawals Section */}
         {advocate.verification_status === "approved" && (
-          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl p-6">
+          <div className="bg-navy-light/30 border border-putih/20 rounded-2xl p-6">
             <h2 className="font-bold text-lg flex items-center gap-2 mb-6">
               <Wallet className="w-5 h-5 text-green-400" />
               Saldo & Penarikan
@@ -322,7 +322,7 @@ export default function AdvocateDashboard() {
                 )}
               </div>
               <div className="space-y-4">
-                <div className="bg-navy/50 rounded-xl p-4 border border-putih/5">
+                <div className="bg-navy/50 rounded-xl p-4 border border-putih/15">
                   <div className="flex items-center gap-3 mb-2">
                     <Building className="w-4 h-4 text-putih/40" />
                     <span className="text-sm font-semibold text-putih/80">Informasi Rekening</span>
@@ -345,7 +345,7 @@ export default function AdvocateDashboard() {
         )}
 
         {/* Specializations */}
-        <div className="bg-navy-light/30 border border-putih/10 rounded-2xl p-6">
+        <div className="bg-navy-light/30 border border-putih/20 rounded-2xl p-6">
           <h2 className="font-bold text-lg flex items-center gap-2 mb-6">
             <Scale className="w-5 h-5 text-gold" />
             Bidang Keahlian
@@ -369,3 +369,4 @@ export default function AdvocateDashboard() {
     </div>
   );
 }
+

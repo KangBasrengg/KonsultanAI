@@ -177,7 +177,7 @@ export default function SettingsPage() {
           
           {/* Sidebar Tabs (For visual structure) */}
           <div className="md:col-span-1">
-            <div className="bg-navy-light/30 border border-putih/10 rounded-2xl p-4 sticky top-24">
+            <div className="bg-navy-light/30 border border-putih/20 rounded-2xl p-4 sticky top-24">
               <div className="flex flex-col gap-2">
                 <button className="text-left px-4 py-2.5 rounded-xl bg-gold/10 text-gold font-medium flex items-center gap-2">
                   <User className="w-4 h-4" /> Profil
@@ -191,8 +191,8 @@ export default function SettingsPage() {
             
             {/* Foto Profil (Advokat Only) */}
             {advocate && (
-              <div className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6">
-                <h2 className="text-lg font-bold mb-4 border-b border-putih/10 pb-4">Foto Formal Advokat</h2>
+              <div className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6">
+                <h2 className="text-lg font-bold mb-4 border-b border-putih/20 pb-4">Foto Formal Advokat</h2>
                 <div className="flex items-center gap-6">
                   <div className="relative w-24 h-24 rounded-full overflow-hidden bg-navy border border-putih/20 shrink-0">
                     {photoUrl ? (
@@ -221,12 +221,12 @@ export default function SettingsPage() {
             )}
 
             {/* General Profile Form */}
-            <form onSubmit={handleUpdateProfile} className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 space-y-6">
-              <h2 className="text-lg font-bold mb-2 border-b border-putih/10 pb-4">Informasi Pribadi</h2>
+            <form onSubmit={handleUpdateProfile} className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6 space-y-6">
+              <h2 className="text-lg font-bold mb-2 border-b border-putih/20 pb-4">Informasi Pribadi</h2>
               
               <div>
                 <label className="text-sm text-putih/60 mb-1.5 block">Email (Tidak bisa diubah)</label>
-                <input value={user.email} disabled className="w-full bg-navy border border-putih/5 rounded-xl px-4 py-3 text-putih/50 cursor-not-allowed" />
+                <input value={user.email} disabled className="w-full bg-navy border border-putih/15 rounded-xl px-4 py-3 text-putih/50 cursor-not-allowed" />
               </div>
 
               <div>
@@ -268,7 +268,7 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <h2 className="text-lg font-bold mt-8 mb-2 border-b border-putih/10 pb-4">Keamanan</h2>
+              <h2 className="text-lg font-bold mt-8 mb-2 border-b border-putih/20 pb-4">Keamanan</h2>
               
               <div>
                 <label className="text-sm text-putih/60 mb-1.5 block">Password Baru</label>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-putih/10">
+              <div className="pt-4 border-t border-putih/20">
                 <button
                   type="submit"
                   disabled={loading}
@@ -302,3 +302,4 @@ export default function SettingsPage() {
     </main>
   );
 }
+

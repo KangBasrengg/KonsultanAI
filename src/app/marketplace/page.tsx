@@ -139,7 +139,7 @@ export default function MarketplacePage() {
                 placeholder="Cari nama advokat, kota, atau organisasi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-navy-light/60 border border-putih/15 rounded-2xl pl-12 pr-4 py-4 text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 transition-colors backdrop-blur-sm"
+                className="w-full bg-navy-light/60 border border-putih/20 rounded-2xl pl-12 pr-4 py-4 text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 transition-colors backdrop-blur-sm"
               />
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -159,7 +159,7 @@ export default function MarketplacePage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-4 bg-navy-light/40 border border-putih/10 rounded-2xl p-6 backdrop-blur-sm overflow-hidden"
+                  className="mt-4 bg-navy-light/40 border border-putih/20 rounded-2xl p-6 backdrop-blur-sm overflow-hidden"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Field Filter */}
@@ -168,7 +168,7 @@ export default function MarketplacePage() {
                       <select
                         value={selectedField}
                         onChange={(e) => setSelectedField(e.target.value)}
-                        className="w-full bg-navy border border-putih/15 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
+                        className="w-full bg-navy border border-putih/20 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
                         <option value="all">Semua Bidang</option>
                         {LEGAL_FIELDS.map(f => (
@@ -182,7 +182,7 @@ export default function MarketplacePage() {
                       <select
                         value={selectedCity}
                         onChange={(e) => setSelectedCity(e.target.value)}
-                        className="w-full bg-navy border border-putih/15 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
+                        className="w-full bg-navy border border-putih/20 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
                         <option value="all">Semua Kota</option>
                         {cities.map(c => (
@@ -196,7 +196,7 @@ export default function MarketplacePage() {
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full bg-navy border border-putih/15 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
+                        className="w-full bg-navy border border-putih/20 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
                         <option value="experience">Pengalaman Terbanyak</option>
                         <option value="price_low">Harga Terendah</option>
@@ -254,7 +254,7 @@ export default function MarketplacePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-navy-light/40 border border-putih/10 rounded-2xl overflow-hidden hover:border-gold/20 transition-all group cursor-pointer"
+                  className="bg-navy-light/40 border border-putih/20 rounded-2xl overflow-hidden hover:border-gold/20 transition-all group cursor-pointer"
                   onClick={() => setSelectedAdvocate(advocate)}
                 >
                   {/* Card Header */}
@@ -291,7 +291,7 @@ export default function MarketplacePage() {
                       {advocate.specializations.slice(0, 3).map(spec => {
                         const field = LEGAL_FIELDS.find(f => f.id === spec.field);
                         return (
-                          <span key={spec.id} className="text-[10px] font-medium bg-putih/5 border border-putih/10 text-putih/60 px-2 py-0.5 rounded-full">
+                          <span key={spec.id} className="text-[10px] font-medium bg-putih/5 border border-putih/20 text-putih/60 px-2 py-0.5 rounded-full">
                             {field?.label || spec.field}
                           </span>
                         );
@@ -317,7 +317,7 @@ export default function MarketplacePage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="px-6 py-4 border-t border-putih/5 flex items-center justify-between">
+                  <div className="px-6 py-4 border-t border-putih/15 flex items-center justify-between">
                     <div>
                       <p className="text-[10px] text-putih/40 uppercase">Mulai dari</p>
                       <p className="text-gold font-bold">{formatPrice(advocate.consultation_rate)}</p>
@@ -371,11 +371,11 @@ export default function MarketplacePage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-navy-light border border-putih/15 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+              className="bg-navy-light border border-putih/20 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-putih/10">
+              <div className="p-6 border-b border-putih/20">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center text-gold font-bold text-xl shrink-0 overflow-hidden relative">
@@ -451,7 +451,7 @@ export default function MarketplacePage() {
                 </div>
 
                 {/* Contact Notice */}
-                <div className="bg-navy/50 rounded-xl p-4 flex items-center gap-3 border border-putih/5">
+                <div className="bg-navy/50 rounded-xl p-4 flex items-center gap-3 border border-putih/15">
                   <Lock className="w-5 h-5 text-putih/30 shrink-0" />
                   <p className="text-xs text-putih/40">
                     Informasi kontak advokat hanya tersedia setelah Anda melakukan booking konsultasi melalui platform.
@@ -490,3 +490,4 @@ export default function MarketplacePage() {
     </main>
   );
 }
+

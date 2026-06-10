@@ -197,7 +197,7 @@ export default function ConsultationChatRoom() {
   return (
     <div className="min-h-screen bg-navy text-putih flex flex-col">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-4 px-6 sticky top-0 z-40">
+      <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
@@ -208,7 +208,7 @@ export default function ConsultationChatRoom() {
               onClick={() => !isAdvocate && setShowAdvocateProfile(true)}
             >
               {!isAdvocate && room.advocate?.photo_url ? (
-                <div className="w-10 h-10 rounded-full overflow-hidden relative border border-putih/10 shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden relative border border-putih/20 shrink-0">
                   <Image src={room.advocate.photo_url} alt="Advocate" fill className="object-cover" />
                 </div>
               ) : (
@@ -241,7 +241,7 @@ export default function ConsultationChatRoom() {
             
             {/* Dropdown Menu */}
             {showMenu && (
-              <div className="absolute top-12 right-0 w-48 bg-navy-light border border-putih/10 rounded-2xl shadow-xl overflow-hidden py-2 z-50">
+              <div className="absolute top-12 right-0 w-48 bg-navy-light border border-putih/20 rounded-2xl shadow-xl overflow-hidden py-2 z-50">
                 <button 
                   onClick={() => {
                     setShowMenu(false);
@@ -269,20 +269,20 @@ export default function ConsultationChatRoom() {
       {/* Info Modal */}
       {showInfo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
-          <div className="bg-navy-light border border-putih/10 rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-navy-light border border-putih/20 rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-xl mb-4 text-putih">Informasi Sesi</h3>
             <div className="space-y-4 text-sm text-putih/70">
-              <div className="flex justify-between border-b border-putih/10 pb-2">
+              <div className="flex justify-between border-b border-putih/20 pb-2">
                 <span>Status</span>
                 <span className={`font-bold ${room.status === "active" && !isExpired ? "text-green-400" : "text-red-400"}`}>
                   {room.status === "active" && !isExpired ? "Aktif" : "Selesai"}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-putih/10 pb-2">
+              <div className="flex justify-between border-b border-putih/20 pb-2">
                 <span>Klien</span>
                 <span className="font-medium text-putih">{room.client.full_name}</span>
               </div>
-              <div className="flex justify-between border-b border-putih/10 pb-2">
+              <div className="flex justify-between border-b border-putih/20 pb-2">
                 <span>Advokat</span>
                 <span className="font-medium text-putih">{room.advocate.full_name}</span>
               </div>
@@ -304,7 +304,7 @@ export default function ConsultationChatRoom() {
       {/* Advocate Profile Modal */}
       {showAdvocateProfile && !isAdvocate && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowAdvocateProfile(false)}>
-          <div className="bg-navy-light border border-putih/10 rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-navy-light border border-putih/20 rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col items-center mb-6">
               {room.advocate?.photo_url ? (
                 <div className="w-20 h-20 rounded-full overflow-hidden relative border-2 border-gold/30 mb-4">
@@ -319,7 +319,7 @@ export default function ConsultationChatRoom() {
               <p className="text-sm text-gold">Advokat Terverifikasi</p>
             </div>
             
-            <div className="space-y-3 text-sm text-putih/80 bg-navy/50 p-4 rounded-2xl border border-putih/5">
+            <div className="space-y-3 text-sm text-putih/80 bg-navy/50 p-4 rounded-2xl border border-putih/15">
               {room.advocate.city && (
                 <div className="flex items-center gap-3">
                   <MapPin className="w-4 h-4 text-gold shrink-0" />
@@ -352,7 +352,7 @@ export default function ConsultationChatRoom() {
       {/* End Session Confirm Modal */}
       {showEndSessionConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowEndSessionConfirm(false)}>
-          <div className="bg-navy-light border border-putih/10 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-navy-light border border-putih/20 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8" />
             </div>
@@ -400,7 +400,7 @@ export default function ConsultationChatRoom() {
             if (isSystem) {
               return (
                 <div key={msg.id} className="flex justify-center my-6">
-                  <div className="bg-navy-light/50 border border-putih/5 rounded-xl p-4 max-w-sm text-center text-sm text-putih/60 whitespace-pre-wrap">
+                  <div className="bg-navy-light/50 border border-putih/15 rounded-xl p-4 max-w-sm text-center text-sm text-putih/60 whitespace-pre-wrap">
                     {msg.content}
                   </div>
                 </div>
@@ -418,7 +418,7 @@ export default function ConsultationChatRoom() {
                   <div className={`p-4 rounded-2xl whitespace-pre-wrap ${
                     isMe 
                       ? "bg-gold text-navy rounded-br-sm" 
-                      : "bg-navy-light border border-putih/10 text-putih rounded-bl-sm"
+                      : "bg-navy-light border border-putih/20 text-putih rounded-bl-sm"
                   }`}>
                     {msg.content}
                   </div>
@@ -434,7 +434,7 @@ export default function ConsultationChatRoom() {
       </main>
 
       {/* Input Area */}
-      <footer className="bg-navy-dark border-t border-putih/10 p-4 shrink-0">
+      <footer className="bg-navy-dark border-t border-putih/20 p-4 shrink-0">
         <div className="max-w-4xl mx-auto">
           {room.status === "active" && !isExpired ? (
             <form onSubmit={handleSendMessage} className="flex items-end gap-3">

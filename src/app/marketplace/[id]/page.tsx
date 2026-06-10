@@ -180,8 +180,8 @@ export default function AdvocateDetailPage() {
             {/* Left Column - Profile & Info */}
             <div className="lg:col-span-2 space-y-6">
               {/* Header Card */}
-              <div className="bg-navy-light/30 border border-putih/10 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
-                <div className="w-32 h-32 rounded-2xl bg-navy overflow-hidden relative shrink-0 border border-putih/10 shadow-xl">
+              <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+                <div className="w-32 h-32 rounded-2xl bg-navy overflow-hidden relative shrink-0 border border-putih/20 shadow-xl">
                   {advocate.photo_url ? (
                     <Image src={advocate.photo_url} alt={advocate.full_name} fill className="object-cover" />
                   ) : (
@@ -218,7 +218,7 @@ export default function AdvocateDetailPage() {
               </div>
 
               {/* Bio & Details */}
-              <div className="bg-navy-light/30 border border-putih/10 rounded-3xl p-6 md:p-8 space-y-8">
+              <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 space-y-8">
                 <div>
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <User className="w-5 h-5 text-gold" />
@@ -236,7 +236,7 @@ export default function AdvocateDetailPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {advocate.specializations?.map((spec: any, idx: number) => (
-                      <div key={idx} className="bg-navy/50 border border-putih/5 p-4 rounded-xl">
+                      <div key={idx} className="bg-navy/50 border border-putih/15 p-4 rounded-xl">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-semibold capitalize">{spec.field.replace("_", " ")}</span>
                           <span className="text-xs text-gold">{spec.expertise_percent}%</span>
@@ -279,7 +279,7 @@ export default function AdvocateDetailPage() {
                 </div>
 
                 {isOwnProfile ? (
-                  <div className="w-full bg-putih/5 border border-putih/10 text-putih/50 text-center font-medium py-4 px-6 rounded-2xl">
+                  <div className="w-full bg-putih/5 border border-putih/20 text-putih/50 text-center font-medium py-4 px-6 rounded-2xl">
                     Ini adalah profil Anda sendiri
                   </div>
                 ) : (

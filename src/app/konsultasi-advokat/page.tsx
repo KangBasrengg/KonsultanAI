@@ -140,7 +140,7 @@ export default function ConsultationsList() {
             <p className="text-putih/40 text-sm">Memuat data...</p>
           </div>
         ) : rooms.length === 0 ? (
-          <div className="bg-navy-light/30 border border-putih/10 rounded-3xl p-12 text-center">
+          <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-12 text-center">
             <MessageSquare className="w-16 h-16 text-putih/10 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Belum Ada Sesi Konsultasi</h3>
             <p className="text-putih/40 mb-6 max-w-md mx-auto">
@@ -167,12 +167,12 @@ export default function ConsultationsList() {
                 <Link
                   key={room.id}
                   href={`/konsultasi-advokat/${room.id}`}
-                  className="block bg-navy-light/40 border border-putih/10 hover:border-gold/30 hover:bg-navy-light/60 transition-all rounded-2xl p-5 group"
+                  className="block bg-navy-light/40 border border-putih/20 hover:border-gold/30 hover:bg-navy-light/60 transition-all rounded-2xl p-5 group"
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
                     {!isAdvocate && room.advocate?.photo_url ? (
-                      <div className="w-14 h-14 rounded-full overflow-hidden relative border border-putih/10 shrink-0">
+                      <div className="w-14 h-14 rounded-full overflow-hidden relative border border-putih/20 shrink-0">
                         <Image src={room.advocate.photo_url} alt="Advocate" fill className="object-cover" sizes="56px" />
                       </div>
                     ) : (
@@ -232,3 +232,4 @@ export default function ConsultationsList() {
     </main>
   );
 }
+

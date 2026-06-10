@@ -183,7 +183,7 @@ function RegistrationContent() {
     return (
       <div className="min-h-screen bg-navy flex items-center justify-center p-6">
         <div className="text-center max-w-md">
-          <div className="bg-navy-light/50 border border-putih/10 p-8 rounded-3xl">
+          <div className="bg-navy-light/50 border border-putih/20 p-8 rounded-3xl">
             <Scale className="w-16 h-16 text-gold/80 mx-auto mb-6" />
             <h1 className="text-2xl font-bold mb-3">Pendaftaran Advokat</h1>
             <p className="text-putih/60 mb-8 text-sm leading-relaxed">
@@ -241,7 +241,7 @@ function RegistrationContent() {
   return (
     <div className="min-h-screen bg-navy text-putih">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-4 px-6 sticky top-0 z-40">
+      <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/marketplace" className="w-9 h-9 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
@@ -364,7 +364,7 @@ function RegistrationContent() {
             {step === 3 && (
               <div className="space-y-5">
                 <h2 className="text-xl font-bold mb-6">Informasi Rekening Bank</h2>
-                <div className="bg-navy-light/40 border border-putih/10 rounded-2xl p-5 mb-6">
+                <div className="bg-navy-light/40 border border-putih/20 rounded-2xl p-5 mb-6">
                   <p className="text-sm text-putih/60">
                     <strong className="text-gold">Perhatian:</strong> Informasi rekening bank ini <strong className="text-putih">TIDAK AKAN DITAMPILKAN KEPADA PUBLIK</strong>. 
                     Hanya digunakan oleh platform KonsultanAI untuk memproses penarikan saldo pendapatan Anda.
@@ -402,7 +402,7 @@ function RegistrationContent() {
                         className={`border rounded-xl p-4 transition-all ${
                           isSelected
                             ? "bg-gold/5 border-gold/30"
-                            : "bg-navy-light/30 border-putih/10 hover:border-putih/20"
+                            : "bg-navy-light/30 border-putih/20 hover:border-putih/20"
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -489,7 +489,7 @@ function RegistrationContent() {
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center mt-10 pt-6 border-t border-putih/10">
+        <div className="flex justify-between items-center mt-10 pt-6 border-t border-putih/20">
           <button
             onClick={() => setStep(s => Math.max(1, s - 1))}
             disabled={step === 1}
@@ -589,3 +589,4 @@ export default function DaftarAdvokatPage() {
     </Suspense>
   );
 }
+

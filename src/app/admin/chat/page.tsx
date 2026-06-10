@@ -190,7 +190,7 @@ export default function AdminChatPage() {
   return (
     <div className="min-h-screen bg-navy flex flex-col h-screen overflow-hidden text-putih">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-3 px-6 shrink-0 z-10 flex justify-between items-center">
+      <header className="bg-navy-dark border-b border-putih/20 py-3 px-6 shrink-0 z-10 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/admin" className="w-9 h-9 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
             <ArrowLeft className="w-4 h-4 text-putih" />
@@ -204,8 +204,8 @@ export default function AdminChatPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Chat List (Sidebar) */}
-        <div className="w-full md:w-80 bg-navy-light/30 border-r border-putih/10 flex flex-col shrink-0">
-          <div className="p-4 border-b border-putih/10">
+        <div className="w-full md:w-80 bg-navy-light/30 border-r border-putih/20 flex flex-col shrink-0">
+          <div className="p-4 border-b border-putih/20">
             <h2 className="font-bold mb-3 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-gold" /> Daftar Pesanan
             </h2>
@@ -224,7 +224,7 @@ export default function AdminChatPage() {
               <button
                 key={chat.id}
                 onClick={() => setActiveChat(chat)}
-                className={`w-full text-left p-4 border-b border-putih/5 hover:bg-putih/5 transition-colors ${
+                className={`w-full text-left p-4 border-b border-putih/15 hover:bg-putih/5 transition-colors ${
                   activeChat?.id === chat.id ? "bg-putih/10 border-l-4 border-l-gold" : "border-l-4 border-l-transparent"
                 }`}
               >
@@ -255,7 +255,7 @@ export default function AdminChatPage() {
           ) : (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-putih/10 bg-navy-dark/50 flex justify-between items-center shrink-0">
+              <div className="p-4 border-b border-putih/20 bg-navy-dark/50 flex justify-between items-center shrink-0">
                 <div>
                   <h3 className="font-bold text-putih">{activeChat.user?.full_name || activeChat.user?.email}</h3>
                   <p className="text-xs text-gold">Memesan: {activeChat.plan}</p>
@@ -287,7 +287,7 @@ export default function AdminChatPage() {
                         <div className={`rounded-2xl p-4 text-sm shadow-lg ${
                           isAdminMsg 
                             ? "bg-gold text-navy rounded-tr-sm" 
-                            : "bg-navy-light/50 border border-putih/10 text-putih rounded-tl-sm max-w-[80%]"
+                            : "bg-navy-light/50 border border-putih/20 text-putih rounded-tl-sm max-w-[80%]"
                         }`}>
                           {msg.image_url && (
                             <div className="mb-2">
@@ -307,7 +307,7 @@ export default function AdminChatPage() {
               </div>
 
               {/* Input */}
-              <div className="bg-navy-dark border-t border-putih/10 p-4 shrink-0">
+              <div className="bg-navy-dark border-t border-putih/20 p-4 shrink-0">
                 <div className="max-w-4xl mx-auto">
                   {imagePreview && (
                     <div className="mb-3 relative inline-block">
@@ -322,7 +322,7 @@ export default function AdminChatPage() {
                   )}
 
                   <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
-                    <label className="shrink-0 p-3 bg-navy-light hover:bg-putih/10 text-putih/70 hover:text-gold rounded-xl cursor-pointer transition-colors border border-putih/10">
+                    <label className="shrink-0 p-3 bg-navy-light hover:bg-putih/10 text-putih/70 hover:text-gold rounded-xl cursor-pointer transition-colors border border-putih/20">
                       <ImageIcon className="w-5 h-5" />
                       <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                     </label>
@@ -331,7 +331,7 @@ export default function AdminChatPage() {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Balas pesan atau kirim QRIS..."
-                      className="flex-1 bg-navy-light border border-putih/10 rounded-xl px-4 py-3 text-sm text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 resize-none max-h-32"
+                      className="flex-1 bg-navy-light border border-putih/20 rounded-xl px-4 py-3 text-sm text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 resize-none max-h-32"
                       rows={1}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
@@ -362,3 +362,4 @@ export default function AdminChatPage() {
     </div>
   );
 }
+

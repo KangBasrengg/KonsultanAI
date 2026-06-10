@@ -91,7 +91,7 @@ export default function KonsultasiPage() {
   return (
     <div className="min-h-screen bg-navy flex flex-col h-screen overflow-hidden">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-4 px-6 flex justify-between items-center shrink-0">
+      <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/" className="w-10 h-10 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
             <ArrowLeft className="w-5 h-5 text-putih" />
@@ -113,7 +113,7 @@ export default function KonsultasiPage() {
           <button 
             type="button" 
             onClick={() => setIsHistoryOpen(true)}
-            className="flex items-center gap-2 text-sm bg-navy-light border border-putih/10 px-4 py-2 rounded-lg hover:bg-putih/10 transition-colors text-putih"
+            className="flex items-center gap-2 text-sm bg-navy-light border border-putih/20 px-4 py-2 rounded-lg hover:bg-putih/10 transition-colors text-putih"
           >
             <FileText className="w-4 h-4" />
             <span className="hidden md:inline">Riwayat</span>
@@ -127,7 +127,7 @@ export default function KonsultasiPage() {
             <span className="hidden md:inline">Export PDF</span>
           </button>
           
-          <div className="ml-2 pl-2 border-l border-putih/10">
+          <div className="ml-2 pl-2 border-l border-putih/20">
             <UserDropdown />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function KonsultasiPage() {
       <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="text-center my-6">
-            <span className="bg-navy-light border border-putih/10 text-putih/50 text-xs px-3 py-1 rounded-full">
+            <span className="bg-navy-light border border-putih/20 text-putih/50 text-xs px-3 py-1 rounded-full">
               Sesi Konsultasi Baru (Free Trial 1/1)
             </span>
           </div>
@@ -159,7 +159,7 @@ export default function KonsultasiPage() {
                 
                 <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user" 
-                    ? "bg-navy-light border border-putih/10 rounded-tr-none text-putih whitespace-pre-wrap" 
+                    ? "bg-navy-light border border-putih/20 rounded-tr-none text-putih whitespace-pre-wrap" 
                     : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih/90 prose prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
                 }`}>
                   {msg.role === "assistant" ? (
@@ -211,7 +211,7 @@ export default function KonsultasiPage() {
       </main>
 
       {/* Input Area */}
-      <footer className="bg-navy-dark border-t border-putih/10 p-4 shrink-0">
+      <footer className="bg-navy-dark border-t border-putih/20 p-4 shrink-0">
         <div className="max-w-4xl mx-auto relative">
           <textarea 
             value={input}
@@ -239,3 +239,4 @@ export default function KonsultasiPage() {
     </div>
   );
 }
+

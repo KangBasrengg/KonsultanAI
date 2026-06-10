@@ -26,7 +26,7 @@ export default function TentangPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-navy-light/40 border border-putih/10 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
+          <div className="bg-navy-light/40 border border-putih/20 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
             <BookOpen className="w-10 h-10 text-gold mb-6 relative z-10" />
             <h3 className="text-xl font-bold mb-4 text-putih relative z-10">Fiksi Hukum & Edukasi</h3>
@@ -35,7 +35,7 @@ export default function TentangPage() {
             </p>
           </div>
 
-          <div className="bg-navy-light/40 border border-putih/10 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
+          <div className="bg-navy-light/40 border border-putih/20 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
             <Scale className="w-10 h-10 text-gold mb-6 relative z-10" />
             <h3 className="text-xl font-bold mb-4 text-putih relative z-10">Landasan Konstitusional</h3>
@@ -44,7 +44,7 @@ export default function TentangPage() {
             </p>
           </div>
 
-          <div className="bg-navy-light/40 border border-putih/10 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
+          <div className="bg-navy-light/40 border border-putih/20 p-8 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:border-gold/30 transition-colors">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
             <ShieldCheck className="w-10 h-10 text-gold mb-6 relative z-10" />
             <h3 className="text-xl font-bold mb-4 text-putih relative z-10">Batasan Operasional</h3>
@@ -59,3 +59,4 @@ export default function TentangPage() {
     </main>
   );
 }
+

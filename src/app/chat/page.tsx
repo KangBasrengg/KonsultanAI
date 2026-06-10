@@ -364,7 +364,7 @@ function ChatContent() {
   return (
     <div className="min-h-screen bg-navy text-putih flex flex-col h-screen overflow-hidden">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-3 px-6 shrink-0 z-10">
+      <header className="bg-navy-dark border-b border-putih/20 py-3 px-6 shrink-0 z-10">
         <div className="flex items-center gap-4">
           <Link href="/#harga" className="w-9 h-9 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
             <ArrowLeft className="w-4 h-4 text-putih" />
@@ -378,8 +378,8 @@ function ChatContent() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar (Riwayat Chat) */}
-        <div className="w-full md:w-80 bg-navy-light/30 border-r border-putih/10 flex flex-col shrink-0 md:flex hidden">
-          <div className="p-4 border-b border-putih/10">
+        <div className="w-full md:w-80 bg-navy-light/30 border-r border-putih/20 flex flex-col shrink-0 md:flex hidden">
+          <div className="p-4 border-b border-putih/20">
             <h2 className="font-bold flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-gold" /> Riwayat Transaksi
             </h2>
@@ -395,7 +395,7 @@ function ChatContent() {
                 <button
                   key={chat.id}
                   onClick={() => setActiveChatId(chat.id)}
-                  className={`w-full text-left p-4 border-b border-putih/5 hover:bg-putih/5 transition-colors ${
+                  className={`w-full text-left p-4 border-b border-putih/15 hover:bg-putih/5 transition-colors ${
                     activeChatId === chat.id ? "bg-putih/10 border-l-4 border-l-gold" : "border-l-4 border-l-transparent"
                   }`}
                 >
@@ -429,7 +429,7 @@ function ChatContent() {
           ) : (
             <>
               {/* Mobile back button & Banner */}
-              <div className="bg-navy-dark border-b border-putih/10 p-4 shrink-0 flex flex-col gap-2">
+              <div className="bg-navy-dark border-b border-putih/20 p-4 shrink-0 flex flex-col gap-2">
                 <button 
                   onClick={() => setActiveChatId(null)}
                   className="md:hidden flex items-center gap-2 text-xs text-putih/50 hover:text-putih transition-colors"
@@ -471,7 +471,7 @@ function ChatContent() {
                     <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
                       <Shield className="w-4 h-4 text-gold" />
                     </div>
-                    <div className="bg-navy-light/50 border border-putih/10 rounded-2xl rounded-tl-sm p-4 text-sm text-putih max-w-[80%] shadow-lg">
+                    <div className="bg-navy-light/50 border border-putih/20 rounded-2xl rounded-tl-sm p-4 text-sm text-putih max-w-[80%] shadow-lg">
                       Halo! Terima kasih telah memilih <strong>{activeChat?.plan}</strong>. <br/><br/>
                       Silakan lakukan pembayaran dan unggah bukti transfer di sini. Admin akan merespons melalui chat ini.
                     </div>
@@ -490,7 +490,7 @@ function ChatContent() {
                         <div className={`rounded-2xl p-4 text-sm shadow-lg ${
                           isMe 
                             ? "bg-gold text-navy rounded-tr-sm" 
-                            : "bg-navy-light/50 border border-putih/10 text-putih rounded-tl-sm max-w-[80%]"
+                            : "bg-navy-light/50 border border-putih/20 text-putih rounded-tl-sm max-w-[80%]"
                         }`}>
                           {msg.image_url && (
                             <div className="mb-2">
@@ -511,7 +511,7 @@ function ChatContent() {
 
               {/* Input */}
               {activeChat?.status === "open" ? (
-                <div className="bg-navy-dark border-t border-putih/10 p-4 shrink-0">
+                <div className="bg-navy-dark border-t border-putih/20 p-4 shrink-0">
                   <div className="max-w-4xl mx-auto">
                     {imagePreview && (
                       <div className="mb-3 relative inline-block">
@@ -526,7 +526,7 @@ function ChatContent() {
                     )}
 
                     <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
-                      <label className="shrink-0 p-3 bg-navy-light hover:bg-putih/10 text-putih/70 hover:text-gold rounded-xl cursor-pointer transition-colors border border-putih/10">
+                      <label className="shrink-0 p-3 bg-navy-light hover:bg-putih/10 text-putih/70 hover:text-gold rounded-xl cursor-pointer transition-colors border border-putih/20">
                         <ImageIcon className="w-5 h-5" />
                         <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                       </label>
@@ -535,7 +535,7 @@ function ChatContent() {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Ketik pesan atau upload bukti pembayaran..."
-                        className="flex-1 bg-navy-light border border-putih/10 rounded-xl px-4 py-3 text-sm text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 resize-none max-h-32"
+                        className="flex-1 bg-navy-light border border-putih/20 rounded-xl px-4 py-3 text-sm text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/50 resize-none max-h-32"
                         rows={1}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
@@ -560,7 +560,7 @@ function ChatContent() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-navy-dark border-t border-putih/10 p-4 shrink-0 text-center">
+                <div className="bg-navy-dark border-t border-putih/20 p-4 shrink-0 text-center">
                   <p className="text-sm text-putih/50 flex items-center justify-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
                     Transaksi ini sudah selesai. Form pesan ditutup.
@@ -613,4 +613,5 @@ export default function UserChatPage() {
     </Suspense>
   );
 }
+
 

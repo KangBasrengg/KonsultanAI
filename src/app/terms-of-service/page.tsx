@@ -13,7 +13,7 @@ export default function TermsOfServicePage() {
       <Navbar />
       
       <div className="flex-1 container mx-auto px-6 py-24 md:py-32 max-w-4xl">
-        <div className="bg-navy-light/30 border border-putih/10 p-8 md:p-12 rounded-3xl backdrop-blur-sm">
+        <div className="bg-navy-light/30 border border-putih/20 p-8 md:p-12 rounded-3xl backdrop-blur-sm">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-16 h-16 bg-navy border border-putih/20 flex items-center justify-center rounded-2xl shadow-lg">
               <FileText className="w-8 h-8 text-gold" />
@@ -70,3 +70,4 @@ export default function TermsOfServicePage() {
     </main>
   );
 }
+

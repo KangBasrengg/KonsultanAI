@@ -41,7 +41,7 @@ interface ChatData {
 }
 
 const TIER_CONFIG = {
-  free: { label: "Free", color: "text-putih/50", bg: "bg-putih/5", border: "border-putih/10", badge: "bg-putih/10 text-putih/60" },
+  free: { label: "Free", color: "text-putih/50", bg: "bg-putih/5", border: "border-putih/20", badge: "bg-putih/10 text-putih/60" },
   basic: { label: "Basic", color: "text-blue-400", bg: "bg-blue-500/5", border: "border-blue-500/20", badge: "bg-blue-500/20 text-blue-300" },
   professional: { label: "Professional", color: "text-gold", bg: "bg-gold/5", border: "border-gold/20", badge: "bg-gold/20 text-gold" },
 };
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-navy text-putih">
       {/* Header */}
-      <header className="bg-navy-dark border-b border-putih/10 py-4 px-6 sticky top-0 z-40">
+      <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link href="/" className="w-10 h-10 rounded-full bg-navy-light flex items-center justify-center hover:bg-putih/10 transition-colors">
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0 }}
-            className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 group hover:border-putih/20 transition-colors"
+            className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6 group hover:border-putih/20 transition-colors"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400">
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 group hover:border-gold/20 transition-colors"
+            className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6 group hover:border-gold/20 transition-colors"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-gold/10 text-gold">
@@ -381,7 +381,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 group hover:border-green-500/20 transition-colors"
+            className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6 group hover:border-green-500/20 transition-colors"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-green-500/10 text-green-400">
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-navy-light/40 border border-putih/10 rounded-2xl p-6 group hover:border-orange-500/20 transition-colors"
+            className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6 group hover:border-orange-500/20 transition-colors"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-4 border-b border-putih/10 pb-2">
+        <div className="flex items-center gap-4 border-b border-putih/20 pb-2">
           <button
             onClick={() => setActiveTab("users")}
             className={`font-bold pb-2 border-b-2 transition-colors ${activeTab === "users" ? "border-gold text-gold" : "border-transparent text-putih/50 hover:text-putih"}`}
@@ -441,9 +441,9 @@ export default function AdminDashboard() {
         {activeTab === "users" ? (
           <div className="space-y-8">
             {/* Users Table Section */}
-            <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden">
+            <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden">
           {/* Table Header / Controls */}
-          <div className="p-4 border-b border-putih/10 flex flex-col md:flex-row gap-3 md:items-center justify-between">
+          <div className="p-4 border-b border-putih/20 flex flex-col md:flex-row gap-3 md:items-center justify-between">
             <div className="flex items-center gap-3">
               <UserCheck className="w-5 h-5 text-gold" />
               <h2 className="font-bold text-lg">Daftar Pengguna</h2>
@@ -605,7 +605,7 @@ export default function AdminDashboard() {
                                         : "top-full mt-1 origin-top-right"
                                     } w-44 bg-navy-dark border border-putih/15 rounded-xl shadow-2xl z-50 overflow-hidden`}
                                   >
-                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-b border-putih/10 uppercase tracking-wider">
+                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-b border-putih/20 uppercase tracking-wider">
                                       Tingkat AI
                                     </div>
                                     {Object.entries(TIER_CONFIG).map(([key, config]) => (
@@ -624,7 +624,7 @@ export default function AdminDashboard() {
                                         {u.tier === key && <Check className="w-3.5 h-3.5" />}
                                       </button>
                                     ))}
-                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-y border-putih/10 uppercase tracking-wider mt-1">
+                                    <div className="px-3 py-2 text-xs font-semibold text-putih/40 border-y border-putih/20 uppercase tracking-wider mt-1">
                                       Manajemen
                                     </div>
                                     <button
@@ -654,8 +654,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Transactions Section */}
-        <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-putih/10 flex flex-col md:flex-row gap-3 md:items-center justify-between">
+        <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden">
+          <div className="p-4 border-b border-putih/20 flex flex-col md:flex-row gap-3 md:items-center justify-between">
             <div className="flex items-center gap-3">
               <MessageSquare className="w-5 h-5 text-gold" />
               <h2 className="font-bold text-lg">Status Transaksi</h2>
@@ -766,8 +766,8 @@ export default function AdminDashboard() {
         </div>
           </div>
         ) : activeTab === "advocates" ? (
-          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden p-6 space-y-6">
-            <div className="flex items-center gap-3 border-b border-putih/10 pb-4">
+          <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex items-center gap-3 border-b border-putih/20 pb-4">
               <Scale className="w-5 h-5 text-gold" />
               <h2 className="font-bold text-lg">Verifikasi Advokat</h2>
             </div>
@@ -779,7 +779,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-4">
                 {advocates.map(adv => (
-                  <div key={adv.id} className="bg-navy border border-putih/10 rounded-xl p-5 flex flex-col md:flex-row gap-6">
+                  <div key={adv.id} className="bg-navy border border-putih/20 rounded-xl p-5 flex flex-col md:flex-row gap-6">
                     <div className="flex-1 space-y-4">
                       <div className="flex items-start justify-between">
                         <div>
@@ -804,7 +804,7 @@ export default function AdminDashboard() {
                           <p className="text-putih/50 text-xs mb-1">Pengalaman</p>
                           <p>{adv.experience_years} Tahun</p>
                         </div>
-                        <div className="col-span-2 bg-putih/5 p-3 rounded-lg border border-putih/10">
+                        <div className="col-span-2 bg-putih/5 p-3 rounded-lg border border-putih/20">
                           <p className="text-putih/50 text-xs mb-1 font-semibold text-gold">Informasi Rekening Bank (Private)</p>
                           <p className="font-medium">{adv.bank_name} - {adv.bank_account}</p>
                         </div>
@@ -823,7 +823,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {adv.verification_status === "pending" && (
-                      <div className="flex flex-row md:flex-col gap-2 justify-center border-t md:border-t-0 md:border-l border-putih/10 pt-4 md:pt-0 md:pl-6 min-w-[140px]">
+                      <div className="flex flex-row md:flex-col gap-2 justify-center border-t md:border-t-0 md:border-l border-putih/20 pt-4 md:pt-0 md:pl-6 min-w-[140px]">
                         <button
                           onClick={() => handleVerifyAdvocate(adv.id, "approved")}
                           className="flex-1 bg-green-500/20 text-green-400 hover:bg-green-500/30 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
@@ -846,13 +846,13 @@ export default function AdminDashboard() {
             )}
           </div>
         ) : (
-          <div className="bg-navy-light/30 border border-putih/10 rounded-2xl overflow-hidden p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-putih/10 pb-4">
+          <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-putih/20 pb-4">
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-gold" />
                 <h2 className="font-bold text-lg">Riwayat Keuangan</h2>
               </div>
-              <div className="flex items-center gap-2 bg-navy border border-putih/10 rounded-lg p-1">
+              <div className="flex items-center gap-2 bg-navy border border-putih/20 rounded-lg p-1">
                 <button
                   onClick={() => setTransactionTab("consultations")}
                   className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors ${transactionTab === "consultations" ? "bg-putih/10 text-putih" : "text-putih/50 hover:text-putih"}`}
@@ -990,7 +990,7 @@ export default function AdminDashboard() {
       {/* Edit User Modal */}
       {editUserModal.isOpen && editUserModal.user && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setEditUserModal({isOpen: false, user: null})}>
-          <div className="bg-navy-light border border-putih/10 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-navy-light border border-putih/20 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-xl mb-4 text-putih">Edit Pengguna</h3>
             <div className="space-y-4 mb-6">
               <div>
@@ -1049,3 +1049,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
