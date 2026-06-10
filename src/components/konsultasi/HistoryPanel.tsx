@@ -62,9 +62,9 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative ml-auto w-full max-w-lg bg-navy-dark border-l border-putih/10 flex flex-col h-full animate-in slide-in-from-right duration-300">
+      <div className="relative ml-auto w-full max-w-lg bg-navy-dark border-l border-putih/20 flex flex-col h-full animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-putih/10 shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-putih/20 shrink-0">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-gold" />
             <h2 className="text-putih font-bold text-lg">
@@ -98,7 +98,7 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
               {/* Chronology */}
               <div className="space-y-2">
                 <h3 className="text-xs font-bold text-putih/60 uppercase tracking-wider">Kronologi</h3>
-                <div className="p-4 bg-navy-light border border-putih/10 rounded-xl text-sm text-putih/80 whitespace-pre-wrap leading-relaxed">
+                <div className="p-4 bg-navy-light border border-putih/20 rounded-xl text-sm text-putih/80 whitespace-pre-wrap leading-relaxed">
                   {selected.chronology}
                 </div>
               </div>
@@ -106,7 +106,7 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
               {/* AI Analysis */}
               <div className="space-y-2">
                 <h3 className="text-xs font-bold text-gold/70 uppercase tracking-wider">Analisis AI</h3>
-                <div className="p-4 bg-gold/5 border border-gold/20 rounded-xl text-sm text-putih/90 prose prose-invert prose-sm max-w-none prose-p:leading-relaxed">
+                <div className="p-4 bg-gold/5 border border-gold/20 rounded-xl text-sm text-putih/90 prose dark:prose-invert prose-sm max-w-none prose-p:leading-relaxed">
                   <ReactMarkdown>{selected.ai_analysis}</ReactMarkdown>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
                   key={item.id}
                   type="button"
                   onClick={() => setSelectedId(item.id)}
-                  className="w-full text-left p-4 bg-navy-light/50 border border-putih/5 rounded-xl hover:border-gold/20 hover:bg-navy-light transition-all group"
+                  className="w-full text-left p-4 bg-navy-light/50 border border-putih/15 rounded-xl hover:border-gold/20 hover:bg-navy-light transition-all group"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -153,3 +153,4 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
     </div>
   );
 }
+

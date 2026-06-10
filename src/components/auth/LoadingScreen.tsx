@@ -42,12 +42,12 @@ export default function LoadingScreen() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-2 border-putih/10 border-t-gold"
+              className="absolute inset-0 rounded-full border-2 border-putih/20 border-t-gold"
             />
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-1 rounded-full border-2 border-putih/5 border-b-gold/50"
+              className="absolute inset-1 rounded-full border-2 border-putih/15 border-b-gold/50"
             />
           </div>
 
@@ -81,3 +81,4 @@ export default function LoadingScreen() {
     </div>
   );
 }
+

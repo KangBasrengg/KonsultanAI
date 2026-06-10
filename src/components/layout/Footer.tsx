@@ -7,7 +7,7 @@ import LogoImage from "@/components/images/LogoUpdated.png";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-putih/10 bg-navy-dark pt-16 pb-8">
+    <footer className="border-t border-putih/20 bg-navy-dark pt-16 pb-8">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           <div className="md:col-span-2 space-y-6">
@@ -79,7 +79,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-putih/10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/40">
+        <div className="pt-8 border-t border-putih/20 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/40">
           <p>© {new Date().getFullYear()} Muhammad Nuril & Bahrul Ilmi. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Dibuat dengan <Heart className="w-4 h-4 text-merah fill-merah" /> di Indonesia
@@ -89,3 +89,4 @@ export default function Footer() {
     </footer>
   );
 }
+

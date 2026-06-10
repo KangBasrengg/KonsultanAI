@@ -160,7 +160,7 @@ export default function KonsultasiPage() {
                 <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user" 
                     ? "bg-navy-light border border-putih/20 rounded-tr-none text-putih whitespace-pre-wrap" 
-                    : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih/90 prose prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
+                    : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih/90 prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
                 }`}>
                   {msg.role === "assistant" ? (
                     isThinking ? (

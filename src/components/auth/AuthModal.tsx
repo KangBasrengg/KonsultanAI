@@ -115,7 +115,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
             className="relative w-full max-w-md z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-navy-light/70 backdrop-blur-xl border border-putih/10 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
+            <div className="bg-navy-light/70 backdrop-blur-xl border border-putih/20 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
               {/* Close button */}
               <button
                 type="button"
@@ -151,7 +151,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
               {/* Form */}
               <div className="px-8 pb-8">
                 {/* Tabs */}
-                <div className="flex bg-navy p-1 rounded-xl mb-6 border border-putih/10 relative">
+                <div className="flex bg-navy p-1 rounded-xl mb-6 border border-putih/20 relative">
                   <button
                     type="button"
                     onClick={() => { setIsLogin(true); setError(null); setSuccess(null); }}
@@ -286,3 +286,4 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
     </AnimatePresence>
   );
 }
+
