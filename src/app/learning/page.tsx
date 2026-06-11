@@ -1,261 +1,71 @@
-"use client";
+import { createClient } from "@supabase/supabase-js";
+import LearningCenterClient, { CategoryData, CourseData } from "./LearningCenterClient";
+import { Shield, Scale, Briefcase, Monitor } from "lucide-react";
 
-import { motion } from "framer-motion";
-import { BookOpen, Shield, Scale, Briefcase, Monitor, Award, Search, ArrowRight, PlayCircle } from "lucide-react";
-import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+// Initialize Supabase Admin Client to bypass RLS and fetch catalog
+// Fallback to anon key if service role key is missing (to prevent crash)
+const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  supabaseAdminKey
+);
 
-export default function LearningCenterPage() {
-  const categories = [
-    {
-      id: "pidana",
-      title: "Hukum Pidana",
-      desc: "Pelajari tentang tindak pidana, penipuan, penggelapan, dan proses hukum pidana dasar.",
-      icon: <Shield className="w-6 h-6 text-red-400" />,
-      color: "from-red-500/20 to-red-900/20",
-      border: "border-red-500/30",
-      topics: 12
-    },
-    {
-      id: "perdata",
-      title: "Hukum Perdata",
-      desc: "Pahami tentang wanprestasi, perbuatan melawan hukum, dan hukum perjanjian.",
-      icon: <Scale className="w-6 h-6 text-blue-400" />,
-      color: "from-blue-500/20 to-blue-900/20",
-      border: "border-blue-500/30",
-      topics: 15
-    },
-    {
-      id: "bisnis",
-      title: "Hukum Bisnis",
-      desc: "Panduan legalitas usaha, kontrak kerja sama, hak kekayaan intelektual (HKI), dan sengketa.",
-      icon: <Briefcase className="w-6 h-6 text-gold" />,
-      color: "from-gold/20 to-yellow-900/20",
-      border: "border-gold/30",
-      topics: 20
-    },
-    {
-      id: "teknologi",
-      title: "Hukum Teknologi & ITE",
-      desc: "Dasar UU ITE, penipuan online, keamanan data pribadi, dan jejak digital.",
-      icon: <Monitor className="w-6 h-6 text-purple-400" />,
-      color: "from-purple-500/20 to-purple-900/20",
-      border: "border-purple-500/30",
-      topics: 8
-    }
-  ];
+export const revalidate = 60; // Revalidate cache every 60 seconds
 
-  const featuredCourses = [
-    {
-      title: "Dasar-dasar Kontrak Bisnis",
-      category: "Hukum Bisnis",
-      duration: "45 Menit",
-      premium: true,
-      image: "bg-gradient-to-br from-navy-light to-navy"
-    },
-    {
-      title: "Memahami Hak Konsumen",
-      category: "Hukum Konsumen",
-      duration: "30 Menit",
-      premium: false,
-      image: "bg-gradient-to-br from-navy-light to-navy"
-    },
-    {
-      title: "Langkah Hukum Kasus Penipuan",
-      category: "Hukum Pidana",
-      duration: "60 Menit",
-      premium: true,
-      image: "bg-gradient-to-br from-navy-light to-navy"
-    }
-  ];
+export default async function LearningCenterPage() {
+  // Fetch Categories with their material counts
+  const { data: categoriesData, error: catError } = await supabase
+    .from("legal_categories")
+    .select(`
+      id, 
+      name, 
+      description,
+      legal_materials ( id )
+    `);
 
-  return (
-    <main className="min-h-screen selection:bg-gold/30">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gold/10 blur-[120px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-500/10 blur-[120px] rounded-full pointer-events-none translate-y-1/3 -translate-x-1/3"></div>
+  if (catError) console.error("Error fetching categories:", catError);
 
-        <div className="container mx-auto px-6 lg:px-12 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-navy-light border border-gold/30 mb-8 shadow-[0_0_20px_rgba(212,175,55,0.15)]"
-            >
-              <BookOpen className="w-4 h-4 text-gold" />
-              <span className="text-sm font-semibold text-putih">Legal Learning Center</span>
-            </motion.div>
-            
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-            >
-              Pahami Hukum dengan <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-yellow-200 to-gold">Bahasa yang Sederhana</span>
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg md:text-xl text-putih/70 mb-10 max-w-2xl mx-auto"
-            >
-              Tingkatkan literasi hukum Anda sesuai kebutuhan. Jelajahi berbagai kategori, pelajari kasus nyata, dan lindungi hak-hak Anda tanpa kebingungan.
-            </motion.p>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="relative max-w-xl mx-auto"
-            >
-              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className="w-5 h-5 text-putih/40" />
-              </div>
-              <input 
-                type="text" 
-                placeholder="Cari materi, pasal, atau kasus..." 
-                className="w-full bg-navy-light/50 border border-putih/20 text-putih rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+  // Fetch Featured Courses (Top 3 materials)
+  const { data: coursesData, error: courseError } = await supabase
+    .from("legal_materials")
+    .select(`
+      id,
+      title,
+      is_premium,
+      legal_categories ( name )
+    `)
+    .order("order_index", { ascending: true })
+    .limit(3);
 
-      {/* Explore Categories */}
-      <section className="py-20 bg-navy-dark/50 border-t border-white/5 relative z-10">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Pilih <span className="text-gold">Fokus Belajar</span> Anda</h2>
-              <p className="text-putih/60 text-lg max-w-2xl">Materi hukum disusun rapi berdasarkan kategori untuk memudahkan Anda menemukan apa yang sedang Anda cari.</p>
-            </div>
-            <button className="hidden md:flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium">
-              Lihat Semua Kategori <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+  if (courseError) console.error("Error fetching courses:", courseError);
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            {categories.map((cat, idx) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className={`bg-gradient-to-br ${cat.color} backdrop-blur-sm border ${cat.border} rounded-3xl p-8 hover:-translate-y-2 transition-transform duration-300 group cursor-pointer relative overflow-hidden`}
-              >
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity group-hover:scale-150 duration-500 origin-bottom-left">
-                  {cat.icon}
-                </div>
-                <div className="w-14 h-14 rounded-2xl bg-navy/50 flex items-center justify-center mb-6 border border-white/10 shadow-lg group-hover:scale-110 transition-transform">
-                  {cat.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{cat.title}</h3>
-                <p className="text-putih/60 text-sm mb-6 leading-relaxed line-clamp-3">
-                  {cat.desc}
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-xs font-semibold text-putih/50 bg-navy/40 px-3 py-1.5 rounded-full">
-                    {cat.topics} Topik
-                  </span>
-                  <div className="w-8 h-8 rounded-full bg-putih/10 flex items-center justify-center group-hover:bg-gold group-hover:text-navy transition-colors">
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          <button className="md:hidden w-full mt-8 flex justify-center items-center gap-2 text-gold hover:text-gold-light border border-gold/30 rounded-xl py-4 transition-colors font-medium">
-            Lihat Semua Kategori <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </section>
+  // Map category data to UI Format
+  const getCategoryTheme = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes("pidana")) return { icon: <Shield className="w-6 h-6 text-red-400" />, color: "from-red-500/20 to-red-900/20", border: "border-red-500/30" };
+    if (lowerName.includes("perdata")) return { icon: <Scale className="w-6 h-6 text-blue-400" />, color: "from-blue-500/20 to-blue-900/20", border: "border-blue-500/30" };
+    if (lowerName.includes("bisnis")) return { icon: <Briefcase className="w-6 h-6 text-gold" />, color: "from-gold/20 to-yellow-900/20", border: "border-gold/30" };
+    return { icon: <Monitor className="w-6 h-6 text-purple-400" />, color: "from-purple-500/20 to-purple-900/20", border: "border-purple-500/30" };
+  };
 
-      {/* Featured Courses */}
-      <section className="py-24 relative z-10">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">Materi <span className="text-gold">Populer</span></h2>
-            <p className="text-putih/60 text-lg max-w-2xl mx-auto">Materi yang paling banyak dipelajari oleh pengguna kami minggu ini.</p>
-          </div>
+  const formattedCategories: CategoryData[] = (categoriesData || []).map((cat) => ({
+    id: cat.id,
+    title: cat.name,
+    desc: cat.description || "",
+    ...getCategoryTheme(cat.name),
+    // @ts-ignore - Supabase types might not perfectly infer the joined array
+    topics: cat.legal_materials ? cat.legal_materials.length : 0,
+  }));
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {featuredCourses.map((course, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.15 }}
-                className="bg-navy-light border border-putih/10 rounded-3xl overflow-hidden group hover:border-gold/50 transition-colors"
-              >
-                <div className={`h-48 ${course.image} relative flex items-center justify-center overflow-hidden`}>
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors z-10" />
-                  <PlayCircle className="w-16 h-16 text-putih/50 group-hover:text-gold group-hover:scale-110 transition-all z-20" />
-                  {course.premium && (
-                    <div className="absolute top-4 left-4 z-20 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                      <Award className="w-3 h-3" /> Premium
-                    </div>
-                  )}
-                </div>
-                <div className="p-6 md:p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-semibold text-putih/50 bg-putih/5 px-3 py-1 rounded-full border border-putih/10">
-                      {course.category}
-                    </span>
-                    <span className="text-xs text-putih/40 flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-gold"></div>
-                      {course.duration}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 group-hover:text-gold transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <button className="w-full py-3 rounded-xl font-bold transition-all bg-putih/5 text-putih hover:bg-gold hover:text-navy mt-4 border border-putih/10 group-hover:border-gold/50">
-                    Mulai Belajar
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+  // Map courses to UI format
+  const formattedCourses: CourseData[] = (coursesData || []).map((course: any) => ({
+    id: course.id,
+    title: course.title,
+    category: course.legal_categories?.name || "Umum",
+    duration: "45 Menit", // Dummy duration since we don't have it in schema yet
+    premium: course.is_premium,
+    image: "bg-gradient-to-br from-navy-light to-navy",
+  }));
 
-      {/* CTA Section */}
-      <section className="py-20 relative z-10">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="bg-gradient-to-br from-gold/20 to-navy-light border border-gold/30 rounded-[2.5rem] p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-            
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih relative z-10">Siap Menjadi Lebih <span className="text-gold">Melek Hukum?</span></h2>
-            <p className="text-lg text-putih/80 mb-10 max-w-2xl mx-auto relative z-10">Akses seluruh materi hukum secara tidak terbatas, dapatkan sertifikat penyelesaian, dan kuasai dasar-dasar legalitas sekarang.</p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
-              <Link href="/#harga">
-                <button className="w-full sm:w-auto px-8 py-4 bg-gold text-navy rounded-full font-bold hover:bg-gold-light transition-all transform hover:scale-105 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-                  Upgrade ke Premium
-                </button>
-              </Link>
-              <button className="w-full sm:w-auto px-8 py-4 bg-navy text-putih border border-white/20 rounded-full font-bold hover:bg-putih/10 transition-colors">
-                Mulai dari Gratis
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </main>
-  );
+  return <LearningCenterClient categories={formattedCategories} featuredCourses={formattedCourses} />;
 }
