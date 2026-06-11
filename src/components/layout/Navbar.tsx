@@ -64,6 +64,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/tentang" className="text-putih/80 hover:text-gold transition-colors">Tentang</Link>
           <Link href="/konsultasi" className="text-putih/80 hover:text-gold transition-colors">Konsultasi AI</Link>
+          <Link href="/learning" className="text-putih/80 hover:text-gold transition-colors">Learning Center</Link>
           <Link href="/marketplace" className="text-putih/80 hover:text-gold transition-colors flex items-center gap-1">
             <Scale className="w-3.5 h-3.5" />
             Marketplace
@@ -195,6 +196,7 @@ export default function Navbar() {
         >
           <Link href="/tentang" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
           <Link href="/konsultasi" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
+          <Link href="/learning" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Learning Center</Link>
           <Link href="/marketplace" className="text-putih/80 hover:text-gold flex items-center gap-1.5" onClick={() => setIsMobileMenuOpen(false)}>
             <Scale className="w-3.5 h-3.5" />
             Marketplace Advokat

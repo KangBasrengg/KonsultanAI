@@ -181,7 +181,7 @@ function RegistrationContent() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-navy flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="bg-navy-light/50 border border-putih/20 p-8 rounded-3xl">
             <Scale className="w-16 h-16 text-gold/80 mx-auto mb-6" />
@@ -211,7 +211,7 @@ function RegistrationContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-navy flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -239,7 +239,7 @@ function RegistrationContent() {
   }
 
   return (
-    <div className="min-h-screen bg-navy text-putih">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto flex items-center justify-between">

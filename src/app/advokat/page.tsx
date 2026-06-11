@@ -126,7 +126,7 @@ export default function AdvocateDashboard() {
 
   if (!advocate) {
     return (
-      <div className="min-h-screen bg-navy flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center">
           <Scale className="w-16 h-16 text-putih/20 mx-auto mb-6" />
           <h1 className="text-2xl font-bold mb-3">Belum Terdaftar</h1>
@@ -148,7 +148,7 @@ export default function AdvocateDashboard() {
   const StatusIcon = status.icon;
 
   return (
-    <div className="min-h-screen bg-navy text-putih">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto flex items-center justify-between">

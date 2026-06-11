@@ -38,7 +38,7 @@
     --theme-merah: #da251d;
     --theme-putih: #0b132b;
     
-    --background: var(--theme-navy);
+    --background: radial-gradient(circle, #aabee8, #adc1ea, #b0c3eb, #b4c6ed, #b7c9ee);
     --foreground: var(--theme-putih);
   }
 }

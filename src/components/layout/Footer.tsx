@@ -42,7 +42,7 @@ export default function Footer() {
             <ul className="space-y-4 text-putih/60">
               <li><Link href="/terms-of-service" className="hover:text-gold transition-colors">Terms of Service</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-gold transition-colors">Disclaimer</Link></li>
+              <li><Link href="/disclaimer" className="hover:text-gold transition-colors">Disclaimer</Link></li>
             </ul>
           </div>
 

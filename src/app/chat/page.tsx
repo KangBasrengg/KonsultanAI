@@ -362,7 +362,7 @@ function ChatContent() {
   const activeChat = chats.find(c => c.id === activeChatId);
 
   return (
-    <div className="min-h-screen bg-navy text-putih flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen flex flex-col h-screen overflow-hidden">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-3 px-6 shrink-0 z-10">
         <div className="flex items-center gap-4">

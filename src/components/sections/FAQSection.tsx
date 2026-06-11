@@ -27,7 +27,7 @@ export default function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="py-24 bg-navy">
+    <section className="py-24">
       <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Pertanyaan <span className="text-gold">Umum</span></h2>

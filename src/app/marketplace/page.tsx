@@ -98,7 +98,7 @@ export default function MarketplacePage() {
   };
 
   return (
-    <main className="min-h-screen bg-navy text-putih">
+    <main className="min-h-screen">
       <Navbar />
 
       {/* Hero Section */}

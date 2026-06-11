@@ -7,6 +7,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { ArrowLeft, Briefcase, Award, MapPin, Scale, RefreshCw, CheckCircle2, Shield, Lock, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import ScrollFadeIn from "@/components/ui/ScrollFadeIn";
 
 declare global {
   interface Window {
@@ -144,7 +145,7 @@ export default function AdvocateDetailPage() {
   }
 
   return (
-    <main className="min-h-screen pt-28 pb-20 px-6 lg:px-12 bg-navy relative overflow-hidden">
+    <main className="min-h-screen pt-28 pb-20 px-6 lg:px-12 relative overflow-hidden">
       {/* Decorative Blur */}
       <div className="absolute top-20 -right-20 w-[600px] h-[600px] bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 -left-20 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
@@ -180,7 +181,7 @@ export default function AdvocateDetailPage() {
             {/* Left Column - Profile & Info */}
             <div className="lg:col-span-2 space-y-6">
               {/* Header Card */}
-              <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+              <ScrollFadeIn className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-32 h-32 rounded-2xl bg-navy overflow-hidden relative shrink-0 border border-putih/20 shadow-xl">
                   {advocate.photo_url ? (
                     <Image src={advocate.photo_url} alt={advocate.full_name} fill className="object-cover" />
@@ -215,10 +216,10 @@ export default function AdvocateDetailPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </ScrollFadeIn>
 
               {/* Bio & Details */}
-              <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 space-y-8">
+              <ScrollFadeIn delay={0.1} className="bg-navy-light/30 border border-putih/20 rounded-3xl p-6 md:p-8 space-y-8">
                 <div>
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <User className="w-5 h-5 text-gold" />
@@ -251,12 +252,12 @@ export default function AdvocateDetailPage() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </ScrollFadeIn>
             </div>
 
             {/* Right Column - Booking Card */}
             <div className="lg:col-span-1">
-              <div className="bg-navy-light/50 border border-gold/30 rounded-3xl p-6 sticky top-32 shadow-2xl shadow-black/50">
+              <ScrollFadeIn delay={0.2} className="bg-navy-light/50 border border-gold/30 rounded-3xl p-6 sticky top-32 shadow-2xl shadow-black/50">
                 <h3 className="font-bold text-lg mb-2">Tarif Konsultasi</h3>
                 <div className="text-3xl font-bold text-gold mb-6">
                   Rp {advocate.consultation_rate.toLocaleString("id-ID")}
@@ -295,7 +296,7 @@ export default function AdvocateDetailPage() {
                     )}
                   </button>
                 )}
-              </div>
+              </ScrollFadeIn>
             </div>
           </div>
         )}

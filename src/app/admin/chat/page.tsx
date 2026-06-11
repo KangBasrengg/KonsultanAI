@@ -188,7 +188,7 @@ export default function AdminChatPage() {
   if (isVerifying || !isAdmin) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-navy flex flex-col h-screen overflow-hidden text-putih">
+    <div className="min-h-screen flex flex-col h-screen overflow-hidden">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-3 px-6 shrink-0 z-10 flex justify-between items-center">
         <div className="flex items-center gap-4">

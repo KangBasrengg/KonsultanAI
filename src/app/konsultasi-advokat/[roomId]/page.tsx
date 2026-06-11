@@ -174,7 +174,7 @@ export default function ConsultationChatRoom() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-navy flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-10 h-10 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
       </div>
     );
@@ -182,7 +182,7 @@ export default function ConsultationChatRoom() {
 
   if (!room) {
     return (
-      <div className="min-h-screen bg-navy flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
         <h1 className="text-2xl font-bold text-putih mb-4">Ruang Chat Tidak Ditemukan</h1>
         <p className="text-putih/60 mb-6">Ruang konsultasi ini tidak ada atau Anda tidak memiliki akses.</p>
         <button onClick={() => router.back()} className="bg-gold text-navy px-6 py-2 rounded-full font-bold">Kembali</button>
@@ -195,7 +195,7 @@ export default function ConsultationChatRoom() {
   const isExpired = new Date(room.expires_at) < new Date();
 
   return (
-    <div className="min-h-screen bg-navy text-putih flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between">

@@ -1,6 +1,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ShieldCheck } from "lucide-react";
+import ScrollFadeIn from "@/components/ui/ScrollFadeIn";
 
 export const metadata = {
   title: "Privacy Policy | KonsultanAI",
@@ -9,11 +10,11 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-navy text-putih flex flex-col">
+    <main className="min-h-screen flex flex-col">
       <Navbar />
       
       <div className="flex-1 container mx-auto px-6 py-24 md:py-32 max-w-4xl">
-        <div className="bg-navy-light/30 border border-putih/20 p-8 md:p-12 rounded-3xl backdrop-blur-sm">
+        <ScrollFadeIn className="bg-navy-light/30 border border-putih/20 p-8 md:p-12 rounded-3xl backdrop-blur-sm">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-16 h-16 bg-navy border border-putih/20 flex items-center justify-center rounded-2xl shadow-lg">
               <ShieldCheck className="w-8 h-8 text-gold" />
@@ -66,7 +67,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
           </div>
-        </div>
+        </ScrollFadeIn>
       </div>
 
       <Footer />

@@ -144,7 +144,7 @@ export default function SettingsPage() {
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-navy flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
       </div>
     );
@@ -153,7 +153,7 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-navy text-putih">
+    <main className="min-h-screen">
       <Navbar />
 
       <section className="pt-32 pb-20 px-6 max-w-4xl mx-auto">

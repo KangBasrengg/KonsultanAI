@@ -22,9 +22,9 @@ export default function PricingSection() {
         { name: "1x Generate Analisis", inc: true },
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
+        { name: "3 Materi Legal Learning", inc: true },
         { name: "Riwayat Konsultasi", inc: false },
         { name: "Download Laporan", inc: false },
-        { name: "Prioritas Respon", inc: false },
       ],
       cta: "Coba Sekarang",
       highlight: false
@@ -36,12 +36,12 @@ export default function PricingSection() {
       period: "/bulan",
       desc: "Cocok untuk masyarakat umum yang butuh akses reguler.",
       features: [
-        { name: "Unlimited Generate", inc: true },
+        { name: "10x Generate Analisis", inc: true },
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
         { name: "Riwayat Konsultasi", inc: true },
         { name: "Download Laporan PDF", inc: true },
-        { name: "Prioritas Respon", inc: false },
+        { name: "8 Materi Legal Learning", inc: true },
       ],
       cta: "Berlangganan",
       highlight: true
@@ -53,12 +53,12 @@ export default function PricingSection() {
       period: "/bulan",
       desc: "Untuk praktisi, mahasiswa hukum, dan UMKM.",
       features: [
-        { name: "Unlimited Generate", inc: true },
+        { name: "25x Generate Analisis", inc: true },
+        { name: "Semua Fitur Basic", inc: true },
         { name: "Analisis Mendalam & Detail", inc: true },
         { name: "Template Laporan Premium", inc: true },
-        { name: "Riwayat Konsultasi", inc: true },
-        { name: "Download Laporan PDF", inc: true },
-        { name: "Prioritas Respon AI", inc: true },
+        { name: "AI Legal Tutor", inc: true },
+        { name: "20 Materi & Sertifikat", inc: true },
       ],
       cta: "Berlangganan",
       highlight: false
@@ -72,10 +72,11 @@ export default function PricingSection() {
       features: [
         { name: "Semua Fitur Professional", inc: true },
         { name: "Akses Tim (5 Akun)", inc: true },
-        { name: "Akses Draft Kontrak Bisnis", inc: true },
+        { name: "AI Contract Review", inc: true },
+        { name: "Legal Compliance Checker", inc: true },
+        { name: "Template Kontrak Bisnis", inc: true },
         { name: "Manajemen Dokumen Terpusat", inc: true },
-        { name: "Dukungan Prioritas 24/7", inc: true },
-        { name: "Kustomisasi Template Laporan", inc: true },
+        { name: "Dukungan Prioritas", inc: true },
       ],
       cta: "Hubungi Sales",
       highlight: false

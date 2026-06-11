@@ -28,7 +28,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="cara-kerja" className="py-24 bg-navy">
+    <section id="cara-kerja" className="py-24">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Cara Kerja <span className="text-gold">AI</span></h2>

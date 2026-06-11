@@ -17,7 +17,7 @@ export default function DemoSection() {
   };
 
   return (
-    <section className="py-24 bg-navy relative overflow-hidden border-t border-putih/15">
+    <section className="py-24 relative overflow-hidden border-t border-putih/15">
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="container mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12">

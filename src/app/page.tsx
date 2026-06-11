@@ -12,7 +12,7 @@ import AuthTrigger from "@/components/auth/AuthTrigger";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-navy text-putih">
+    <main className="min-h-screen">
       <Suspense fallback={null}>
         <AuthTrigger />
       </Suspense>

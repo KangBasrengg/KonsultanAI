@@ -89,7 +89,7 @@ export default function KonsultasiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen flex flex-col h-screen overflow-hidden">
       {/* Header */}
       <header className="bg-navy-dark border-b border-putih/20 py-4 px-6 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-4">
