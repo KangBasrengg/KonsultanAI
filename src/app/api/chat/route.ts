@@ -167,8 +167,9 @@ export async function POST(req: Request) {
       model: freemodel("gpt-5.4-mini"),
       system: SYSTEM_PROMPT,
       messages: modelMessages,
-      onFinish: async ({ text }) => {
-        if (text && lastUserMessage && userId) {
+      onFinish: async ({ text, finishReason }) => {
+        // Hanya simpan (dan hitung limit) jika generate berhasil (stop/length)
+        if (text && lastUserMessage && userId && (finishReason === 'stop' || finishReason === 'length')) {
           try {
             const supabase = await createClient();
             const { error } = await supabase.from("consultations").insert({
@@ -181,6 +182,8 @@ export async function POST(req: Request) {
           } catch (saveError) {
             console.error("[Chat API] DB save error:", saveError);
           }
+        } else {
+          console.log("[Chat API] Generate failed or incomplete, finishReason:", finishReason);
         }
       },
     });

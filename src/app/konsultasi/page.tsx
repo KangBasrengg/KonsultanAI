@@ -27,7 +27,7 @@ function getMessageText(msg: any): string {
 }
 
 export default function KonsultasiPage() {
-  const { messages, setMessages, sendMessage, status, error } = useChat({
+  const { messages, setMessages, sendMessage, status, error, reload } = useChat({
     messages: [
       {
         id: "welcome-msg",
@@ -100,7 +100,7 @@ export default function KonsultasiPage() {
             <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
               <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
             </div>
-            <div>
+            <div className="hidden md:block">
               <h1 className="font-bold text-lg leading-tight text-putih">KonsultanAI</h1>
               <p className="text-xs text-putih/50 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
@@ -203,6 +203,13 @@ export default function KonsultasiPage() {
               </div>
               <h3 className="text-putih font-bold text-lg">Terjadi Kesalahan</h3>
               <p className="text-putih/70 text-sm mb-2">{error.message || "Gagal terhubung ke AI. Silakan coba lagi."}</p>
+              <button
+                type="button"
+                onClick={() => reload()}
+                className="bg-gold text-navy font-bold px-6 py-2 rounded-xl hover:bg-gold-light transition-colors mt-2"
+              >
+                Coba Lagi
+              </button>
             </div>
           )}
 

@@ -55,7 +55,7 @@ export default function Navbar() {
           <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-white/20 rounded-xl shadow-md overflow-hidden">
             <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
           </div>
-          <span className="font-bold text-xl md:text-2xl tracking-tight text-putih">
+          <span className="hidden md:inline-block font-bold text-xl md:text-2xl tracking-tight text-putih">
             Konsultan<span className="text-gold">AI</span>
           </span>
         </Link>

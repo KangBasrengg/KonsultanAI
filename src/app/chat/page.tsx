@@ -371,7 +371,7 @@ function ChatContent() {
           </Link>
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-gold" />
-            <h1 className="font-bold text-lg text-putih">KonsultanAI Care</h1>
+            <h1 className="hidden md:block font-bold text-lg text-putih">KonsultanAI Care</h1>
           </div>
         </div>
       </header>
