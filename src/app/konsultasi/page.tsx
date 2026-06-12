@@ -27,7 +27,7 @@ function getMessageText(msg: any): string {
 }
 
 export default function KonsultasiPage() {
-  const { messages, setMessages, sendMessage, status, error, reload } = useChat({
+  const { messages, setMessages, sendMessage, status, error } = useChat({
     messages: [
       {
         id: "welcome-msg",
@@ -65,6 +65,18 @@ export default function KonsultasiPage() {
     const userMessage = input.trim();
     setInput("");
     await sendMessage({ text: userMessage });
+  };
+
+  const handleRetry = async () => {
+    const reversed = [...messages].reverse();
+    const lastUserIndexReversed = reversed.findIndex(m => m.role === "user");
+    if (lastUserIndexReversed !== -1) {
+      const actualIndex = messages.length - 1 - lastUserIndexReversed;
+      const lastUserMsg = messages[actualIndex];
+      const text = getMessageText(lastUserMsg);
+      setMessages(messages.slice(0, actualIndex));
+      await sendMessage({ text });
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -205,7 +217,7 @@ export default function KonsultasiPage() {
               <p className="text-putih/70 text-sm mb-2">{error.message || "Gagal terhubung ke AI. Silakan coba lagi."}</p>
               <button
                 type="button"
-                onClick={() => reload()}
+                onClick={handleRetry}
                 className="bg-gold text-navy font-bold px-6 py-2 rounded-xl hover:bg-gold-light transition-colors mt-2"
               >
                 Coba Lagi
