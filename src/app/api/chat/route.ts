@@ -110,6 +110,7 @@ export async function POST(req: Request) {
     // 3. Check authentication
     let userId: string | null = null;
     let isPremium = false;
+    let isAdmin = false;
     
     try {
       const supabase = await createClient();
@@ -121,12 +122,14 @@ export async function POST(req: Request) {
 
         const { data: profile } = await supabase
           .from("users")
-          .select("is_premium")
+          .select("is_premium, role")
           .eq("id", user.id)
           .single();
         isPremium = profile?.is_premium || false;
+        isAdmin = profile?.role === "admin";
 
-        if (!isPremium) {
+        // Admin accounts bypass all consultation limits
+        if (!isPremium && !isAdmin) {
           const { count } = await supabase
             .from("consultations")
             .select("*", { count: "exact", head: true })
@@ -139,6 +142,8 @@ export async function POST(req: Request) {
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
         }
+
+        console.log("[Chat API] User role:", profile?.role, "isPremium:", isPremium, "isAdmin:", isAdmin);
       } else {
         console.log("[Chat API] No authenticated user, proceeding for dev");
       }
@@ -159,7 +164,14 @@ export async function POST(req: Request) {
     }
 
     // 5. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
-    const modelMessages = await convertToModelMessages(messages);
+    // Truncate to last 10 messages to prevent exceeding token limits on long conversations
+    const MAX_CONTEXT_MESSAGES = 10;
+    const truncatedMessages = messages.length > MAX_CONTEXT_MESSAGES
+      ? messages.slice(-MAX_CONTEXT_MESSAGES)
+      : messages;
+    console.log("[Chat API] Messages: total=%d, sent=%d", messages.length, truncatedMessages.length);
+
+    const modelMessages = await convertToModelMessages(truncatedMessages);
     console.log("[Chat API] Converted model messages count:", modelMessages.length);
 
     // 6. Call AI via OpenAI-compatible endpoint
