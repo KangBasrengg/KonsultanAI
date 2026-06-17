@@ -93,7 +93,7 @@ export default function KonsultasiPage() {
   };
 
   if (isVerifying) {
-    return <LoadingScreen />;
+    return null; // Return null to prevent hydration mismatch while still showing background layout
   }
 
   if (!user) {

@@ -356,7 +356,7 @@ function ChatContent() {
     }
   };
 
-  if (isVerifying) return <LoadingScreen />;
+  if (isVerifying) return null;
   if (!user) return null;
 
   const activeChat = chats.find(c => c.id === activeChatId);
