@@ -171,14 +171,23 @@ export async function POST(req: Request) {
       : messages;
     console.log("[Chat API] Messages: total=%d, sent=%d", messages.length, truncatedMessages.length);
 
-    const modelMessages = await convertToModelMessages(truncatedMessages);
-    console.log("[Chat API] Converted model messages count:", modelMessages.length);
+    // Strip message IDs to prevent FreeModel/OpenAI Responses API from trying
+    // to look up previously non-persisted messages (store=false causes "Item not found" errors)
+    const cleanMessages = truncatedMessages.map(({ id, ...rest }: any) => ({
+      ...rest,
+      id: undefined,
+    }));
+
+    const modelMessages = await convertToModelMessages(cleanMessages);
+    // Also strip IDs from converted model messages as extra safety
+    const cleanModelMessages = modelMessages.map(({ id, ...rest }: any) => rest);
+    console.log("[Chat API] Converted model messages count:", cleanModelMessages.length);
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
       model: freemodel("gpt-5.4-mini"),
       system: SYSTEM_PROMPT,
-      messages: modelMessages,
+      messages: cleanModelMessages,
       onFinish: async ({ text, finishReason }) => {
         // Hanya simpan (dan hitung limit) jika generate berhasil (stop/length)
         if (text && lastUserMessage && userId && (finishReason === 'stop' || finishReason === 'length')) {
