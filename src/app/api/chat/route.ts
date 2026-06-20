@@ -181,7 +181,7 @@ export async function POST(req: Request) {
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
-      model: freemodel("gpt-5.4-mini"),
+      model: freemodel("gpt-4o-mini"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

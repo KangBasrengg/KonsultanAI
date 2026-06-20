@@ -10,7 +10,7 @@ export interface UserProfile {
   email: string;
   fullName: string | null;
   isPremium: boolean;
-  role: "user" | "admin" | "advokat";
+  role: "user" | "admin" | "advokat" | "government" | "enterprise";
   tier: string;
   consultationCount: number;
   createdAt: string;

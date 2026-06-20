@@ -97,8 +97,12 @@ export default function AnalyticsDashboardPage() {
                 <option key={prov} value={prov}>{prov}</option>
               ))}
             </select>
-            
-            <button className="flex items-center gap-2 bg-gold text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold-light transition-colors">
+            <button 
+              onClick={() => {
+                window.location.href = `/api/analytics/export?wilayah=${wilayah}`;
+              }}
+              className="flex items-center gap-2 bg-gold text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold-light transition-colors"
+            >
               <Download className="w-4 h-4" /> Export CSV
             </button>
           </div>

@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     // Initialize AI provider
     const envVarName = "FREEMODEL_API_KEY";
     let apiKey = process.env[envVarName];
-    
+
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
@@ -108,12 +108,6 @@ export async function POST(req: Request) {
       return Response.json({ error: "API Key tidak ditemukan." }, { status: 500 });
     }
 
-    const freemodel = createOpenAI({
-      baseURL: "https://api.freemodel.dev/v1",
-      apiKey: apiKey,
-    });
-
-    // Run AI Triage
     const triagePrompt = `
 Analisis kasus berikut:
 - Jenis Kasus: ${formData.case_type} (${formData.sub_category})
@@ -128,14 +122,29 @@ ${formData.kronologi}
 
 Berikan triage dalam format JSON sesuai instruksi.`;
 
-    console.log("[Cases API] Running AI triage for user:", user.id);
-
-    const { text: triageText } = await generateText({
-      model: freemodel("gpt-5.4-mini"),
-      system: TRIAGE_SYSTEM_PROMPT,
-      prompt: triagePrompt,
+    const response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: TRIAGE_SYSTEM_PROMPT },
+          { role: "user", content: triagePrompt }
+        ]
+      })
     });
 
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("[Cases API] Freemodel API Error:", errText);
+      throw new Error(`Freemodel API Error: ${response.status} ${errText}`);
+    }
+
+    const data = await response.json();
+    const triageText = data.choices[0]?.message?.content || "";
     console.log("[Cases API] Triage response:", triageText.substring(0, 200));
 
     // Parse triage result
@@ -229,8 +238,8 @@ Berikan triage dalam format JSON sesuai instruksi.`;
   } catch (error: any) {
     console.error("[Cases API] Error:", error?.message || error);
     return Response.json({
-      error: "Terjadi kesalahan saat memproses kasus Anda.",
-      details: error?.message || "Unknown error",
+      error: error?.message || "Terjadi kesalahan saat memproses kasus Anda.",
+      details: error?.stack || "Unknown error",
     }, { status: 500 });
   }
 }

@@ -424,7 +424,7 @@ export default function IntakeFormPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                     {(triageResult.recommendation === 'AI_ANALYSIS' || triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommendation === 'TEMPLATES') && (
                       <Link 
-                        href={`/chat/${triageResult.case_id}`}
+                        href={`/konsultasi?caseId=${triageResult.case_id}`}
                         className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-gold/50 transition-all text-center group"
                       >
                         <Bot className="w-8 h-8 text-gold group-hover:scale-110 transition-transform" />
