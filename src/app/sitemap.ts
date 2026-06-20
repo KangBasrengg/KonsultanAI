@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Ganti dengan URL domain asli kamu
-  const baseUrl = 'https://konsultan-ai.vercel.app'
+  const baseUrl = 'https://konsultan-ai.com'
 
   return [
     {

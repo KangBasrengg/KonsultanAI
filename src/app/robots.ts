@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ['/konsultasi/', '/api/'], // Sembunyikan halaman privat dan API
     },
     // Ganti dengan URL domain Vercel kamu nanti
-    sitemap: 'https://konsultan-ai.vercel.app/sitemap.xml',
+    sitemap: 'https://konsultan-ai.com/sitemap.xml',
   }
 }
