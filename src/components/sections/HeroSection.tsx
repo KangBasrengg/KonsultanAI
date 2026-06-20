@@ -35,7 +35,7 @@ export default function HeroSection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link 
-              href="/konsultasi" 
+              href="/intake" 
               className="w-full sm:w-auto px-8 py-4 rounded-full bg-gold text-navy font-bold text-lg hover:bg-gold-light transition-all transform hover:scale-105 flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(212,175,55,0.4)]"
             >
               Mulai Konsultasi Gratis

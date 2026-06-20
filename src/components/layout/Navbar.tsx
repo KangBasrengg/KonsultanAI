@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare } from "lucide-react";
+import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare, FileText, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
@@ -63,8 +63,12 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/tentang" className="text-putih/80 hover:text-gold transition-colors">Tentang</Link>
-          <Link href="/konsultasi" className="text-putih/80 hover:text-gold transition-colors">Konsultasi AI</Link>
+          <Link href="/intake" className="text-putih/80 hover:text-gold transition-colors">Konsultasi AI</Link>
           <Link href="/learning" className="text-putih/80 hover:text-gold transition-colors">Learning Center</Link>
+          <Link href="/templates" className="text-putih/80 hover:text-gold transition-colors flex items-center gap-1">
+            <FileText className="w-3.5 h-3.5" />
+            Template
+          </Link>
           <Link href="/marketplace" className="text-putih/80 hover:text-gold transition-colors flex items-center gap-1">
             <Scale className="w-3.5 h-3.5" />
             Marketplace
@@ -122,9 +126,14 @@ export default function Navbar() {
                       <p className="text-xs text-gold capitalize">{profile?.role || "User"}</p>
                     </div>
                     
-                    <Link href="/konsultasi" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                    <Link href="/intake" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
                       <Scale className="w-4 h-4" />
-                      Konsultasi AI
+                      Konsultasi AI (Intake)
+                    </Link>
+
+                    <Link href="/templates" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                      <FileText className="w-4 h-4" />
+                      Template Dokumen
                     </Link>
 
                     <Link href="/konsultasi-advokat" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
@@ -143,6 +152,13 @@ export default function Navbar() {
                       <Link href="/admin" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
                         <Shield className="w-4 h-4" />
                         Admin Dashboard
+                      </Link>
+                    )}
+                    
+                    {(isAdmin || profile?.role === "government" || profile?.role === "enterprise") && (
+                      <Link href="/admin/analytics" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
+                        <TrendingUp className="w-4 h-4" />
+                        Government Analytics
                       </Link>
                     )}
                     
@@ -195,8 +211,12 @@ export default function Navbar() {
           className="md:hidden bg-navy-light border-t border-white/20 mt-4 py-4 px-6 flex flex-col gap-4"
         >
           <Link href="/tentang" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
-          <Link href="/konsultasi" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
+          <Link href="/intake" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
           <Link href="/learning" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Learning Center</Link>
+          <Link href="/templates" className="text-putih/80 hover:text-gold flex items-center gap-1.5" onClick={() => setIsMobileMenuOpen(false)}>
+            <FileText className="w-3.5 h-3.5" />
+            Template Dokumen
+          </Link>
           <Link href="/marketplace" className="text-putih/80 hover:text-gold flex items-center gap-1.5" onClick={() => setIsMobileMenuOpen(false)}>
             <Scale className="w-3.5 h-3.5" />
             Marketplace Advokat
@@ -216,13 +236,19 @@ export default function Navbar() {
                   Admin Dashboard
                 </Link>
               )}
+              {(isAdmin || profile?.role === "government" || profile?.role === "enterprise") && (
+                <Link href="/admin/analytics" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>
+                  <TrendingUp className="w-4 h-4" />
+                  Government Analytics
+                </Link>
+              )}
               {profile?.role === "advokat" && (
                 <Link href="/advokat" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>
                   <Scale className="w-4 h-4" />
                   Dashboard Advokat
                 </Link>
               )}
-              <Link href="/konsultasi" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/intake" className="bg-gold text-navy text-center py-3 rounded-xl font-bold mt-2" onClick={() => setIsMobileMenuOpen(false)}>
                 Mulai Konsultasi AI
               </Link>
               <Link href="/pengaturan" className="flex items-center justify-center gap-2 text-putih border border-white/20 py-3 rounded-xl font-bold mt-2 hover:bg-putih/5 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>

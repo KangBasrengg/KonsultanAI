@@ -23,6 +23,7 @@ export default function PricingSection() {
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
         { name: "3 Materi Legal Learning", inc: true },
+        { name: "Preview Template (Watermark)", inc: true },
         { name: "Riwayat Konsultasi", inc: false },
         { name: "Download Laporan", inc: false },
       ],
@@ -42,6 +43,7 @@ export default function PricingSection() {
         { name: "Riwayat Konsultasi", inc: true },
         { name: "Download Laporan PDF", inc: true },
         { name: "8 Materi Legal Learning", inc: true },
+        { name: "Download Template Dasar", inc: true },
       ],
       cta: "Berlangganan",
       highlight: true
@@ -59,16 +61,17 @@ export default function PricingSection() {
         { name: "Template Laporan Premium", inc: true },
         { name: "AI Legal Tutor", inc: true },
         { name: "20 Materi & Sertifikat", inc: true },
+        { name: "Semua Template Premium", inc: true },
       ],
       cta: "Berlangganan",
       highlight: false
     },
     {
       name: "Business",
-      priceMonthly: "Rp 299.000",
-      priceAnnual: "Rp 250.000",
+      priceMonthly: "Custom",
+      priceAnnual: "Custom",
       period: "/bulan",
-      desc: "Untuk perusahaan, startup, dan firma hukum.",
+      desc: "Solusi enterprise untuk instansi pemerintah, perusahaan berskala besar, dan firma hukum.",
       features: [
         { name: "Semua Fitur Professional", inc: true },
         { name: "Akses Tim (5 Akun)", inc: true },
@@ -76,6 +79,7 @@ export default function PricingSection() {
         { name: "Legal Compliance Checker", inc: true },
         { name: "Template Kontrak Bisnis", inc: true },
         { name: "Manajemen Dokumen Terpusat", inc: true },
+        { name: "Government Analytics Dashboard", inc: true },
         { name: "Dukungan Prioritas", inc: true },
       ],
       cta: "Hubungi Sales",
@@ -136,9 +140,14 @@ export default function PricingSection() {
                   <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.priceAnnual : plan.priceMonthly}</span>
                   {plan.period && <span className="text-putih/50 text-sm">{plan.period}</span>}
                 </div>
-                {isAnnual && plan.name !== "Free Trial" && (
+                {isAnnual && plan.name !== "Free Trial" && plan.name !== "Business" && (
                   <p className="text-xs text-green-400 mt-1 font-medium">
-                    Ditagih {plan.name === "Basic Plan" ? "Rp 600.000" : plan.name === "Professional" ? "Rp 1.200.000" : "Rp 3.000.000"} per tahun
+                    Ditagih {plan.name === "Basic Plan" ? "Rp 600.000" : "Rp 1.200.000"} per tahun
+                  </p>
+                )}
+                {isAnnual && plan.name === "Business" && (
+                  <p className="text-xs text-putih/40 mt-1 font-medium italic">
+                    Disesuaikan dengan skala institusi
                   </p>
                 )}
               </div>
@@ -173,7 +182,7 @@ export default function PricingSection() {
                   {plan.cta}
                 </button>
               ) : (
-                <Link href={plan.name === "Business" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Business%20KonsultanAI" : "/konsultasi"} className="mt-auto">
+                <Link href={plan.name === "Business" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Business%20KonsultanAI" : "/intake"} className="mt-auto">
                   <button className={`w-full py-3 rounded-xl font-bold transition-all ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
                       : "bg-navy-light text-putih border border-putih/20 hover:bg-putih/10"

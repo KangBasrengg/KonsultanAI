@@ -62,7 +62,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
         // Success - close modal and refresh
         onClose();
         router.refresh();
-        router.push("/konsultasi");
+        router.push("/intake");
       } else {
         const fullName = formData.get("full_name") as string;
         const { error } = await supabase.auth.signUp({
