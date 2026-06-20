@@ -133,7 +133,7 @@ export default function PricingSection() {
               )}
 
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-sm text-putih/60 mb-6 h-10">{plan.desc}</p>
+              <p className="text-sm text-putih/60 mb-6 min-h-[4.5rem]">{plan.desc}</p>
 
               <div className="mb-8">
                 <div className="flex items-baseline gap-1 whitespace-nowrap">
