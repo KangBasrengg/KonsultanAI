@@ -16,6 +16,7 @@ import {
   type TriageResult
 } from "@/types/cases";
 import Navbar from "@/components/layout/Navbar";
+import LimitModal from "@/components/ui/LimitModal";
 
 export default function IntakeFormPage() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function IntakeFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [triageResult, setTriageResult] = useState<TriageResult | null>(null);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [limitMessage, setLimitMessage] = useState("");
 
   const [formData, setFormData] = useState<IntakeFormData>({
     case_type: "perdata",
@@ -79,13 +82,20 @@ export default function IntakeFormPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 403 && (data.error === "Limit_Exceeded" || data.message?.includes("Limit"))) {
+          setIsLimitModalOpen(true);
+          setLimitMessage(data.message);
+          throw new Error("Limit tercapai.");
+        }
         throw new Error(data.message || data.error || "Gagal mengirim data");
       }
 
       setTriageResult(data);
       setStep(4);
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+      if (err.message !== "Limit tercapai.") {
+        setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+      }
       setStep(3);
     } finally {
       setIsSubmitting(false);
@@ -95,6 +105,11 @@ export default function IntakeFormPage() {
   return (
     <main className="min-h-screen flex flex-col transition-colors duration-300">
       <Navbar />
+      <LimitModal 
+        isOpen={isLimitModalOpen} 
+        onClose={() => setIsLimitModalOpen(false)} 
+        message={limitMessage} 
+      />
       
       <div className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
         <div className="max-w-3xl mx-auto">

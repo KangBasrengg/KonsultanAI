@@ -128,15 +128,19 @@ export async function POST(req: Request) {
 
         // Admin accounts bypass all consultation limits
         if (!isPremium && !isAdmin) {
+          const twoDaysAgo = new Date();
+          twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
           const { count } = await supabase
             .from("consultations")
             .select("*", { count: "exact", head: true })
-            .eq("user_id", user.id);
+            .eq("user_id", user.id)
+            .gte("created_at", twoDaysAgo.toISOString());
           
           if (count && count >= 1) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
-              message: "Anda telah menggunakan jatah 1x Free Trial. Silakan berlangganan untuk melanjutkan." 
+              message: "Limit Free Trial tercapai. Jatah 1x konsultasi gratis akan di-reset setiap 2 hari. Silakan berlangganan untuk akses tanpa batas." 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
         }

@@ -73,16 +73,19 @@ export async function POST(req: Request) {
     const isAdmin = profile?.role === "admin";
 
     if (!isPremium && !isAdmin) {
-      // Count existing cases for this user
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
       const { count } = await supabase
         .from("cases")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .gte("created_at", twoDaysAgo.toISOString());
 
       if (count && count >= 1) {
         return Response.json({
           error: "Limit_Exceeded",
-          message: "Anda telah menggunakan 1x Free Trial intake form. Silakan berlangganan untuk membuat analisis kasus baru."
+          message: "Limit Free Trial tercapai. Jatah 1x analisis kasus akan di-reset setiap 2 hari. Silakan berlangganan untuk akses tanpa batas."
         }, { status: 403 });
       }
     }

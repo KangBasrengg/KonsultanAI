@@ -13,6 +13,7 @@ import HistoryPanel from "@/components/konsultasi/HistoryPanel";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/auth/LoadingScreen";
+import LimitModal from "@/components/ui/LimitModal";
 
 // Helper: extract visible text from a message's parts array (AI SDK v3/v6 format)
 function getMessageText(msg: any): string {
@@ -237,7 +238,7 @@ export default function KonsultasiPage() {
             </div>
           )}
 
-          {error && (
+          {error && !error.message?.includes("Limit") && (
             <div className="flex flex-col gap-3 p-6 bg-navy-light/80 border border-gold/30 rounded-2xl text-center shadow-lg">
               <div className="w-12 h-12 bg-gold/20 text-gold rounded-full flex items-center justify-center mx-auto mb-2">
                 <AlertCircle className="w-6 h-6" />
@@ -265,13 +266,14 @@ export default function KonsultasiPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
+            disabled={isLoading || error?.message?.includes("Limit")}
             placeholder="Tuliskan kronologi masalah Anda secara lengkap..."
             className="w-full bg-navy border border-putih/20 rounded-2xl py-4 pl-5 pr-14 focus:outline-none focus:border-gold resize-none h-[80px] text-sm custom-scrollbar placeholder:text-putih/30"
           />
           <button 
             type="button"
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || error?.message?.includes("Limit")}
             className="absolute right-3 bottom-4 w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-navy hover:bg-gold-light transition-colors disabled:opacity-50 disabled:hover:bg-gold"
           >
             <Send className="w-4 h-4" />
@@ -284,6 +286,13 @@ export default function KonsultasiPage() {
       
       {/* Slide-over History Panel */}
       <HistoryPanel isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+
+      {/* Modals */}
+      <LimitModal 
+        isOpen={!!error && error.message?.includes("Limit")} 
+        onClose={() => {}} 
+        message={error?.message || "Limit tercapai."} 
+      />
     </div>
   );
 }
