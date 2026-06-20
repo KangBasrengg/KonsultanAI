@@ -89,20 +89,18 @@ export async function POST(req: Request) {
 
     // Initialize AI provider
     const envVarName = "FREEMODEL_API_KEY";
-    let apiKey = process.env[envVarName];
-
+    let apiKey = (process.env[envVarName] || "").trim();
+    
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
         if (cfContext && cfContext.env) {
-          apiKey = (cfContext.env as any)[envVarName];
+          apiKey = ((cfContext.env as any)[envVarName] || "").trim();
         }
       } catch (e) {
         console.warn("[Cases API] getCloudflareContext failed", e);
       }
     }
-
-    apiKey = apiKey || "";
 
     if (!apiKey) {
       return Response.json({ error: "API Key tidak ditemukan." }, { status: 500 });

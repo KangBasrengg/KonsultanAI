@@ -420,51 +420,65 @@ export default function IntakeFormPage() {
                     </div>
                   </div>
 
-                  {/* Dynamic Action Buttons based on Triage Recommendation */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                  {/* Primary Action: Lanjutkan Analisis AI (Full-width) */}
+                  <div className="space-y-4 pt-4">
                     {(triageResult.recommendation === 'AI_ANALYSIS' || triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommendation === 'TEMPLATES') && (
                       <Link 
                         href={`/konsultasi?caseId=${triageResult.case_id}`}
-                        className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-gold/50 transition-all text-center group"
+                        onClick={() => {
+                          // Store kronologi in sessionStorage so konsultasi page can auto-send
+                          try {
+                            sessionStorage.setItem('intake_kronologi', formData.kronologi);
+                            sessionStorage.setItem('intake_case_type', `${formData.case_type} (${formData.sub_category})`);
+                          } catch (e) { /* ignore */ }
+                        }}
+                        className="flex items-center justify-between w-full p-6 rounded-2xl border-2 border-gold bg-gold/10 hover:bg-gold/20 transition-all group"
                       >
-                        <Bot className="w-8 h-8 text-gold group-hover:scale-110 transition-transform" />
-                        <span className="font-bold text-navy dark:text-putih">Lanjutkan Analisis AI</span>
-                        <span className="text-xs text-navy/60 dark:text-putih/50">Ngobrol langsung dengan AI tentang kasus ini</span>
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 bg-gold/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Bot className="w-7 h-7 text-gold" />
+                          </div>
+                          <div className="text-left">
+                            <span className="font-bold text-lg text-gold block">Lanjutkan Analisis AI</span>
+                            <span className="text-sm text-navy/60 dark:text-putih/50">AI akan langsung menganalisis kronologi kasus Anda secara mendalam</span>
+                          </div>
+                        </div>
+                        <div className="text-gold text-2xl group-hover:translate-x-1 transition-transform shrink-0 ml-2">→</div>
                       </Link>
                     )}
 
-                    {(triageResult.recommendation === 'ADVOKAT_URGENT' || triageResult.severity >= 3) && (
-                      <Link 
-                        href="/marketplace"
-                        className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border border-gold bg-gold/10 hover:bg-gold/20 transition-all text-center group"
-                      >
-                        <Scale className="w-8 h-8 text-gold group-hover:scale-110 transition-transform" />
-                        <span className="font-bold text-gold">Cari Advokat Terdekat</span>
-                        <span className="text-xs text-gold/80 dark:text-gold/60">Kasus Anda butuh pendampingan hukum segera</span>
-                      </Link>
-                    )}
+                    {/* Secondary Actions: Compact row */}
+                    <div className="grid grid-cols-3 gap-3">
+                      {(triageResult.recommendation === 'ADVOKAT_URGENT' || triageResult.severity >= 3) && (
+                        <Link 
+                          href="/marketplace"
+                          className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-gold/50 transition-all text-center group"
+                        >
+                          <Scale className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Cari Advokat</span>
+                        </Link>
+                      )}
 
-                    {(triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommended_modules.length > 0) && (
-                      <Link 
-                        href="/learning"
-                        className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-blue-400/50 transition-all text-center group"
-                      >
-                        <BookOpen className="w-8 h-8 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-                        <span className="font-bold text-navy dark:text-putih">Pelajari Modul Hukum</span>
-                        <span className="text-xs text-navy/60 dark:text-putih/50">Materi edukasi terkait kasus Anda</span>
-                      </Link>
-                    )}
+                      {(triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommended_modules.length > 0) && (
+                        <Link 
+                          href="/learning"
+                          className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-blue-400/50 transition-all text-center group"
+                        >
+                          <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Modul Hukum</span>
+                        </Link>
+                      )}
 
-                    {(triageResult.recommendation === 'TEMPLATES' || triageResult.recommended_templates.length > 0) && (
-                      <Link 
-                        href="/templates"
-                        className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-green-400/50 transition-all text-center group"
-                      >
-                        <FileText className="w-8 h-8 text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform" />
-                        <span className="font-bold text-navy dark:text-putih">Download Template Dokumen</span>
-                        <span className="text-xs text-navy/60 dark:text-putih/50">Draft dokumen hukum yang relevan</span>
-                      </Link>
-                    )}
+                      {(triageResult.recommendation === 'TEMPLATES' || triageResult.recommended_templates.length > 0) && (
+                        <Link 
+                          href="/templates"
+                          className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-green-400/50 transition-all text-center group"
+                        >
+                          <FileText className="w-5 h-5 text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Template Dokumen</span>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )}

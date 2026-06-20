@@ -56,6 +56,35 @@ export default function KonsultasiPage() {
     }
   }, [isVerifying, user, router]);
 
+  // Auto-send kronologi from intake form (if arriving from /intake)
+  const hasAutoSent = useRef(false);
+  useEffect(() => {
+    if (!user || isVerifying || hasAutoSent.current || isLoading) return;
+    
+    try {
+      const kronologi = sessionStorage.getItem('intake_kronologi');
+      const caseType = sessionStorage.getItem('intake_case_type');
+      
+      if (kronologi) {
+        hasAutoSent.current = true;
+        // Clear storage immediately so it doesn't re-trigger
+        sessionStorage.removeItem('intake_kronologi');
+        sessionStorage.removeItem('intake_case_type');
+        
+        // Build context-rich prompt from intake data
+        const autoPrompt = caseType 
+          ? `[Kasus: ${caseType}]\n\nKronologi:\n${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`
+          : `${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`;
+        
+        sendMessage({ text: autoPrompt });
+      }
+    } catch (e) {
+      // sessionStorage might not be available in some contexts
+      console.warn("[Konsultasi] Failed to read intake data:", e);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isVerifying]);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);

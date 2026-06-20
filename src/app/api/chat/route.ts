@@ -86,20 +86,18 @@ export async function POST(req: Request) {
     // 2. Initialize AI provider INSIDE the handler
     // Bypass Next.js static evaluation and directly check Cloudflare Context
     const envVarName = "FREEMODEL_API_KEY";
-    let apiKey = process.env[envVarName];
+    let apiKey = (process.env[envVarName] || "").trim();
     
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
         if (cfContext && cfContext.env) {
-          apiKey = (cfContext.env as any)[envVarName];
+          apiKey = ((cfContext.env as any)[envVarName] || "").trim();
         }
       } catch (e) {
         console.warn("[Chat API] getCloudflareContext failed", e);
       }
     }
-    
-    apiKey = apiKey || "";
     console.log("[Chat API] API key available:", apiKey ? "yes (length: " + apiKey.length + ")" : "NO - MISSING");
     
     const freemodel = createOpenAI({
