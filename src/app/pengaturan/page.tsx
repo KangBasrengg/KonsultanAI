@@ -5,9 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { User, Lock, Save, Camera, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Lock, Save, Camera, CheckCircle2, AlertCircle, Clock, History, MessageSquare, ChevronRight, X, Bot, Download } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import { motion, AnimatePresence } from "framer-motion";
+import { exportConsultationPDF } from "@/lib/pdf-export";
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile, isVerifying } = useAuth();
@@ -23,13 +26,18 @@ export default function SettingsPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Advocate State
   const [advocate, setAdvocate] = useState<any>(null);
   const [bio, setBio] = useState("");
   const [experienceYears, setExperienceYears] = useState<number | "">("");
   const [casesHandled, setCasesHandled] = useState<number | "">("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // User Activity & Limits State
+  const [history, setHistory] = useState<any[]>([]);
+  const [nextResetDate, setNextResetDate] = useState<Date | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState<any>(null);
 
   useEffect(() => {
     if (!isVerifying && !user) {
@@ -38,13 +46,18 @@ export default function SettingsPage() {
   }, [user, isVerifying, router]);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && user) {
       setFullName(profile.fullName || "");
+      setIsPremium(profile.isPremium || profile.role === "admin");
+      
       if (profile.role === "advokat" || profile.role === "admin") {
         fetchAdvocate();
       }
+      
+      // Fetch user activity history
+      fetchActivityHistory();
     }
-  }, [profile]);
+  }, [profile, user]);
 
   const fetchAdvocate = async () => {
     if (!user) return;
@@ -55,6 +68,33 @@ export default function SettingsPage() {
       setExperienceYears(data.experience_years || "");
       setCasesHandled(data.cases_handled || "");
       setPhotoUrl(data.photo_url || "");
+    }
+  };
+
+  const fetchActivityHistory = async () => {
+    if (!user) return;
+    
+    // Fetch last 5 consultations
+    const { data } = await supabase
+      .from("consultations")
+      .select("id, created_at, chronology, ai_analysis")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5);
+      
+    if (data) {
+      setHistory(data);
+      
+      // Calculate next reset time for users (latest consultation + 2 days)
+      if (data.length > 0 && profile && profile.role !== "admin") {
+        const latestDate = new Date(data[0].created_at);
+        const resetDate = new Date(latestDate.getTime() + (2 * 24 * 60 * 60 * 1000));
+        
+        // Only set reset date if it's in the future
+        if (resetDate > new Date()) {
+          setNextResetDate(resetDate);
+        }
+      }
     }
   };
 
@@ -142,6 +182,26 @@ export default function SettingsPage() {
     }
   };
 
+  const handleExportHistoryPDF = () => {
+    if (!isPremium) {
+      alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.");
+      router.push('/#harga');
+      return;
+    }
+    if (!selectedHistory || !selectedHistory.ai_analysis) {
+      alert("Detail riwayat tidak valid atau tidak memiliki analisis AI.");
+      return;
+    }
+
+    // Format as AI SDK messages for the PDF generator
+    const historyMessages = [
+      { role: "user", content: selectedHistory.chronology },
+      { role: "assistant", content: selectedHistory.ai_analysis }
+    ];
+    
+    exportConsultationPDF(historyMessages as any);
+  };
+
   if (isVerifying) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -188,6 +248,78 @@ export default function SettingsPage() {
 
           {/* Form Content */}
           <div className="md:col-span-2 space-y-6">
+
+            {/* AI Activity & Limits (All Users) */}
+            <div className="bg-navy-light/40 border border-putih/20 rounded-2xl p-6">
+              <h2 className="text-lg font-bold mb-4 border-b border-putih/20 pb-4 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-gold" />
+                Aktivitas AI & Limit Token
+              </h2>
+              
+              {profile?.role !== "admin" && (
+                <div className="mb-6 bg-navy border border-gold/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-bold text-putih text-sm">Status Paket: <span className="text-gold">{isPremium ? "Premium" : "Free Trial"}</span></h3>
+                    {nextResetDate ? (
+                      <p className="text-xs text-putih/60 mt-1 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-gold" />
+                        Reset token AI selanjutnya pada: 
+                        <span className="font-medium text-gold">
+                          {nextResetDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-xs text-green-400 mt-1 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Token AI tersedia dan siap digunakan.
+                      </p>
+                    )}
+                  </div>
+                  {!isPremium && (
+                    <button 
+                      onClick={() => router.push('/#harga')}
+                      className="shrink-0 bg-gold/10 text-gold hover:bg-gold hover:text-navy px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                    >
+                      Upgrade Premium
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-sm font-bold text-putih/80 mb-3 flex items-center gap-2">
+                  <History className="w-4 h-4" /> Riwayat Konsultasi AI Terakhir
+                </h3>
+                {history.length > 0 ? (
+                  <div className="space-y-3">
+                    {history.map((item) => (
+                      <button 
+                        key={item.id}
+                        onClick={() => setSelectedHistory(item)}
+                        className="w-full text-left bg-navy border border-putih/10 rounded-xl p-3 flex items-start gap-3 hover:bg-putih/5 transition-colors group cursor-pointer"
+                      >
+                        <div className="mt-0.5">
+                          <MessageSquare className="w-4 h-4 text-putih/40 group-hover:text-gold transition-colors" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-putih/50 mb-1">
+                            {new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </p>
+                          <p className="text-sm text-putih truncate group-hover:text-gold transition-colors">
+                            {item.chronology ? item.chronology.substring(0, 80) + '...' : 'Sesi konsultasi AI'}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-putih/20 group-hover:text-gold self-center" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-navy border border-putih/10 border-dashed rounded-xl p-6 text-center">
+                    <p className="text-sm text-putih/50">Belum ada riwayat konsultasi AI.</p>
+                  </div>
+                )}
+              </div>
+            </div>
             
             {/* Foto Profil (Advokat Only) */}
             {advocate && (
@@ -297,6 +429,72 @@ export default function SettingsPage() {
           </div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectedHistory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-navy/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-navy-dark border border-putih/20 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-putih/10 bg-navy">
+                <h3 className="font-bold text-putih flex items-center gap-2">
+                  <History className="w-5 h-5 text-gold" />
+                  Detail Riwayat AI
+                </h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleExportHistoryPDF}
+                    className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors bg-gold text-navy hover:bg-gold-light"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Export PDF</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedHistory(null)}
+                    className="p-1.5 rounded-lg hover:bg-putih/10 text-putih/60 hover:text-putih transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6 overflow-y-auto space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2 text-putih/50 text-xs">
+                    <User className="w-4 h-4" />
+                    <span>Kronologi Anda ({new Date(selectedHistory.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })})</span>
+                  </div>
+                  <div className="bg-navy border border-putih/10 rounded-xl p-4 text-sm text-putih/90 whitespace-pre-wrap">
+                    {selectedHistory.chronology}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2 text-gold text-xs font-medium">
+                    <Bot className="w-4 h-4" />
+                    <span>Analisis KonsultanAI</span>
+                  </div>
+                  <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 text-sm text-putih/90 prose prose-invert prose-p:leading-relaxed max-w-none">
+                    {selectedHistory.ai_analysis ? (
+                      <ReactMarkdown>{selectedHistory.ai_analysis}</ReactMarkdown>
+                    ) : (
+                      <p className="text-putih/50 italic">Analisis AI tidak tersedia atau sesi terputus.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </main>

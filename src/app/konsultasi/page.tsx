@@ -47,8 +47,10 @@ export default function KonsultasiPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "streaming" || status === "submitted";
-  const { isVerifying, user } = useAuth();
+  const { isVerifying, user, profile } = useAuth();
   const router = useRouter();
+
+  const isPremium = profile?.isPremium || profile?.role === "admin";
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -117,6 +119,10 @@ export default function KonsultasiPage() {
   };
 
   const handleExportPDF = () => {
+    if (!isPremium) {
+      alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.");
+      return;
+    }
     // Only export if there is actual conversation
     if (messages.length <= 1) return alert("Belum ada percakapan untuk diekspor.");
     exportConsultationPDF(messages as any);
@@ -160,10 +166,15 @@ export default function KonsultasiPage() {
             <FileText className="w-4 h-4" />
             <span className="hidden md:inline">Riwayat</span>
           </button>
+          
           <button 
             type="button" 
-            onClick={handleExportPDF}
-            className="flex items-center gap-2 text-sm bg-gold text-navy font-bold px-4 py-2 rounded-lg hover:bg-gold-light transition-colors"
+            onClick={isPremium ? handleExportPDF : () => alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium.")}
+            className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
+              isPremium 
+                ? "bg-gold text-navy hover:bg-gold-light" 
+                : "bg-putih/10 text-putih/50 hover:bg-putih/20"
+            }`}
           >
             <Download className="w-4 h-4" />
             <span className="hidden md:inline">Export PDF</span>

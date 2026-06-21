@@ -103,6 +103,21 @@ export async function POST(req: Request) {
     const freemodel = createOpenAI({
       baseURL: "https://api.freemodel.dev/v1",
       apiKey: apiKey,
+      fetch: async (url, options) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 detik timeout untuk streaming
+        
+        try {
+          return await fetch(url, { ...options, signal: controller.signal });
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            throw new Error("Koneksi ke AI (Freemodel) terputus karena terlalu lama (timeout).");
+          }
+          throw err;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      }
     });
 
     // 3. Check authentication
@@ -127,7 +142,7 @@ export async function POST(req: Request) {
         isAdmin = profile?.role === "admin";
 
         // Admin accounts bypass all consultation limits
-        if (!isPremium && !isAdmin) {
+        if (!isAdmin) {
           const twoDaysAgo = new Date();
           twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
@@ -140,7 +155,7 @@ export async function POST(req: Request) {
           if (count && count >= 1) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
-              message: "Limit Free Trial tercapai. Jatah 1x konsultasi gratis akan di-reset setiap 2 hari. Silakan berlangganan untuk akses tanpa batas." 
+              message: "Limit penggunaan tercapai. Jatah 1x konsultasi AI akan di-reset setiap 2 hari." 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
         }

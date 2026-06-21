@@ -69,10 +69,9 @@ export async function POST(req: Request) {
       .eq("id", user.id)
       .single();
 
-    const isPremium = profile?.is_premium || false;
     const isAdmin = profile?.role === "admin";
 
-    if (!isPremium && !isAdmin) {
+    if (!isAdmin) {
       const twoDaysAgo = new Date();
       twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
@@ -85,7 +84,7 @@ export async function POST(req: Request) {
       if (count && count >= 1) {
         return Response.json({
           error: "Limit_Exceeded",
-          message: "Limit Free Trial tercapai. Jatah 1x analisis kasus akan di-reset setiap 2 hari. Silakan berlangganan untuk akses tanpa batas."
+          message: "Limit penggunaan tercapai. Jatah 1x analisis kasus akan di-reset setiap 2 hari."
         }, { status: 403 });
       }
     }
@@ -123,20 +122,35 @@ ${formData.kronologi}
 
 Berikan triage dalam format JSON sesuai instruksi.`;
 
-    const response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: TRIAGE_SYSTEM_PROMPT },
-          { role: "user", content: triagePrompt }
-        ]
-      })
-    });
+    // Add strict 35-second timeout to prevent server hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000);
+
+    let response;
+    try {
+      response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: TRIAGE_SYSTEM_PROMPT },
+            { role: "user", content: triagePrompt }
+          ]
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchError: any) {
+      if (fetchError.name === 'AbortError') {
+        throw new Error("Koneksi ke AI (Freemodel) terputus karena terlalu lama (timeout). Silakan coba lagi.");
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errText = await response.text();

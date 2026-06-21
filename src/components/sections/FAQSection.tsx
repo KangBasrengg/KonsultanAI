@@ -19,8 +19,12 @@ export default function FAQSection() {
       a: "Sistem kami merujuk pada seluruh peraturan perundang-undangan Indonesia yang berlaku, termasuk KUHP Nasional terbaru (UU No. 1/2023), KUH Perdata, UU Ketenagakerjaan, UU ITE, UU Perlindungan Konsumen, dan berbagai regulasi sektoral lainnya yang selalu diperbarui."
     },
     {
+      q: "Apakah limit token AI (Analisis & Konsultasi) memiliki waktu reset?",
+      a: "Ya. Untuk menjaga kestabilan server, limit token AI akan otomatis di-reset setiap 2 hari (48 jam) dihitung sejak waktu penggunaan terakhir. Aturan ini berlaku untuk semua pengguna. Anda bisa mengecek sisa waktu reset di menu Pengaturan Akun."
+    },
+    {
       q: "Metode pembayaran apa saja yang didukung?",
-      a: "Kami mendukung pembayaran QRIS otomatis yang terhubung ke rekening BCA, e-wallet, dan transfer bank. Akses premium Anda akan aktif seketika setelah pembayaran berhasil."
+      a: "Kami mendukung pembayaran otomatis melalui QRIS, GoPay, OVO, transfer bank, dan kartu kredit. Akses premium Anda akan aktif seketika setelah pembayaran berhasil."
     }
   ];
 
