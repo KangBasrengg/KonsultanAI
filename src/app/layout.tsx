@@ -12,8 +12,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "AI Legal Assistant Indonesia - Konsultan Hukum Cerdas",
-  description: "Platform konsultasi hukum berbasis AI yang membantu masyarakat Indonesia memahami permasalahan hukum di berbagai bidang, mulai dari pidana, perdata, ketenagakerjaan, hingga hukum bisnis.",
+  title: "KonsultanAI - AI Legal Assistant Indonesia & Konsultan Hukum Cerdas",
+  description: "KonsultanAI adalah platform konsultasi hukum berbasis AI yang membantu masyarakat Indonesia memahami permasalahan hukum di berbagai bidang, mulai dari pidana, perdata, ketenagakerjaan, hingga hukum bisnis.",
+  keywords: ["Konsultan AI", "KonsultanAI", "AI Legal Assistant", "Konsultasi Hukum AI", "Hukum Indonesia", "Pengacara AI", "Konsultan Hukum Cerdas"],
 };
 
 export default function RootLayout({
