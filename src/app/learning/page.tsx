@@ -48,18 +48,33 @@ export default async function LearningCenterPage() {
     return { icon: <Monitor className="w-6 h-6 text-purple-400" />, color: "from-purple-500/20 to-purple-900/20", border: "border-purple-500/30" };
   };
 
-  const formattedCategories: CategoryData[] = (categoriesData || []).map((cat) => ({
-    id: cat.id,
-    title: cat.name,
-    desc: cat.description || "",
-    ...getCategoryTheme(cat.name),
-    // @ts-ignore - Supabase types might not perfectly infer the joined array
-    topics: cat.legal_materials ? cat.legal_materials.length : 0,
-  }));
+  const formattedCategories: CategoryData[] = (categoriesData || []).map((cat) => {
+    // Generate slug from name
+    const slug = cat.name
+      .toLowerCase()
+      .replace(/&/g, 'dan')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+
+    return {
+      id: cat.id,
+      slug,
+      title: cat.name,
+      desc: cat.description || "",
+      ...getCategoryTheme(cat.name),
+      // @ts-ignore
+      topics: cat.legal_materials ? cat.legal_materials.length : 0,
+    };
+  });
 
   // Map courses to UI format
   const formattedCourses: CourseData[] = (coursesData || []).map((course: any) => ({
     id: course.id,
+    slug: course.title
+      .toLowerCase()
+      .replace(/&/g, 'dan')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, ''),
     title: course.title,
     category: course.legal_categories?.name || "Umum",
     duration: "45 Menit", // Dummy duration since we don't have it in schema yet

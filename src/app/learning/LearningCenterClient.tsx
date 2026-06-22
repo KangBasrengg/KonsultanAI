@@ -10,6 +10,7 @@ import React from "react";
 // Tipe data untuk properti yang dikirim dari Server Component
 export type CategoryData = {
   id: string;
+  slug: string;
   title: string;
   desc: string;
   icon: React.ReactNode;
@@ -20,6 +21,7 @@ export type CategoryData = {
 
 export type CourseData = {
   id: string;
+  slug: string;
   title: string;
   category: string;
   duration: string;
@@ -109,7 +111,7 @@ export default function LearningCenterClient({ categories, featuredCourses }: Le
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {categories.map((cat, idx) => (
-              <Link href={`/learning/category/${cat.id}`} key={cat.id}>
+              <Link href={`/learning/category/${cat.slug}`} key={cat.id}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -187,7 +189,7 @@ export default function LearningCenterClient({ categories, featuredCourses }: Le
                     {course.title}
                   </h3>
                   <div className="mt-auto">
-                    <Link href={`/learning/material/${course.id}`} className="w-full">
+                    <Link href={`/learning/material/${course.slug}`} className="w-full">
                       <button className="w-full py-3 rounded-xl font-bold transition-all bg-putih/5 text-putih hover:bg-gold hover:text-navy mt-4 border border-putih/10 group-hover:border-gold/50">
                         Mulai Belajar
                       </button>

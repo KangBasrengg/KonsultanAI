@@ -122,40 +122,64 @@ ${formData.kronologi}
 
 Berikan triage dalam format JSON sesuai instruksi.`;
 
-    // Add strict 35-second timeout to prevent server hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000);
+    // Retry logic for transient API errors (503, 502, 429)
+    const MAX_RETRIES = 2;
+    const RETRY_DELAY_MS = 2000;
+    let response: Response | null = null;
 
-    let response;
-    try {
-      response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: TRIAGE_SYSTEM_PROMPT },
-            { role: "user", content: triagePrompt }
-          ]
-        }),
-        signal: controller.signal
-      });
-    } catch (fetchError: any) {
-      if (fetchError.name === 'AbortError') {
-        throw new Error("Koneksi ke AI (Freemodel) terputus karena terlalu lama (timeout). Silakan coba lagi.");
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000);
+
+      try {
+        response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: TRIAGE_SYSTEM_PROMPT },
+              { role: "user", content: triagePrompt }
+            ]
+          }),
+          signal: controller.signal
+        });
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error("Koneksi ke AI terputus karena terlalu lama (timeout). Silakan coba lagi.");
+        }
+        throw fetchError;
+      } finally {
+        clearTimeout(timeoutId);
       }
-      throw fetchError;
-    } finally {
-      clearTimeout(timeoutId);
+
+      // If success or non-retryable error, break
+      if (response.ok || ![502, 503, 429].includes(response.status)) {
+        break;
+      }
+
+      // Retryable error — log and wait before retry
+      console.warn(`[Cases API] Freemodel API returned ${response.status}, attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
+      if (attempt < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
     }
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[Cases API] Freemodel API Error:", errText);
-      throw new Error(`Freemodel API Error: ${response.status} ${errText}`);
+    if (!response || !response.ok) {
+      const status = response?.status || 500;
+      const errText = response ? await response.text() : 'No response';
+      console.error("[Cases API] Freemodel API Error after retries:", status, errText);
+      throw new Error(
+        status === 503
+          ? "Server AI sedang sibuk (overloaded). Silakan tunggu 1-2 menit lalu coba lagi."
+          : status === 429
+          ? "Terlalu banyak permintaan ke AI. Silakan tunggu beberapa saat lalu coba lagi."
+          : "Gagal menghubungi server AI. Silakan coba lagi nanti."
+      );
     }
 
     const data = await response.json();

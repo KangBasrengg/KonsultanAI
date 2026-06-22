@@ -94,7 +94,12 @@ export default function IntakeFormPage() {
       setStep(4);
     } catch (err: any) {
       if (err.message !== "Limit tercapai.") {
-        setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+        // Clean raw API error messages for user-friendly display
+        let cleanedMessage = err.message || "Terjadi kesalahan. Silakan coba lagi.";
+        if (cleanedMessage.includes("Freemodel API Error") || cleanedMessage.includes("503") || cleanedMessage.includes("Service Unavailable")) {
+          cleanedMessage = "Server AI sedang sibuk. Silakan tunggu beberapa saat lalu coba lagi.";
+        }
+        setError(cleanedMessage);
       }
       setStep(3);
     } finally {
@@ -111,7 +116,7 @@ export default function IntakeFormPage() {
         message={limitMessage} 
       />
       
-      <div className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+      <div className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 pb-28 md:pb-32">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="mb-8 text-center">
@@ -148,10 +153,20 @@ export default function IntakeFormPage() {
           {error && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 p-4 rounded-xl mb-6 flex items-center gap-3"
+              className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 p-4 rounded-xl mb-6 flex flex-col gap-3"
             >
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <p className="text-sm">{error}</p>
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <p className="text-sm">{error}</p>
+              </div>
+              {step === 3 && (
+                <button
+                  onClick={() => { setError(""); handleSubmit(); }}
+                  className="self-end bg-red-600 dark:bg-red-500 text-white text-sm px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                >
+                  Coba Lagi
+                </button>
+              )}
             </motion.div>
           )}
 

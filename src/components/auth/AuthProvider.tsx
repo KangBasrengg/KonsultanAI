@@ -58,15 +58,39 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
-      const res = await fetch("/api/profile");
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data);
+      const { data: profileData, error: profileError } = await supabase
+        .from("users")
+        .select("email, full_name, is_premium, role, tier, created_at")
+        .eq("id", userId)
+        .single();
+
+      if (profileError && profileError.code !== "PGRST116") {
+        console.error("Error fetching user profile from Supabase:", profileError);
       }
+
+      const { count, error: countError } = await supabase
+        .from("consultations")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+
+      if (countError) {
+        console.error("Error fetching consultation count:", countError);
+      }
+
+      setProfile({
+        id: userId,
+        email: profileData?.email || user?.email || "",
+        fullName: profileData?.full_name || null,
+        isPremium: profileData?.is_premium || false,
+        role: profileData?.role || "user",
+        tier: profileData?.tier || "free",
+        consultationCount: count || 0,
+        createdAt: profileData?.created_at || user?.created_at || new Date().toISOString()
+      });
     } catch (e) {
-      console.error("[AuthProvider] Failed to fetch profile:", e);
+      console.error("[AuthProvider] Failed to fetch profile data:", e);
     }
-  }, []);
+  }, [supabase, user]);
 
   // Verify session on mount and on tab refocus
   useEffect(() => {

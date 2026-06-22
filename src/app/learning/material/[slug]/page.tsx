@@ -12,17 +12,43 @@ const supabaseAdmin = createAdminClient(
 );
 
 type Props = {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 };
 
 export default async function MaterialPage({ params }: Props) {
-  const { id } = await params;
+  const { slug } = await params;
 
-  // 1. Fetch Material details (Bypass RLS to check existence and metadata)
+  // 1. Fetch all materials to match the slug
+  const { data: allMaterials, error: matListError } = await supabaseAdmin
+    .from("legal_materials")
+    .select("id, title");
+
+  if (matListError || !allMaterials) {
+    notFound();
+  }
+
+  const decodedSlug = decodeURIComponent(slug);
+
+  // Find the material that matches the slug
+  const matchedMat = allMaterials.find(m => {
+    const matSlug = m.title
+      .toLowerCase()
+      .replace(/&/g, 'dan')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    return matSlug === decodedSlug;
+  });
+
+  if (!matchedMat) {
+    console.error("Material not found for slug:", decodedSlug, "Available slugs:", allMaterials.map(m => m.title.toLowerCase().replace(/&/g, 'dan').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')));
+    notFound();
+  }
+
+  // Fetch the full material details
   const { data: material, error: matError } = await supabaseAdmin
     .from("legal_materials")
     .select("*, legal_categories(name)")
-    .eq("id", id)
+    .eq("id", matchedMat.id)
     .single();
 
   if (matError || !material) {
@@ -33,7 +59,7 @@ export default async function MaterialPage({ params }: Props) {
   const { data: quizzes } = await supabaseAdmin
     .from("legal_quizzes")
     .select("*")
-    .eq("material_id", id);
+    .eq("material_id", matchedMat.id);
 
   // 3. Check User Session & Tier
   const supabase = await createServerClient();

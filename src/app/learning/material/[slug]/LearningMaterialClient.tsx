@@ -47,7 +47,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
 
   const handleCheckAnswer = () => {
     if (selectedOption === null) return;
-    
+
     setShowResult(true);
     if (selectedOption === quizzes[currentQuiz].correct_option_index) {
       setQuizScore(prev => prev + 1);
@@ -65,7 +65,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
   return (
     <main className="min-h-screen selection:bg-gold/30 flex flex-col">
       <Navbar />
-      
+
       {/* Content Section */}
       <section className="flex-1 pt-32 pb-20 relative">
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay pointer-events-none"></div>
@@ -99,11 +99,11 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
               </div>
               <h2 className="text-2xl font-bold mb-4">Materi Eksklusif</h2>
               <p className="text-putih/60 mb-8 max-w-lg mx-auto">
-                {isLoggedIn 
+                {isLoggedIn
                   ? `Materi ini membutuhkan paket langganan ${material.required_tier.toUpperCase()}. Upgrade akun Anda untuk mengakses seluruh materi eksklusif.`
                   : "Silakan masuk (login) terlebih dahulu atau berlangganan untuk mengakses materi eksklusif ini."}
               </p>
-              
+
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href={isLoggedIn ? "/#harga" : "/login"}>
                   <button className="w-full sm:w-auto px-8 py-3 bg-gold text-navy rounded-full font-bold hover:bg-gold-light transition-transform hover:scale-105">
@@ -123,20 +123,33 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div 
-                className="prose prose-invert prose-lg max-w-none text-putih/80 leading-relaxed mb-12"
-                dangerouslySetInnerHTML={{ 
-                  __html: material.content
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\n/g, '<br/>')
-                }}
-              />
+              <div className="bg-navy-light/40 border border-putih/10 rounded-[2rem] p-8 md:p-12 mb-12 shadow-2xl relative overflow-hidden backdrop-blur-sm">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[80px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+                <div
+                  className="prose prose-invert prose-lg max-w-none text-putih/80 leading-relaxed relative z-10"
+                  dangerouslySetInnerHTML={{
+                    __html: material.content
+                      // Handle blockquotes starting with >
+                      .replace(/(> .*(\n> .*)*)/g, (match) => {
+                        return `<div class="border-l-4 border-gold pl-6 py-5 my-8 bg-putih/5 rounded-r-2xl text-putih/90 italic shadow-inner">${match.replace(/> /g, '').replace(/\n/g, '<br/>')}</div>`;
+                      })
+                      // Handle headings
+                      .replace(/### (.*?)(?=\n|$)/g, '<h3 class="text-2xl font-bold text-putih mt-10 mb-4 flex items-center gap-3"><div class="w-2 h-6 bg-gold rounded-full"></div>$1</h3>')
+                      // Handle numbered lists (basic formatting)
+                      .replace(/(\d+)\. \*\*(.*?)\*\*(.*?)(?=\n|$)/g, '<div class="flex gap-4 mt-6 mb-2"><div class="shrink-0 w-8 h-8 rounded-full bg-putih/10 text-gold flex items-center justify-center font-bold border border-putih/10">$1</div><div><strong class="text-putih text-xl block mb-1">$2</strong>$3</div></div>')
+                      // Handle remaining bold text
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-putih font-semibold">$1</strong>')
+                      // Handle remaining newlines
+                      .replace(/\n/g, '<br/>')
+                  }}
+                />
+              </div>
 
               {/* Quiz Section */}
               {quizzes.length > 0 && (
                 <div className="mt-16 bg-navy-dark border border-putih/10 rounded-3xl p-8 md:p-10 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 blur-[50px] rounded-full pointer-events-none"></div>
-                  
+
                   <div className="flex items-center gap-2 mb-8 border-b border-putih/10 pb-6">
                     <CheckCircle2 className="w-6 h-6 text-gold" />
                     <h3 className="text-2xl font-bold">Evaluasi Pemahaman</h3>
@@ -153,7 +166,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
                     {parsedOptions.map((opt: string, idx: number) => {
                       const isCorrect = idx === quizzes[currentQuiz].correct_option_index;
                       const isSelected = selectedOption === idx;
-                      
+
                       let optionStyle = "border-putih/20 bg-putih/5 hover:bg-putih/10";
                       if (showResult) {
                         if (isCorrect) optionStyle = "border-green-500 bg-green-500/20 text-green-300";

@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 
 type MaterialData = {
   id: string;
+  slug: string;
   title: string;
   content: string; // just to show excerpt maybe
   is_premium: boolean;
@@ -112,7 +113,7 @@ export default function LearningCategoryClient({ category, materials }: Learning
                   </p>
                   
                   <div className="mt-auto">
-                    <Link href={`/learning/material/${material.id}`} className="w-full">
+                    <Link href={`/learning/material/${material.slug}`} className="w-full">
                       <button className="w-full py-3 rounded-xl font-bold transition-all bg-putih/5 text-putih hover:bg-gold hover:text-navy border border-putih/10 group-hover:border-gold/50">
                         Mulai Belajar
                       </button>
