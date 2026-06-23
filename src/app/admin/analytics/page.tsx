@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
@@ -11,45 +11,60 @@ import {
 import { Download, Users, TrendingUp, AlertTriangle, ShieldAlert, Scale } from "lucide-react";
 
 export default function AnalyticsDashboardPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, isVerifying } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [trends, setTrends] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [wilayah, setWilayah] = useState("all");
+  const hasFetched = useRef(false);
+  const userRole = profile?.role;
 
+  // Role access check — separate from data fetching to avoid coupling
   useEffect(() => {
-    if (!user) return;
-    
-    // Check role access
-    if (profile?.role !== "admin" && profile?.role !== "government" && profile?.role !== "enterprise") {
-      router.push("/admin");
+    if (isVerifying) return; // Wait until auth is resolved
+    if (!user) {
+      router.replace("/?login=true");
       return;
     }
+    if (userRole && userRole !== "admin" && userRole !== "government" && userRole !== "enterprise") {
+      router.replace("/admin");
+    }
+  }, [isVerifying, user, userRole, router]);
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [dashRes, trendsRes] = await Promise.all([
-          fetch(`/api/analytics/dashboard?wilayah=${wilayah}`),
-          fetch(`/api/analytics/trends?wilayah=${wilayah}`)
-        ]);
+  // Data fetching — uses stable primitive deps to avoid re-trigger loops
+  const fetchData = useCallback(async () => {
+    try {
+      const [dashRes, trendsRes] = await Promise.all([
+        fetch(`/api/analytics/dashboard?wilayah=${wilayah}`),
+        fetch(`/api/analytics/trends?wilayah=${wilayah}`)
+      ]);
 
-        if (dashRes.ok) {
-          setData(await dashRes.json());
-        }
-        if (trendsRes.ok) {
-          setTrends(await trendsRes.json());
-        }
-      } catch (e) {
-        console.error("Failed to fetch analytics:", e);
-      } finally {
-        setIsLoading(false);
+      if (dashRes.ok) {
+        setData(await dashRes.json());
       }
-    };
+      if (trendsRes.ok) {
+        setTrends(await trendsRes.json());
+      }
+    } catch (e) {
+      console.error("Failed to fetch analytics:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [wilayah]);
+
+  useEffect(() => {
+    if (!user || isVerifying) return;
+    if (userRole !== "admin" && userRole !== "government" && userRole !== "enterprise") return;
+
+    // Only show full loading spinner on initial load, not on wilayah changes after first load
+    if (!hasFetched.current) {
+      setIsLoading(true);
+      hasFetched.current = true;
+    }
 
     fetchData();
-  }, [user, profile, router, wilayah]);
+  }, [user, isVerifying, userRole, wilayah, fetchData]);
 
   if (isLoading || !data) {
     return (

@@ -31,9 +31,9 @@ export default function PricingSection() {
       highlight: false
     },
     {
-      name: "Basic Plan",
-      priceMonthly: "Rp 59.000",
-      priceAnnual: "Rp 50.000",
+      name: "Basic",
+      priceMonthly: "Rp 49.000",
+      priceAnnual: "Rp 40.000",
       period: "/bulan",
       desc: "Cocok untuk masyarakat umum yang butuh akses reguler.",
       features: [
@@ -49,9 +49,9 @@ export default function PricingSection() {
       highlight: true
     },
     {
-      name: "Professional",
-      priceMonthly: "Rp 115.000",
-      priceAnnual: "Rp 100.000",
+      name: "Pro",
+      priceMonthly: "Rp 99.000",
+      priceAnnual: "Rp 85.000",
       period: "/bulan",
       desc: "Untuk praktisi, mahasiswa hukum, dan UMKM.",
       features: [
@@ -67,9 +67,9 @@ export default function PricingSection() {
       highlight: false
     },
     {
-      name: "Business",
-      priceMonthly: "Custom",
-      priceAnnual: "Custom",
+      name: "Enterprise",
+      priceMonthly: "Rp 199.000",
+      priceAnnual: "Rp 175.000",
       period: "/bulan",
       desc: "Solusi enterprise untuk instansi pemerintah, perusahaan berskala besar, dan firma hukum.",
       features: [
@@ -140,14 +140,14 @@ export default function PricingSection() {
                   <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.priceAnnual : plan.priceMonthly}</span>
                   {plan.period && <span className="text-putih/50 text-sm">{plan.period}</span>}
                 </div>
-                {isAnnual && plan.name !== "Free Trial" && plan.name !== "Business" && (
+                {isAnnual && plan.name !== "Free Trial" && plan.name !== "Enterprise" && (
                   <p className="text-xs text-green-400 mt-1 font-medium">
-                    Ditagih {plan.name === "Basic Plan" ? "Rp 600.000" : "Rp 1.200.000"} per tahun
+                    Ditagih {plan.name === "Basic" ? "Rp 480.000" : "Rp 1.020.000"} per tahun
                   </p>
                 )}
-                {isAnnual && plan.name === "Business" && (
+                {isAnnual && plan.name === "Enterprise" && (
                   <p className="text-xs text-putih/40 mt-1 font-medium italic">
-                    Disesuaikan dengan skala institusi
+                    Ditagih Rp 2.100.000 per tahun
                   </p>
                 )}
               </div>
@@ -182,7 +182,7 @@ export default function PricingSection() {
                   {plan.cta}
                 </button>
               ) : (
-                <Link href={plan.name === "Business" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Business%20KonsultanAI" : "/intake"} className="mt-auto">
+                <Link href={plan.name === "Enterprise" ? "mailto:muhammadnuril155@gmail.com?subject=Tertarik%20Paket%20Enterprise%20KonsultanAI" : "/intake"} className="mt-auto">
                   <button className={`w-full py-3 rounded-xl font-bold transition-all ${plan.highlight
                       ? "bg-gold text-navy hover:bg-gold-light"
                       : "bg-navy-light text-putih border border-putih/20 hover:bg-putih/10"

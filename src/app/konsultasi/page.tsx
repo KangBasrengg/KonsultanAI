@@ -40,7 +40,10 @@ export default function KonsultasiPage() {
           }
         ]
       }
-    ] as UIMessage[]
+    ] as UIMessage[],
+    onError: (err) => {
+      console.error("[Konsultasi] useChat error:", err.message);
+    }
   });
 
   const [input, setInput] = useState("");
@@ -79,7 +82,9 @@ export default function KonsultasiPage() {
           ? `[Kasus: ${caseType}]\n\nKronologi:\n${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`
           : `${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`;
         
-        sendMessage({ text: autoPrompt });
+        sendMessage({ text: autoPrompt }).catch((err) => {
+          console.error("[Konsultasi] Auto-send from intake failed:", err);
+        });
       }
     } catch (e) {
       // sessionStorage might not be available in some contexts
@@ -128,12 +133,20 @@ export default function KonsultasiPage() {
     exportConsultationPDF(messages as any);
   };
 
-  if (isVerifying) {
-    return null; // Return null to prevent hydration mismatch while still showing background layout
-  }
-
-  if (!user) {
-    return null; // Will redirect in useEffect
+  if (isVerifying || !user) {
+    return (
+      <div className="min-h-screen flex flex-col h-screen overflow-hidden bg-navy">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative w-14 h-14">
+              <div className="absolute inset-0 rounded-full border-2 border-putih/20 border-t-gold animate-spin" />
+              <div className="absolute inset-2 rounded-full border-2 border-putih/10 border-b-gold/50 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+            </div>
+            <p className="text-putih/50 text-sm animate-pulse">Mempersiapkan konsultasi...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

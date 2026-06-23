@@ -72,7 +72,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
         <div className="absolute top-0 right-0 w-1/3 h-1/2 bg-gold/5 blur-[120px] rounded-full pointer-events-none -translate-y-1/2"></div>
 
         <div className="container mx-auto px-6 lg:px-12 relative z-10 max-w-4xl">
-          <Link href={`/learning/category/${material.category_id}`} className="inline-flex items-center gap-2 text-putih/60 hover:text-gold transition-colors mb-8">
+          <Link href={`/learning/category/${material.legal_categories?.name?.toLowerCase().replace(/&/g, 'dan').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || ''}`} className="inline-flex items-center gap-2 text-putih/60 hover:text-gold transition-colors mb-8">
             <ArrowLeft className="w-4 h-4" /> Kembali ke Kategori
           </Link>
 

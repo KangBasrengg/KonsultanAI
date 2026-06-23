@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Users, Crown, Shield, Search, 
@@ -49,7 +49,7 @@ const TIER_CONFIG = {
 export default function AdminDashboard() {
   const { profile, isLoading, isAdmin } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<UserData[]>([]);
   const [chats, setChats] = useState<ChatData[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
     } finally {
       setLoadingChats(false);
     }
-  }, [supabase]);
+  }, [supabase]); // supabase is now stable via useMemo
 
   const fetchAdvocates = useCallback(async () => {
     setLoadingAdvocates(true);
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
         
       if (bookingsData && bookingsData.length > 0) {
         // Fetch user details separately to avoid foreign key issues to auth.users
-        const userIds = [...new Set(bookingsData.map(b => b.user_id))];
+        const userIds = [...new Set(bookingsData.map((b: any) => b.user_id))];
         const { data: usersData } = await supabase
           .from("users")
           .select("id, full_name, email")
@@ -153,11 +153,11 @@ export default function AdminDashboard() {
           
         const userMap = new Map();
         if (usersData) {
-          usersData.forEach(u => userMap.set(u.id, u));
+          usersData.forEach((u: any) => userMap.set(u.id, u));
         }
         
         // Merge data
-        const mergedBookings = bookingsData.map(b => ({
+        const mergedBookings = bookingsData.map((b: any) => ({
           ...b,
           client: userMap.get(b.user_id) || { full_name: "Unknown", email: "" }
         }));
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
     } finally {
       setLoadingBookings(false);
     }
-  }, [supabase]);
+  }, [supabase]); // supabase is now stable via useMemo
 
   const fetchListings = useCallback(async () => {
     setLoadingListings(true);
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
     } finally {
       setLoadingListings(false);
     }
-  }, [supabase]);
+  }, [supabase]); // supabase is now stable via useMemo
 
   useEffect(() => {
     if (isAdmin) {

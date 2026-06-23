@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import LearningCenterClient, { CategoryData, CourseData } from "./LearningCenterClient";
-import { Shield, Scale, Briefcase, Monitor } from "lucide-react";
+import { Shield, Scale, Briefcase, Monitor, FileText, Receipt, Users } from "lucide-react";
 
 // Initialize Supabase Admin Client to bypass RLS and fetch catalog
 // Fallback to anon key if service role key is missing (to prevent crash)
@@ -45,6 +45,9 @@ export default async function LearningCenterPage() {
     if (lowerName.includes("pidana")) return { icon: <Shield className="w-6 h-6 text-red-400" />, color: "from-red-500/20 to-red-900/20", border: "border-red-500/30" };
     if (lowerName.includes("perdata")) return { icon: <Scale className="w-6 h-6 text-blue-400" />, color: "from-blue-500/20 to-blue-900/20", border: "border-blue-500/30" };
     if (lowerName.includes("bisnis")) return { icon: <Briefcase className="w-6 h-6 text-gold" />, color: "from-gold/20 to-yellow-900/20", border: "border-gold/30" };
+    if (lowerName.includes("perjanjian")) return { icon: <FileText className="w-6 h-6 text-emerald-400" />, color: "from-emerald-500/20 to-emerald-900/20", border: "border-emerald-500/30" };
+    if (lowerName.includes("pajak")) return { icon: <Receipt className="w-6 h-6 text-orange-400" />, color: "from-orange-500/20 to-orange-900/20", border: "border-orange-500/30" };
+    if (lowerName.includes("ketenagakerjaan")) return { icon: <Users className="w-6 h-6 text-cyan-400" />, color: "from-cyan-500/20 to-cyan-900/20", border: "border-cyan-500/30" };
     return { icon: <Monitor className="w-6 h-6 text-purple-400" />, color: "from-purple-500/20 to-purple-900/20", border: "border-purple-500/30" };
   };
 

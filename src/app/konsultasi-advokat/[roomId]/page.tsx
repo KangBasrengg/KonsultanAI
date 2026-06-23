@@ -114,7 +114,7 @@ export default function ConsultationChatRoom() {
           table: "consultation_messages",
           filter: `room_id=eq.${roomId}`,
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => [...prev, payload.new as Message]);
           scrollToBottom();
         }

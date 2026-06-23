@@ -109,7 +109,7 @@ export default function AdminChatPage() {
           table: "messages",
           filter: `chat_id=eq.${activeChat.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
       )

@@ -129,7 +129,7 @@ function ChatContent() {
           table: "chats",
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           setChats((prev) => 
             prev.map(c => c.id === payload.new.id ? (payload.new as Chat) : c)
           );
@@ -173,7 +173,7 @@ function ChatContent() {
           table: "messages",
           filter: `chat_id=eq.${activeChatId}`,
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
       )

@@ -44,7 +44,7 @@ export default function MarketplacePage() {
       if (!advocateData) { setLoading(false); return; }
 
       // Fetch specializations for all advocates
-      const advocateIds = advocateData.map(a => a.id);
+      const advocateIds = advocateData.map((a: any) => a.id);
       const { data: specData } = await supabase
         .from("advocate_specializations")
         .select("*")
@@ -59,10 +59,10 @@ export default function MarketplacePage() {
 
       // Combine data
       const combined: AdvocateWithDetails[] = advocateData
-        .map(a => ({
+        .map((a: any) => ({
           ...a,
-          specializations: (specData || []).filter(s => s.advocate_id === a.id),
-          listing: listingData?.find(l => l.advocate_id === a.id) || null,
+          specializations: (specData || []).filter((s: any) => s.advocate_id === a.id),
+          listing: listingData?.find((l: any) => l.advocate_id === a.id) || null,
         }));
 
       setAdvocates(combined);
@@ -74,15 +74,15 @@ export default function MarketplacePage() {
   };
 
   // Filter & Sort
-  const cities = [...new Set(advocates.map(a => a.city))].sort();
+  const cities = [...new Set(advocates.map((a: any) => a.city))].sort();
 
   const filteredAdvocates = advocates
-    .filter(a => {
+    .filter((a: any) => {
       const matchesSearch =
         a.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.organization.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesField = selectedField === "all" || a.specializations.some(s => s.field === selectedField);
+      const matchesField = selectedField === "all" || a.specializations.some((s: any) => s.field === selectedField);
       const matchesCity = selectedCity === "all" || a.city === selectedCity;
       return matchesSearch && matchesField && matchesCity;
     })
@@ -171,7 +171,7 @@ export default function MarketplacePage() {
                         className="w-full bg-navy border border-putih/20 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
                         <option value="all">Semua Bidang</option>
-                        {LEGAL_FIELDS.map(f => (
+                        {LEGAL_FIELDS.map((f: any) => (
                           <option key={f.id} value={f.id}>{f.label}</option>
                         ))}
                       </select>
@@ -185,7 +185,7 @@ export default function MarketplacePage() {
                         className="w-full bg-navy border border-putih/20 rounded-xl px-3 py-2.5 text-sm text-putih focus:outline-none focus:border-gold/40"
                       >
                         <option value="all">Semua Kota</option>
-                        {cities.map(c => (
+                        {cities.map((c: any) => (
                           <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
@@ -264,7 +264,7 @@ export default function MarketplacePage() {
                         {advocate.photo_url ? (
                           <Image src={advocate.photo_url} alt={advocate.full_name} fill className="object-cover" sizes="56px" />
                         ) : (
-                          advocate.full_name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                          advocate.full_name.split(" ").map((n: any) => n[0]).join("").slice(0, 2)
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -289,7 +289,7 @@ export default function MarketplacePage() {
                   <div className="px-6 pb-3">
                     <div className="flex flex-wrap gap-1.5">
                       {advocate.specializations.slice(0, 3).map(spec => {
-                        const field = LEGAL_FIELDS.find(f => f.id === spec.field);
+                        const field = LEGAL_FIELDS.find((f: any) => f.id === spec.field);
                         return (
                           <span key={spec.id} className="text-[10px] font-medium bg-putih/5 border border-putih/20 text-putih/60 px-2 py-0.5 rounded-full">
                             {field?.label || spec.field}
@@ -382,7 +382,7 @@ export default function MarketplacePage() {
                       {selectedAdvocate.photo_url ? (
                         <Image src={selectedAdvocate.photo_url} alt={selectedAdvocate.full_name} fill className="object-cover" sizes="64px" />
                       ) : (
-                        selectedAdvocate.full_name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                        selectedAdvocate.full_name.split(" ").map((n: any) => n[0]).join("").slice(0, 2)
                       )}
                     </div>
                     <div>
@@ -433,7 +433,7 @@ export default function MarketplacePage() {
                   <h3 className="text-sm font-semibold text-putih/60 uppercase mb-3">Bidang Keahlian</h3>
                   <div className="space-y-2">
                     {selectedAdvocate.specializations.map(spec => {
-                      const field = LEGAL_FIELDS.find(f => f.id === spec.field);
+                      const field = LEGAL_FIELDS.find((f: any) => f.id === spec.field);
                       return (
                         <div key={spec.id} className="flex items-center gap-3">
                           <span className="text-sm text-putih/80 w-40 shrink-0">{field?.label || spec.field}</span>

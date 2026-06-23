@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import type { User, SupabaseClient } from "@supabase/supabase-js";
 import AuthModal from "./AuthModal";
 
 export interface UserProfile {
@@ -46,6 +46,8 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+
+
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -54,9 +56,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "register">("login");
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  // Use a ref to track current user ID to avoid unnecessary state updates
+  const currentUserIdRef = useRef<string | null>(null);
+
+  // fetchProfile uses a ref-based approach to avoid dependency on `user` object.
+  // The fallback email/createdAt are passed as params instead.
+  const fetchProfile = useCallback(async (
+    userId: string, 
+    fallbackEmail?: string, 
+    fallbackCreatedAt?: string
+  ) => {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from("users")
@@ -79,18 +90,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       setProfile({
         id: userId,
-        email: profileData?.email || user?.email || "",
+        email: profileData?.email || fallbackEmail || "",
         fullName: profileData?.full_name || null,
         isPremium: profileData?.is_premium || false,
         role: profileData?.role || "user",
         tier: profileData?.tier || "free",
         consultationCount: count || 0,
-        createdAt: profileData?.created_at || user?.created_at || new Date().toISOString()
+        createdAt: profileData?.created_at || fallbackCreatedAt || new Date().toISOString()
       });
     } catch (e) {
       console.error("[AuthProvider] Failed to fetch profile data:", e);
     }
-  }, [supabase, user]);
+  }, [supabase]); // Only depends on stable supabase ref — never changes
 
   // Verify session on mount and on tab refocus
   useEffect(() => {
@@ -100,23 +111,29 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       setIsVerifying(true);
       try {
         // getUser() performs a server-side verification (not just local token check)
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const { data: { user: authUser }, error } = await supabase.auth.getUser();
         
-        if (error || !user) {
+        if (error || !authUser) {
           // Session is invalid or expired
           if (mounted) {
+            currentUserIdRef.current = null;
             setUser(null);
             setProfile(null);
           }
         } else {
           if (mounted) {
-            setUser(user);
-            await fetchProfile(user.id);
+            // Only update state if user actually changed (prevents re-render loops)
+            if (currentUserIdRef.current !== authUser.id) {
+              currentUserIdRef.current = authUser.id;
+              setUser(authUser);
+              await fetchProfile(authUser.id, authUser.email, authUser.created_at);
+            }
           }
         }
       } catch (e) {
         console.error("[AuthProvider] Session verification failed:", e);
         if (mounted) {
+          currentUserIdRef.current = null;
           setUser(null);
           setProfile(null);
         }
@@ -143,12 +160,15 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
+          currentUserIdRef.current = session.user.id;
           setUser(session.user);
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user.id, session.user.email, session.user.created_at);
         } else if (event === "SIGNED_OUT") {
+          currentUserIdRef.current = null;
           setUser(null);
           setProfile(null);
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
+          // Token refreshed — update user object but don't re-fetch profile
           setUser(session.user);
         }
       }
@@ -159,7 +179,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       subscription.unsubscribe();
     };
-  }, [supabase, fetchProfile]);
+  }, [supabase, fetchProfile]); // Both are now stable references — effect runs only once
 
   const openAuthModal = useCallback((view: "login" | "register" = "login") => {
     setAuthModalView(view);
@@ -172,16 +192,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
+    currentUserIdRef.current = null;
     setUser(null);
     setProfile(null);
     window.location.href = "/";
   }, [supabase]);
 
   const refreshProfile = useCallback(async () => {
-    if (user) {
-      await fetchProfile(user.id);
+    if (currentUserIdRef.current) {
+      await fetchProfile(currentUserIdRef.current);
     }
-  }, [user, fetchProfile]);
+  }, [fetchProfile]);
 
   const isAdmin = profile?.role === "admin";
 

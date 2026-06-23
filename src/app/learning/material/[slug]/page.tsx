@@ -67,23 +67,25 @@ export default async function MaterialPage({ params }: Props) {
   
   let hasAccess = false;
   let userTier = "free";
+  let isAdmin = false;
 
   if (user) {
-    // Fetch user tier using their authenticated session
+    // Fetch user tier and role using their authenticated session
     const { data: userData } = await supabase
       .from("users")
-      .select("tier")
+      .select("tier, role")
       .eq("id", user.id)
       .single();
       
     if (userData) {
       userTier = userData.tier;
+      isAdmin = userData.role === "admin";
     }
   }
 
   // Tier logic
-  if (!material.is_premium) {
-    hasAccess = true; // Free material
+  if (isAdmin || !material.is_premium) {
+    hasAccess = true; // Admins see everything, Free material is free
   } else if (user) {
     const tierLevels = { free: 0, basic: 1, professional: 2, business: 3 };
     const requiredLevel = tierLevels[material.required_tier as keyof typeof tierLevels] || 0;
