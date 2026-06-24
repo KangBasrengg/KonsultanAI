@@ -37,8 +37,17 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
   const [showResult, setShowResult] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
 
-  // Supabase automatically parses JSONB columns, so options is already an array
-  const parsedOptions = quizzes.length > 0 ? quizzes[currentQuiz].options : [];
+  // Handle options that might be returned as JSON strings instead of arrays
+  let parsedOptions = [];
+  if (quizzes.length > 0) {
+    const opts = quizzes[currentQuiz].options;
+    try {
+      parsedOptions = typeof opts === 'string' ? JSON.parse(opts) : opts;
+    } catch (e) {
+      console.error("Error parsing options:", e);
+      parsedOptions = [];
+    }
+  }
 
   const handleOptionSelect = (index: number) => {
     if (showResult) return; // Prevent changing answer
