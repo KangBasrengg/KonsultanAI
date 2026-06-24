@@ -36,7 +36,9 @@ function ChatContent() {
   const { user, isVerifying } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const plan = searchParams.get("plan");
+  const basePlan = searchParams.get("plan");
+  const cycle = searchParams.get("cycle");
+  const plan = basePlan && cycle === "annual" ? `${basePlan} (Tahunan)` : basePlan;
   const supabase = createClient();
 
   const [chats, setChats] = useState<Chat[]>([]);
@@ -60,9 +62,12 @@ function ChatContent() {
   // Redirect if not logged in
   useEffect(() => {
     if (!isVerifying && !user) {
-      router.replace("/?login=true");
+      window.location.href = "/?login=true";
     }
-  }, [isVerifying, user, router]);
+  }, [isVerifying, user]);
+
+  if (isVerifying) return <LoadingScreen />;
+  if (!user) return <LoadingScreen />;
 
   // Init chat - load history or create new
   useEffect(() => {

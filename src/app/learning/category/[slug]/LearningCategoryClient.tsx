@@ -33,7 +33,7 @@ export default function LearningCategoryClient({ category, materials }: Learning
       
       {/* Header Section */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-navy-dark">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
+        {/* Removed noise.png to prevent 404 */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gold/10 blur-[120px] rounded-full pointer-events-none translate-x-1/3"></div>
 
         <div className="container mx-auto px-6 lg:px-12 relative z-10">

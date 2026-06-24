@@ -68,7 +68,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
 
       {/* Content Section */}
       <section className="flex-1 pt-32 pb-20 relative">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay pointer-events-none"></div>
+        {/* Removed noise.png to prevent 404 */}
         <div className="absolute top-0 right-0 w-1/3 h-1/2 bg-gold/5 blur-[120px] rounded-full pointer-events-none -translate-y-1/2"></div>
 
         <div className="container mx-auto px-6 lg:px-12 relative z-10 max-w-4xl">
@@ -105,7 +105,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={isLoggedIn ? "/#harga" : "/login"}>
+                <Link href={isLoggedIn ? "/#harga" : "/?login=true"}>
                   <button className="w-full sm:w-auto px-8 py-3 bg-gold text-navy rounded-full font-bold hover:bg-gold-light transition-transform hover:scale-105">
                     {isLoggedIn ? "Upgrade Paket" : "Login Sekarang"}
                   </button>

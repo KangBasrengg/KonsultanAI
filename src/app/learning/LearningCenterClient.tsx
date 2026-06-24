@@ -42,7 +42,7 @@ export default function LearningCenterClient({ categories, featuredCourses }: Le
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
         {/* Background Elements */}
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
+        {/* Removed noise.png to prevent 404 */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gold/10 blur-[120px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-500/10 blur-[120px] rounded-full pointer-events-none translate-y-1/3 -translate-x-1/3"></div>
 
@@ -210,7 +210,7 @@ export default function LearningCenterClient({ categories, featuredCourses }: Le
       <section className="py-20 relative z-10">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="bg-gradient-to-br from-gold/20 to-navy-light border border-gold/30 rounded-[2.5rem] p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+            {/* Removed noise.png to prevent 404 */}
             
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih relative z-10">Siap Menjadi Lebih <span className="text-gold">Melek Hukum?</span></h2>
             <p className="text-lg text-putih/80 mb-10 max-w-2xl mx-auto relative z-10">Akses seluruh materi hukum secara tidak terbatas, dapatkan sertifikat penyelesaian, dan kuasai dasar-dasar legalitas sekarang.</p>

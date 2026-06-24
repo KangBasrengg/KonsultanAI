@@ -23,18 +23,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Plan names must match PricingSection.tsx exactly
+    // Normalize plan name to handle old data or case mismatches
+    const normalizedPlan = (planName || '').toString().toLowerCase().trim();
+    
     let price = 0;
-    if (planName === 'Basic') {
-      price = 49000;
-    } else if (planName === 'Pro') {
-      price = 99000;
-    } else if (planName === 'Enterprise') {
-      price = 199000;
-    } else if (planName === 'Free Trial') {
+    const isAnnual = normalizedPlan.includes('tahunan') || normalizedPlan.includes('annual');
+
+    if (normalizedPlan.includes('basic')) {
+      price = isAnnual ? 480000 : 49000;
+    } else if (normalizedPlan.includes('pro') || normalizedPlan.includes('premium')) {
+      price = isAnnual ? 1020000 : 99000;
+    } else if (normalizedPlan.includes('enterprise')) {
+      price = isAnnual ? 2100000 : 199000;
+    } else if (normalizedPlan.includes('free') || normalizedPlan.includes('trial')) {
       price = 0;
     } else {
-      return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
+      return NextResponse.json({ error: `Invalid plan: ${planName}` }, { status: 400 });
     }
     
     if (price === 0) {
