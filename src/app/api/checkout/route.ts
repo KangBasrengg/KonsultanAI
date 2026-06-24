@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import midtransClient from 'midtrans-client';
+import { createClient } from '@/lib/supabase/server';
 
 const snap = new midtransClient.Snap({
   isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
@@ -9,17 +10,27 @@ const snap = new midtransClient.Snap({
 
 export async function POST(request: Request) {
   try {
+    // Verify authentication
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { chatId, planName, userEmail, userName } = await request.json();
 
     if (!chatId || !planName) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Plan names must match PricingSection.tsx exactly
     let price = 0;
-    if (planName === 'Basic Plan') {
+    if (planName === 'Basic') {
       price = 49000;
-    } else if (planName === 'Professional') {
-      price = 149000;
+    } else if (planName === 'Pro') {
+      price = 99000;
+    } else if (planName === 'Enterprise') {
+      price = 199000;
     } else if (planName === 'Free Trial') {
       price = 0;
     } else {

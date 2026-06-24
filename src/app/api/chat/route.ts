@@ -98,7 +98,7 @@ export async function POST(req: Request) {
         console.warn("[Chat API] getCloudflareContext failed", e);
       }
     }
-    console.log("[Chat API] API key available:", apiKey ? "yes (length: " + apiKey.length + ")" : "NO - MISSING");
+    console.log("[Chat API] API key available:", !!apiKey);
     
     const freemodel = createOpenAI({
       baseURL: "https://api.freemodel.dev/v1",
@@ -230,13 +230,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.FREEMODEL_API_KEY || "";
     
     return new Response(JSON.stringify({ 
-      error: "Terjadi kesalahan saat menghubungi AI.",
-      details: error?.message || "Unknown error",
-      debug: {
-        hasApiKey: !!apiKey,
-        keyLength: apiKey.length,
-        isCloudflare: !!process.env.CF_PAGES,
-      }
+      error: "Terjadi kesalahan saat menghubungi AI. Silakan coba lagi nanti.",
     }), {
       status: 500,
       headers: { "Content-Type": "application/json" }

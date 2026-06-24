@@ -30,7 +30,8 @@ export async function GET(req: Request) {
     let query = supabase.from("case_analytics").select("*");
     
     if (wilayah && wilayah !== "all") {
-      query = query.or(`wilayah_provinsi.ilike.%${wilayah}%,wilayah_kabupaten.ilike.%${wilayah}%`);
+      const safeWilayah = wilayah.replace(/[^a-zA-Z0-9\s-]/g, '');
+      query = query.or(`wilayah_provinsi.ilike.%${safeWilayah}%,wilayah_kabupaten.ilike.%${safeWilayah}%`);
     }
 
     if (startDate) {

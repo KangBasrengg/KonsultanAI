@@ -278,7 +278,6 @@ Berikan triage dalam format JSON sesuai instruksi.`;
     console.error("[Cases API] Error:", error?.message || error);
     return Response.json({
       error: error?.message || "Terjadi kesalahan saat memproses kasus Anda.",
-      details: error?.stack || "Unknown error",
     }, { status: 500 });
   }
 }

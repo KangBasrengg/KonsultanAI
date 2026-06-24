@@ -34,7 +34,7 @@ export default function UserDropdown() {
     ? new Date(profile.createdAt).toLocaleDateString("id-ID", { year: "numeric", month: "long" })
     : "";
 
-  const tierLabel = profile?.tier === "professional" ? "Professional" : profile?.tier === "basic" ? "Basic" : "Free Trial";
+  const tierLabel = isAdmin ? "Admin" : profile?.tier === "professional" ? "Professional" : profile?.tier === "basic" ? "Basic" : "Free Trial";
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -83,16 +83,16 @@ export default function UserDropdown() {
                 ? "bg-gold/10 border border-gold/20" 
                 : "bg-putih/5 border border-putih/20"
             }`}>
-              <Crown className={`w-4 h-4 ${profile?.isPremium ? "text-gold" : "text-putih/30"}`} />
+              <Crown className={`w-4 h-4 ${(isAdmin || profile?.isPremium) ? "text-gold" : "text-putih/30"}`} />
               <div className="flex-1">
                 <p className="text-xs font-semibold text-putih">
                   {tierLabel}
                 </p>
                 <p className="text-[10px] text-putih/40">
-                  {profile?.isPremium ? "Akses tidak terbatas" : "1x konsultasi gratis"}
+                  {(isAdmin || profile?.isPremium) ? "Akses tidak terbatas" : "1x konsultasi gratis"}
                 </p>
               </div>
-              {!profile?.isPremium && (
+              {!isAdmin && !profile?.isPremium && (
                 <Link
                   href="/#harga"
                   onClick={() => setIsOpen(false)}
@@ -109,7 +109,7 @@ export default function UserDropdown() {
               <div className="flex-1">
                 <p className="text-xs font-semibold text-putih">Konsultasi</p>
                 <p className="text-[10px] text-putih/40">
-                  {profile?.consultationCount || 0} sesi{!profile?.isPremium ? " / 1 maks" : ""}
+                  {profile?.consultationCount || 0} sesi{(!isAdmin && !profile?.isPremium) ? " / 1 maks" : ""}
                 </p>
               </div>
             </div>

@@ -38,8 +38,8 @@ export async function POST(request: Request) {
       });
     }
 
-    // 2. Update booking status
-    const { error: updateErr } = await supabase
+    // 2. Update booking status (with optimistic locking)
+    const { data: updatedBooking, error: updateErr } = await supabase
       .from("bookings")
       .update({ 
         payment_status: "paid", 
@@ -47,9 +47,19 @@ export async function POST(request: Request) {
         payment_order_id: orderId || booking.payment_order_id,
         updated_at: new Date().toISOString()
       })
-      .eq("id", bookingId);
+      .eq("id", bookingId)
+      .eq("payment_status", "unpaid") // Prevent race condition
+      .select()
+      .single();
 
-    if (updateErr) throw updateErr;
+    if (updateErr) {
+      if (updateErr.code === "PGRST116") {
+        // No rows updated means it was already marked as paid by another concurrent request
+        const { data: existingRoom } = await supabase.from("consultation_rooms").select("id").eq("booking_id", bookingId).single();
+        return NextResponse.json({ roomId: existingRoom?.id, message: "Booking already confirmed" });
+      }
+      throw updateErr;
+    }
 
     // 3. Create consultation room
     const { data: room, error: roomErr } = await supabase

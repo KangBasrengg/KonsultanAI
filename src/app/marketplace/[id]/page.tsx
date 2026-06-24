@@ -30,7 +30,7 @@ export default function AdvocateDetailPage() {
 
   useEffect(() => {
     fetchAdvocate();
-  }, [id]);
+  }, [id, supabase]);
 
   const fetchAdvocate = async () => {
     try {

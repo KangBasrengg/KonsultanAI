@@ -266,10 +266,10 @@ function ChatContent() {
       try {
         await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
         
-        // Upgrade User Plan
+        // Upgrade User Plan (Free Trial does NOT grant premium)
         await supabase.from("users").update({ 
           tier: activeChat.plan,
-          is_premium: true 
+          is_premium: false 
         }).eq("id", user.id);
         
         await supabase.from("messages").insert({
@@ -313,11 +313,8 @@ function ChatContent() {
             // 1. Update chat status
             await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
             
-            // 2. Update user plan
-            await supabase.from("users").update({ 
-              tier: activeChat.plan,
-              is_premium: true 
-            }).eq("id", user.id);
+            // 2. Server-side Webhook will handle the plan upgrade
+            // We do not update 'users' table here to prevent client-side manipulation via DevTools.
 
             // 3. Send automated thank you message
             await supabase.from("messages").insert({

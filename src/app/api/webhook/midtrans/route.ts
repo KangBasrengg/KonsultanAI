@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const transactionStatus = body.transaction_status;
     const fraudStatus = body.fraud_status;
 
-    console.log(`Transaction notification received. Order ID: ${orderId}. Status: ${transactionStatus}`);
+    console.log(`[Webhook] Order ID: ${orderId}, Status: ${transactionStatus}, Fraud: ${fraudStatus}`);
 
     // Jika ini adalah test webhook dari dashboard Midtrans, langsung kembalikan 200 OK
     if (orderId && typeof orderId === 'string' && orderId.startsWith('payment_notif_test')) {
@@ -34,35 +34,140 @@ export async function POST(request: Request) {
     );
 
     // 3. Logika Update Database berdasarkan status
-    if (transactionStatus === 'capture' || transactionStatus === 'settlement') {
-      if (fraudStatus === 'accept' || !fraudStatus) {
-        // Asumsi format order_id adalah `BOOKING-{id}` atau `SUB-{id}`
-        if (orderId.startsWith('BOOKING-')) {
-          const bookingId = orderId.split('-')[1];
-          // Update status booking menjadi "paid"
-          await supabase
-            .from('consultation_bookings')
-            .update({ status: 'paid' })
-            .eq('id', bookingId);
-            
-          console.log(`Booking ${bookingId} marked as paid.`);
+    const isSuccess = (transactionStatus === 'capture' || transactionStatus === 'settlement')
+      && (fraudStatus === 'accept' || !fraudStatus);
+    const isFailed = transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire';
+
+    // --- ORD- : Subscription/Plan checkout (from /api/checkout) ---
+    if (orderId.startsWith('ORD-')) {
+      // Format: ORD-{timestamp}-{chatId_8char}
+      const chatIdFragment = orderId.split('-').slice(2).join('-'); // 8 char fragment
+
+      if (isSuccess) {
+        // Find the chat by matching the chatId fragment
+        const { data: chats } = await supabase
+          .from('chats')
+          .select('id, user_id, plan')
+          .like('id', `${chatIdFragment}%`)
+          .eq('status', 'open')
+          .limit(1);
+
+        if (chats && chats.length > 0) {
+          const chat = chats[0];
+          
+          // Update chat status
+          await supabase.from('chats')
+            .update({ status: 'resolved', updated_at: new Date().toISOString() })
+            .eq('id', chat.id);
+
+          // Upgrade user plan
+          await supabase.from('users')
+            .update({ tier: chat.plan, is_premium: chat.plan !== 'Free Trial' })
+            .eq('id', chat.user_id);
+
+          console.log(`[Webhook] Subscription processed: user=${chat.user_id}, plan=${chat.plan}`);
+        } else {
+          console.warn(`[Webhook] No matching open chat found for ORD fragment: ${chatIdFragment}`);
         }
+      } else if (isFailed) {
+        console.log(`[Webhook] Subscription payment failed/expired for ${orderId}`);
       }
-    } else if (transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire') {
-      if (orderId.startsWith('BOOKING-')) {
-        const bookingId = orderId.split('-')[1];
-        await supabase
-          .from('consultation_bookings')
+    }
+
+    // --- BK- : Advocate booking (from /api/booking) ---
+    else if (orderId.startsWith('BK-')) {
+      // Format: BK-{timestamp}-{bookingId_8char}
+      const bookingIdFragment = orderId.split('-').slice(2).join('-');
+
+      if (isSuccess) {
+        // Find booking
+        const { data: bookings } = await supabase
+          .from('bookings')
+          .select('id, advocate_id, advocate_earning')
+          .like('id', `${bookingIdFragment}%`)
+          .eq('payment_status', 'unpaid')
+          .limit(1);
+
+        if (bookings && bookings.length > 0) {
+          const booking = bookings[0];
+
+          await supabase.from('bookings')
+            .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
+            .eq('id', booking.id);
+
+          console.log(`[Webhook] Booking ${booking.id} marked as paid.`);
+        }
+      } else if (isFailed) {
+        const bookingIdFragment = orderId.split('-').slice(2).join('-');
+        const { data: bookings } = await supabase
+          .from('bookings')
+          .select('id')
+          .like('id', `${bookingIdFragment}%`)
+          .limit(1);
+
+        if (bookings && bookings.length > 0) {
+          await supabase.from('bookings')
+            .update({ payment_status: 'failed', status: 'cancelled' })
+            .eq('id', bookings[0].id);
+        }
+        console.log(`[Webhook] Booking payment failed for ${orderId}`);
+      }
+    }
+
+    // --- LST- : Advocate listing activation (from /api/listing) ---
+    else if (orderId.startsWith('LST-')) {
+      // Format: LST-{timestamp}-{advocateId_8char}
+      const advocateIdFragment = orderId.split('-').slice(2).join('-');
+
+      if (isSuccess) {
+        const { data: advocates } = await supabase
+          .from('advocates')
+          .select('id')
+          .like('id', `${advocateIdFragment}%`)
+          .limit(1);
+
+        if (advocates && advocates.length > 0) {
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+          await supabase.from('advocates')
+            .update({
+              is_listed: true,
+              listing_expires_at: expiresAt.toISOString(),
+              updated_at: now.toISOString(),
+            })
+            .eq('id', advocates[0].id);
+
+          console.log(`[Webhook] Listing activated for advocate ${advocates[0].id}`);
+        }
+      } else if (isFailed) {
+        console.log(`[Webhook] Listing payment failed for ${orderId}`);
+      }
+    }
+
+    // --- Legacy BOOKING- format (backward compatibility) ---
+    else if (orderId.startsWith('BOOKING-')) {
+      const bookingId = orderId.split('-')[1];
+      if (isSuccess) {
+        await supabase.from('consultation_bookings')
+          .update({ status: 'paid' })
+          .eq('id', bookingId);
+        console.log(`[Webhook] Legacy booking ${bookingId} marked as paid.`);
+      } else if (isFailed) {
+        await supabase.from('consultation_bookings')
           .update({ status: 'cancelled' })
           .eq('id', bookingId);
       }
-      console.log('Payment failed, denied or expired.');
+    }
+
+    else {
+      console.warn(`[Webhook] Unknown order ID format: ${orderId}`);
     }
 
     return NextResponse.json({ status: 'success', message: 'Notification processed' });
 
   } catch (error) {
-    console.error('Webhook Error:', error);
+    console.error('[Webhook] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

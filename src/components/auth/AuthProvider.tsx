@@ -92,9 +92,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         id: userId,
         email: profileData?.email || fallbackEmail || "",
         fullName: profileData?.full_name || null,
-        isPremium: profileData?.is_premium || false,
+        isPremium: profileData?.role === "admin" ? true : (profileData?.is_premium || false),
         role: profileData?.role || "user",
-        tier: profileData?.tier || "free",
+        tier: profileData?.role === "admin" ? "admin" : (profileData?.tier || "free"),
         consultationCount: count || 0,
         createdAt: profileData?.created_at || fallbackCreatedAt || new Date().toISOString()
       });
@@ -158,7 +158,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     // Listen for auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: any, session: any) => {
         if (event === "SIGNED_IN" && session?.user) {
           currentUserIdRef.current = session.user.id;
           setUser(session.user);

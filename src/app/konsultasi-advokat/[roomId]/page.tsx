@@ -438,7 +438,11 @@ export default function ConsultationChatRoom() {
         <div className="max-w-4xl mx-auto">
           {room.status === "active" && !isExpired ? (
             <form onSubmit={handleSendMessage} className="flex items-end gap-3">
-              <button type="button" className="p-3 text-putih/40 hover:text-putih hover:bg-putih/10 rounded-xl transition-colors mb-1">
+              <button 
+                type="button" 
+                onClick={() => alert("Fitur lampiran dokumen akan segera hadir.")}
+                className="p-3 text-putih/40 hover:text-putih hover:bg-putih/10 rounded-xl transition-colors mb-1"
+              >
                 <Paperclip className="w-5 h-5" />
               </button>
               <div className="flex-1 bg-navy-light border border-putih/15 rounded-2xl overflow-hidden focus-within:border-gold/50 transition-colors">
