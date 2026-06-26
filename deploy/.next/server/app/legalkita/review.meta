@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/legalkita/layout,_N_T_/legalkita/review/layout,_N_T_/legalkita/review/page,_N_T_/legalkita/review"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/legalkita/review/__PAGE__",
+    "/legalkita/review",
+    "/legalkita",
+    "/_index",
+    "/_head"
+  ]
+}
