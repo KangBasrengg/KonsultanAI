@@ -19,7 +19,7 @@ export default function PricingSection() {
       priceAnnual: "Rp 0",
       desc: "Coba kemampuan AI kami untuk satu kasus.",
       features: [
-        { name: "1x Generate Analisis", inc: true },
+        { name: "3x Generate Analisis", inc: true },
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
         { name: "3 Materi Legal Learning", inc: true },
@@ -32,8 +32,8 @@ export default function PricingSection() {
     },
     {
       name: "Basic",
-      priceMonthly: "Rp 49.000",
-      priceAnnual: "Rp 40.000",
+      priceMonthly: "Rp 80.000",
+      priceAnnual: "Rp 70.000",
       period: "/bulan",
       desc: "Cocok untuk masyarakat umum yang butuh akses reguler.",
       features: [
@@ -50,8 +50,8 @@ export default function PricingSection() {
     },
     {
       name: "Pro",
-      priceMonthly: "Rp 99.000",
-      priceAnnual: "Rp 85.000",
+      priceMonthly: "Rp 149.000",
+      priceAnnual: "Rp 129.000",
       period: "/bulan",
       desc: "Untuk praktisi, mahasiswa hukum, dan UMKM.",
       features: [
@@ -68,8 +68,8 @@ export default function PricingSection() {
     },
     {
       name: "Enterprise",
-      priceMonthly: "Rp 199.000",
-      priceAnnual: "Rp 175.000",
+      priceMonthly: "Rp 525.000",
+      priceAnnual: "Rp 445.000",
       period: "/bulan",
       desc: "Solusi enterprise untuk instansi pemerintah, perusahaan berskala besar, dan firma hukum.",
       features: [

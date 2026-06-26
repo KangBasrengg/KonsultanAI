@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/Navbar";
 import HeroSection from "@/components/sections/HeroSection";
+import UserGuideSection from "@/components/sections/UserGuideSection";
 import StatsSection from "@/components/sections/StatsSection";
 import HowItWorks from "@/components/sections/HowItWorks";
 import Features from "@/components/sections/Features";
@@ -18,6 +19,7 @@ export default function Home() {
       </Suspense>
       <Navbar />
       <HeroSection />
+      <UserGuideSection />
       <StatsSection />
       <HowItWorks />
       <Features />

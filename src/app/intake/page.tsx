@@ -481,11 +481,11 @@ export default function IntakeFormPage() {
                     <div className="grid grid-cols-3 gap-3">
                       {(triageResult.recommendation === 'ADVOKAT_URGENT' || triageResult.severity >= 3) && (
                         <Link 
-                          href="/marketplace"
+                          href="/legalkita"
                           className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-gold/50 transition-all text-center group"
                         >
                           <Scale className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
-                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Cari Advokat</span>
+                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">LegalKita UMKM</span>
                         </Link>
                       )}
 
