@@ -28,8 +28,21 @@ function getMessageText(msg: any): string {
 }
 
 export default function KonsultasiPage() {
-  const { messages, setMessages, sendMessage, status, error } = useChat({
-    messages: [
+  const [initialMessages] = useState<UIMessage[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("konsultasi_chat_messages");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        } catch (e) {
+          console.error("Failed to parse saved messages", e);
+        }
+      }
+    }
+    return [
       {
         id: "welcome-msg",
         role: "assistant",
@@ -40,11 +53,21 @@ export default function KonsultasiPage() {
           }
         ]
       }
-    ] as UIMessage[],
+    ] as UIMessage[];
+  });
+
+  const { messages, setMessages, sendMessage, status, error } = useChat({
+    initialMessages,
     onError: (err) => {
       console.error("[Konsultasi] useChat error:", err.message);
     }
   });
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      sessionStorage.setItem("konsultasi_chat_messages", JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const [input, setInput] = useState("");
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);

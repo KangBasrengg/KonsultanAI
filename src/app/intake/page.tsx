@@ -353,15 +353,19 @@ export default function IntakeFormPage() {
                         <p className="font-medium text-navy dark:text-putih/90">Sudah Punya Advokat?</p>
                         <p className="text-xs text-navy/60 dark:text-putih/50">Apakah Anda sudah didampingi pengacara untuk kasus ini?</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer" 
-                          checked={formData.sudah_advokat}
-                          onChange={(e) => handleInputChange("sudah_advokat", e.target.checked)}
-                        />
-                        <div className="w-11 h-6 bg-slate-300 dark:bg-putih/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></div>
-                      </label>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm font-medium ${!formData.sudah_advokat ? 'text-navy dark:text-putih' : 'text-navy/40 dark:text-putih/40'}`}>Tidak</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={formData.sudah_advokat}
+                            onChange={(e) => handleInputChange("sudah_advokat", e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-slate-300 dark:bg-putih/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></div>
+                        </label>
+                        <span className={`text-sm font-medium ${formData.sudah_advokat ? 'text-gold' : 'text-navy/40 dark:text-putih/40'}`}>Ya</span>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-navy border border-slate-200 dark:border-putih/10 rounded-xl transition-colors">
@@ -369,15 +373,19 @@ export default function IntakeFormPage() {
                         <p className="font-medium text-navy dark:text-putih/90">Sudah Lapor Polisi?</p>
                         <p className="text-xs text-navy/60 dark:text-putih/50">Apakah kasus ini sudah Anda laporkan ke pihak berwajib?</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer" 
-                          checked={formData.sudah_lapor_polisi}
-                          onChange={(e) => handleInputChange("sudah_lapor_polisi", e.target.checked)}
-                        />
-                        <div className="w-11 h-6 bg-slate-300 dark:bg-putih/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></div>
-                      </label>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm font-medium ${!formData.sudah_lapor_polisi ? 'text-navy dark:text-putih' : 'text-navy/40 dark:text-putih/40'}`}>Tidak</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={formData.sudah_lapor_polisi}
+                            onChange={(e) => handleInputChange("sudah_lapor_polisi", e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-slate-300 dark:bg-putih/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></div>
+                        </label>
+                        <span className={`text-sm font-medium ${formData.sudah_lapor_polisi ? 'text-gold' : 'text-navy/40 dark:text-putih/40'}`}>Ya</span>
+                      </div>
                     </div>
                   </div>
 

@@ -108,8 +108,11 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
         });
       } catch (e: any) {
         clearTimeout(timeoutId);
-        if (e.name === "AbortError") throw new Error("Koneksi ke AI timeout.");
-        throw e;
+        if (attempt === 2) {
+          if (e.name === "AbortError") throw new Error("Koneksi ke AI timeout.");
+          throw e;
+        }
+        continue;
       } finally {
         clearTimeout(timeoutId);
       }
@@ -119,7 +122,15 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
 
     if (!response?.ok) {
       const status = response?.status || 500;
-      throw new Error(status === 503 ? "Server AI sedang sibuk." : "Gagal menghubungi AI.");
+      let errorDetail = "";
+      try {
+        const errData = await response?.json();
+        errorDetail = errData?.error?.message || errData?.message || "";
+      } catch (e) {
+        errorDetail = response?.statusText || "";
+      }
+      console.error(`[LegalKita Generate] AI Error ${status}:`, errorDetail);
+      throw new Error(status === 503 ? "Server AI sedang sibuk." : `Gagal menghubungi AI. Status: ${status}`);
     }
 
     const data = await response.json();

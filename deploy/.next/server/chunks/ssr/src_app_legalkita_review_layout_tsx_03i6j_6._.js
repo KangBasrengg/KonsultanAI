@@ -1,0 +1,3 @@
+module.exports=[5797,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)(b.Fragment,{children:a})},"metadata",0,{title:"Review Dokumen Hukum AI | LegalKita",description:"Upload atau tempel dokumen kontrak Anda. AI akan menganalisis risiko, menemukan celah hukum, dan memberikan rekomendasi perbaikan."}])},1807,a=>{a.n(a.i(5797))}];
+
+//# sourceMappingURL=src_app_legalkita_review_layout_tsx_03i6j_6._.js.map

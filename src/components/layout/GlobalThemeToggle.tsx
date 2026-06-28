@@ -17,7 +17,7 @@ export function GlobalThemeToggle() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-[100]">
+    <div className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-[100] hidden md:block">
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         className="w-10 h-10 md:w-12 md:h-12 bg-navy-light/90 backdrop-blur-md border border-putih/20 hover:border-gold text-gold rounded-full flex items-center justify-center transition-all shadow-lg shadow-black/20 hover:scale-110 group"

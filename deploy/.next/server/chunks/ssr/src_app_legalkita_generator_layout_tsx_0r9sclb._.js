@@ -1,0 +1,3 @@
+module.exports=[37100,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)(b.Fragment,{children:a})},"metadata",0,{title:"Generator Kontrak AI | LegalKita",description:"Buat draft kontrak kerja PKWT, perjanjian sewa, jual-beli, dan kemitraan dalam 2 menit menggunakan AI yang mengerti hukum Indonesia."}])},8465,a=>{a.n(a.i(37100))}];
+
+//# sourceMappingURL=src_app_legalkita_generator_layout_tsx_0r9sclb._.js.map
