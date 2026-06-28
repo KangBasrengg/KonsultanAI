@@ -57,7 +57,7 @@ export default function KonsultasiPage() {
   });
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
-    initialMessages,
+    messages: initialMessages,
     onError: (err) => {
       console.error("[Konsultasi] useChat error:", err.message);
     }
