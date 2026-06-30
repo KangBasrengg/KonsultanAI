@@ -119,6 +119,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             currentUserIdRef.current = null;
             setUser(null);
             setProfile(null);
+            
+            // If there's an error (e.g. Invalid Refresh Token), clear the bad tokens
+            if (error) {
+              await supabase.auth.signOut().catch(() => {});
+            }
           }
         } else {
           if (mounted) {

@@ -1,16 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function PricingSection() {
   const { user, openAuthModal } = useAuth();
   const router = useRouter();
   const [isAnnual, setIsAnnual] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -350, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 350, behavior: "smooth" });
+    }
+  };
 
   const plans = [
     {
@@ -20,11 +33,11 @@ export default function PricingSection() {
       desc: "Coba kemampuan AI kami untuk satu kasus.",
       features: [
         { name: "3x Generate Analisis", inc: true },
+        { name: "3x Generate Kontrak (LegalKita)", inc: true },
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
         { name: "3 Materi Legal Learning", inc: true },
         { name: "Preview Template (Watermark)", inc: true },
-        { name: "Riwayat Konsultasi", inc: false },
         { name: "Download Laporan", inc: false },
       ],
       cta: "Coba Sekarang",
@@ -38,12 +51,12 @@ export default function PricingSection() {
       desc: "Cocok untuk masyarakat umum yang butuh akses reguler.",
       features: [
         { name: "10x Generate Analisis", inc: true },
+        { name: "10x Generate Kontrak (LegalKita)", inc: true },
         { name: "Rekomendasi Pasal", inc: true },
         { name: "Penjelasan Sederhana", inc: true },
         { name: "Riwayat Konsultasi", inc: true },
         { name: "Download Laporan PDF", inc: true },
         { name: "8 Materi Legal Learning", inc: true },
-        { name: "Download Template Dasar", inc: true },
       ],
       cta: "Berlangganan",
       highlight: true
@@ -56,12 +69,12 @@ export default function PricingSection() {
       desc: "Untuk praktisi, mahasiswa hukum, dan UMKM.",
       features: [
         { name: "25x Generate Analisis", inc: true },
+        { name: "Unlimited Kontrak & Review (LegalKita)", inc: true },
         { name: "Semua Fitur Basic", inc: true },
         { name: "Analisis Mendalam & Detail", inc: true },
         { name: "Template Laporan Premium", inc: true },
         { name: "AI Legal Tutor", inc: true },
         { name: "20 Materi & Sertifikat", inc: true },
-        { name: "Semua Template Premium", inc: true },
       ],
       cta: "Berlangganan",
       highlight: false
@@ -113,7 +126,29 @@ export default function PricingSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-[1400px] w-full mx-auto items-stretch">
+        {/* Navigation Arrows for Slider */}
+        <div className="flex justify-end gap-3 max-w-[1400px] w-full mx-auto px-6 md:px-4 mb-2">
+          <button 
+            onClick={scrollLeft} 
+            className="w-10 h-10 rounded-full bg-navy border border-putih/20 flex items-center justify-center text-putih/70 hover:text-gold hover:border-gold transition-colors group"
+            aria-label="Geser ke kiri"
+          >
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+          </button>
+          <button 
+            onClick={scrollRight} 
+            className="w-10 h-10 rounded-full bg-navy border border-putih/20 flex items-center justify-center text-putih/70 hover:text-gold hover:border-gold transition-colors group"
+            aria-label="Geser ke kanan"
+          >
+            <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+
+        {/* Wrapper padding to allow scroll bleed on mobile, centered on desktop */}
+        <div 
+          ref={sliderRef}
+          className="flex overflow-x-auto snap-x snap-mandatory gap-6 lg:gap-8 pb-12 pt-4 px-6 md:px-4 max-w-[1400px] w-full mx-auto items-stretch [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
           {plans.map((plan, idx) => (
             <motion.div
               key={idx}
@@ -121,8 +156,8 @@ export default function PricingSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.15 }}
-              className={`relative flex flex-col rounded-3xl p-8 border ${plan.highlight
-                  ? "bg-navy-dark border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] md:scale-105 z-10"
+              className={`relative flex flex-col rounded-3xl p-8 border shrink-0 w-[85vw] sm:w-[350px] lg:w-[380px] snap-center ${plan.highlight
+                  ? "bg-navy-dark border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] z-10 md:scale-[1.03]"
                   : "bg-navy border-putih/20"
                 }`}
             >

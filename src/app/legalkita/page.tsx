@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PricingSection from "@/components/sections/PricingSection";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const FEATURES = [
@@ -263,96 +264,7 @@ export default function LegalKitaPage() {
       </section>
 
       {/* Model Bisnis / Pricing Teaser */}
-      <section className="py-24">
-        <div className="container mx-auto px-6 lg:px-12 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">
-            Mulai <span className="text-amber-400">Gratis</span>
-          </h2>
-          <p className="text-putih/70 text-lg mb-12 max-w-2xl mx-auto">
-            Coba 3 dokumen gratis per bulan. Upgrade ke Pro untuk unlimited dokumen hanya Rp 149rb/bulan.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {/* Free */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="p-8 rounded-3xl bg-navy-light border border-putih/15 text-left"
-            >
-              <h3 className="text-lg font-bold text-putih mb-2">Freemium</h3>
-              <div className="text-3xl font-bold text-amber-400 mb-1">Gratis</div>
-              <p className="text-xs text-putih/50 mb-6">3 dokumen / bulan</p>
-              <ul className="space-y-3">
-                {["3 generate kontrak", "Chat tanya hukum", "Template dasar"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-putih/70">
-                    <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Pro */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="p-8 rounded-3xl bg-navy-dark border-2 border-amber-500/40 text-left relative md:scale-105 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 text-navy text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
-                Paling Populer
-              </div>
-              <h3 className="text-lg font-bold text-putih mb-2">Pro</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-amber-400">Rp 149rb</span>
-                <span className="text-putih/50 text-sm">/bln</span>
-              </div>
-              <p className="text-xs text-putih/50 mb-6">Unlimited dokumen</p>
-              <ul className="space-y-3">
-                {["Unlimited generate kontrak", "Review dokumen AI", "Export PDF premium", "Chat hukum prioritas", "Template lengkap"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-putih/70">
-                    <CheckCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Referral */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="p-8 rounded-3xl bg-navy-light border border-putih/15 text-left"
-            >
-              <h3 className="text-lg font-bold text-putih mb-2">Butuh Pengacara?</h3>
-              <div className="text-xl font-bold text-blue-400 mb-1">Referral Mitra</div>
-              <p className="text-xs text-putih/50 mb-6">Kasus yang terlalu kompleks untuk AI</p>
-              <ul className="space-y-3">
-                {["Hubungkan ke pengacara mitra", "Konsultasi tatap muka", "Pendampingan hukum penuh"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-putih/70">
-                    <Scale className="w-4 h-4 text-blue-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-
-          <div className="mt-12">
-            <Link
-              href="/legalkita/generator"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-amber-500 to-gold text-navy font-bold text-lg hover:from-amber-400 hover:to-gold-light transition-all transform hover:scale-105 group shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-            >
-              Mulai Buat Kontrak Gratis
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       <Footer />
     </main>
