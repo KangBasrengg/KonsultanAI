@@ -3,7 +3,7 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import LogoImage from "@/components/images/LogoUpdated.png";
+import LogoImage from "@/components/images/LogoUpdate2.0.png";
 
 export default function Footer() {
   return (
@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-2">
               <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-                <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
+                <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
               </div>
               <span className="font-bold text-xl tracking-tight text-putih">
                 Konsultan<span className="text-gold">AI</span>

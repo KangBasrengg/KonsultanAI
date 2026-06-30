@@ -91,7 +91,7 @@ export default function PricingSection() {
     <section id="harga" className="py-24 bg-navy-light/20">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Pilih Paket <span className="text-gold">Sesuai Kebutuhan</span></h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Pilih Paket <span className="text-gold">Sesuai Kebutuhan</span></h2>
           <p className="text-putih/70 text-lg mb-8">Konsultasi hukum kini tidak lagi mahal. Dapatkan akses ke AI Legal Assistant dengan harga terjangkau.</p>
           
           {/* Billing Toggle */}
@@ -132,7 +132,7 @@ export default function PricingSection() {
                 </div>
               )}
 
-              <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+              <h3 className="text-xl font-bold mb-2 text-putih">{plan.name}</h3>
               <p className="text-sm text-putih/60 mb-6 min-h-[4.5rem]">{plan.desc}</p>
 
               <div className="mb-8">

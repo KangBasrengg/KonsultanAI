@@ -31,7 +31,7 @@ Panduan Recommendation:
 - TEMPLATES: Severity 1-2, kasus bersifat administratif → Sarankan template dokumen
 
 Module IDs yang tersedia:
-- hukum_pidana, hukum_perdata, hukum_keluarga, hukum_bisnis, hukum_konsumen, hukum_ite
+- hukum_pidana, hukum_perdata, hukum_keluarga, hukum_bisnis, hukum_konsumen, hukum_ite, hukum_teknologi
 
 Template IDs yang tersedia:
 - somasi_penipuan, somasi_wanprestasi, somasi_generic

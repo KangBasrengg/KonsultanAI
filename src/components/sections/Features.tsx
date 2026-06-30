@@ -41,7 +41,7 @@ export default function Features() {
     <section id="fitur" className="py-24 bg-navy-light/30">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Keunggulan <span className="text-gold">Produk</span></h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Keunggulan <span className="text-gold">Produk</span></h2>
           <p className="text-putih/70 text-lg">Platform kami dirancang khusus untuk memenuhi kebutuhan hukum masyarakat Indonesia yang praktis dan efisien.</p>
         </div>
 
@@ -58,7 +58,7 @@ export default function Features() {
               <div className="w-12 h-12 rounded-lg bg-navy-light flex items-center justify-center text-gold mb-6 group-hover:scale-110 transition-transform">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-bold mb-3 text-putih">{feature.title}</h3>
               <p className="text-putih/60 leading-relaxed">{feature.desc}</p>
             </motion.div>
           ))}

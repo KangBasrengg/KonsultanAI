@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import LogoImage from "@/components/images/LogoUpdated.png";
+import LogoImage from "@/components/images/LogoUpdate2.0.png";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
 import { exportConsultationPDF } from "@/lib/pdf-export";
@@ -182,7 +182,7 @@ export default function KonsultasiPage() {
           </Link>
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-              <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-contain p-1" />
+              <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
             </div>
             <div className="hidden md:block">
               <h1 className="font-bold text-lg leading-tight text-putih">KonsultanAI</h1>
@@ -249,7 +249,7 @@ export default function KonsultasiPage() {
                 <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user" 
                     ? "bg-navy-light border border-putih/20 rounded-tr-none text-putih whitespace-pre-wrap" 
-                    : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih/90 prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
+                    : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
                 }`}>
                   {msg.role === "assistant" ? (
                     isThinking ? (

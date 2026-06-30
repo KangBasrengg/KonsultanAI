@@ -1,6 +1,6 @@
 // Types for PRD v2.5: Intake Form + Cases + Templates
 
-export type CaseType = 'pidana' | 'perdata' | 'keluarga' | 'bisnis';
+export type CaseType = 'pidana' | 'perdata' | 'keluarga' | 'bisnis' | 'teknologi';
 export type UrgencyLevel = 'immediate' | 'normal' | 'planning';
 export type TriageRecommendation = 'AI_ANALYSIS' | 'LEARNING_FIRST' | 'ADVOKAT_URGENT' | 'TEMPLATES';
 export type CaseStatus = 'open' | 'in_progress' | 'closed' | 'abandoned';
@@ -10,21 +10,33 @@ export type CaseOutcome = 'settled' | 'ongoing' | 'escalated' | 'abandoned';
 export const CASE_SUB_CATEGORIES: Record<CaseType, { value: string; label: string }[]> = {
   pidana: [
     { value: 'penipuan', label: 'Penipuan' },
-    { value: 'kekerasan', label: 'Kekerasan' },
+    { value: 'kekerasan', label: 'Kekerasan / Penganiayaan' },
     { value: 'pencurian', label: 'Pencurian' },
     { value: 'penggelapan', label: 'Penggelapan' },
-    { value: 'penganiayaan', label: 'Penganiayaan' },
-    { value: 'narkotika', label: 'Narkotika' },
-    { value: 'korupsi', label: 'Korupsi' },
+    { value: 'pelecehan_seksual', label: 'Pelecehan Seksual' },
+    { value: 'kesusilaan_asusila', label: 'Kesusilaan / Asusila' },
+    { value: 'kdrt', label: 'KDRT (Kekerasan Dalam Rumah Tangga)' },
+    { value: 'pembunuhan', label: 'Pembunuhan' },
+    { value: 'pemerasan_ancaman', label: 'Pemerasan / Ancaman' },
+    { value: 'pemalsuan', label: 'Pemalsuan Dokumen / Surat' },
+    { value: 'narkotika', label: 'Narkotika / Psikotropika' },
+    { value: 'perjudian', label: 'Perjudian' },
+    { value: 'korupsi', label: 'Korupsi / Tindak Pidana Khusus' },
+    { value: 'pencemaran_nama', label: 'Pencemaran Nama Baik' },
+    { value: 'pornografi', label: 'Pornografi' },
+    { value: 'perdagangan_orang', label: 'Perdagangan Orang / Trafficking' },
     { value: 'pidana_lainnya', label: 'Lainnya' },
   ],
   perdata: [
     { value: 'perceraian', label: 'Perceraian' },
-    { value: 'sengketa_tanah', label: 'Sengketa Tanah' },
+    { value: 'sengketa_tanah', label: 'Sengketa Tanah / Properti' },
     { value: 'utang_piutang', label: 'Utang Piutang' },
     { value: 'sengketa_bisnis', label: 'Sengketa Bisnis' },
-    { value: 'wanprestasi', label: 'Wanprestasi' },
-    { value: 'pmh', label: 'Perbuatan Melawan Hukum' },
+    { value: 'wanprestasi', label: 'Wanprestasi (Ingkar Janji)' },
+    { value: 'pmh', label: 'Perbuatan Melawan Hukum (PMH)' },
+    { value: 'perlindungan_konsumen', label: 'Perlindungan Konsumen' },
+    { value: 'sengketa_hki', label: 'Sengketa Hak Kekayaan Intelektual' },
+    { value: 'sengketa_waris', label: 'Sengketa Waris' },
     { value: 'perdata_lainnya', label: 'Lainnya' },
   ],
   keluarga: [
@@ -33,16 +45,30 @@ export const CASE_SUB_CATEGORIES: Record<CaseType, { value: string; label: strin
     { value: 'adopsi', label: 'Adopsi' },
     { value: 'hak_asuh', label: 'Hak Asuh Anak' },
     { value: 'nafkah', label: 'Nafkah' },
+    { value: 'kdrt_keluarga', label: 'KDRT / Kekerasan Dalam Rumah Tangga' },
+    { value: 'pembatalan_nikah', label: 'Pembatalan Perkawinan' },
+    { value: 'dispensasi_nikah', label: 'Dispensasi Nikah' },
     { value: 'keluarga_lainnya', label: 'Lainnya' },
   ],
   bisnis: [
     { value: 'kontrak', label: 'Kontrak & Perjanjian' },
     { value: 'hki', label: 'Hak Kekayaan Intelektual' },
-    { value: 'ketenagakerjaan', label: 'Ketenagakerjaan' },
+    { value: 'ketenagakerjaan', label: 'Ketenagakerjaan & PHK' },
     { value: 'perizinan', label: 'Perizinan Usaha' },
-    { value: 'pajak', label: 'Pajak' },
+    { value: 'pajak', label: 'Pajak & Keuangan' },
     { value: 'persaingan_usaha', label: 'Persaingan Usaha' },
+    { value: 'lingkungan', label: 'Lingkungan Hidup & AMDAL' },
     { value: 'bisnis_lainnya', label: 'Lainnya' },
+  ],
+  teknologi: [
+    { value: 'ite_ujaran', label: 'UU ITE / Ujaran Kebencian Online' },
+    { value: 'penipuan_online', label: 'Penipuan Online / Fraud Digital' },
+    { value: 'data_pribadi', label: 'Pelanggaran Data Pribadi' },
+    { value: 'cyberbullying', label: 'Cyberbullying / Pelecehan Online' },
+    { value: 'hacking', label: 'Peretasan / Akses Ilegal' },
+    { value: 'konten_ilegal', label: 'Konten Ilegal / Pornografi Online' },
+    { value: 'ecommerce', label: 'Sengketa E-Commerce' },
+    { value: 'teknologi_lainnya', label: 'Lainnya' },
   ],
 };
 
@@ -51,6 +77,7 @@ export const CASE_TYPE_OPTIONS: { value: CaseType; label: string; icon: string }
   { value: 'perdata', label: 'Hukum Perdata', icon: '📋' },
   { value: 'keluarga', label: 'Hukum Keluarga', icon: '👨‍👩‍👧' },
   { value: 'bisnis', label: 'Hukum Bisnis & Komersial', icon: '💼' },
+  { value: 'teknologi', label: 'Teknologi & Siber', icon: '💻' },
 ];
 
 export const URGENCY_OPTIONS: { value: UrgencyLevel; label: string; desc: string; color: string }[] = [

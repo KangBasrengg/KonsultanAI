@@ -31,7 +31,7 @@ export default function HowItWorks() {
     <section id="cara-kerja" className="py-24">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Cara Kerja <span className="text-gold">AI</span></h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Cara Kerja <span className="text-gold">AI</span></h2>
           <p className="text-putih/70 text-lg">Hanya butuh 4 langkah mudah untuk memahami posisi hukum Anda tanpa perlu menggunakan istilah yang rumit.</p>
         </div>
 
@@ -51,7 +51,7 @@ export default function HowItWorks() {
               <div className="w-24 h-24 rounded-full bg-navy-light border-2 border-gold/30 flex items-center justify-center mb-6 text-gold group-hover:scale-110 group-hover:bg-gold group-hover:text-navy transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                 {step.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+              <h3 className="text-xl font-bold mb-3 text-putih">{step.title}</h3>
               <p className="text-putih/60 text-sm leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}

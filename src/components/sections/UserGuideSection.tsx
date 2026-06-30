@@ -42,7 +42,7 @@ export default function UserGuideSection() {
     <section className="py-20 bg-navy">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Pilih Layanan <span className="text-gold">Sesuai Kebutuhan</span></h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Pilih Layanan <span className="text-gold">Sesuai Kebutuhan</span></h2>
           <p className="text-putih/70 text-lg">Platform KonsultanAI kini makin lengkap. Panduan ini membantu Anda menemukan solusi yang tepat.</p>
         </div>
 

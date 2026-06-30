@@ -22,7 +22,7 @@ export default function DemoSection() {
 
       <div className="container mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12">
         <div className="flex-1 space-y-8">
-          <h2 className="text-3xl md:text-5xl font-bold">Demo <span className="text-gold">Analisis Hukum</span></h2>
+          <h2 className="text-3xl md:text-5xl font-bold text-putih">Demo <span className="text-gold">Analisis Hukum</span></h2>
           <p className="text-putih/70 text-lg leading-relaxed">
             Lihat bagaimana AI kami bekerja secara real-time. Cukup tuliskan kronologi kejadian, dan AI akan mengidentifikasi bidang hukum yang relevan serta merekomendasikan pasal yang sesuai.
           </p>
@@ -33,7 +33,7 @@ export default function DemoSection() {
                 <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center text-gold">
                   <Scale className="w-3 h-3" />
                 </div>
-                <span className="font-medium">{item}</span>
+                <span className="font-medium text-putih">{item}</span>
               </li>
             ))}
           </ul>

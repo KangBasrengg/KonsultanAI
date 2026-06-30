@@ -101,7 +101,7 @@ export default function LegalKitaPage() {
               <span className="text-sm font-medium">AI Dokumen Hukum untuk Usaha Kecil</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-tight text-putih">
               Legal<span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-gold-light">Kita</span>
             </h1>
 
@@ -156,7 +156,7 @@ export default function LegalKitaPage() {
       <section id="fitur" className="py-24 bg-navy-light/20">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">
               Fitur <span className="text-amber-400">Utama</span>
             </h2>
             <p className="text-putih/70 text-lg">
@@ -211,7 +211,7 @@ export default function LegalKitaPage() {
       <section className="py-24">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">
               Cocok untuk <span className="text-amber-400">Semua UMKM</span>
             </h2>
             <p className="text-putih/70 text-lg">
@@ -265,7 +265,7 @@ export default function LegalKitaPage() {
       {/* Model Bisnis / Pricing Teaser */}
       <section className="py-24">
         <div className="container mx-auto px-6 lg:px-12 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">
             Mulai <span className="text-amber-400">Gratis</span>
           </h2>
           <p className="text-putih/70 text-lg mb-12 max-w-2xl mx-auto">

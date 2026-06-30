@@ -32,11 +32,11 @@
     --theme-navy: #f8fafc;
     --theme-navy-light: #ffffff;
     --theme-navy-dark: #e2e8f0;
-    --theme-gold: #a16207;       /* Tailwind yellow-700 for better contrast */
+    --theme-gold: #a16207;       /* Tailwind yellow-700 */
     --theme-gold-light: #ca8a04; /* Tailwind yellow-600 */
     --theme-gold-dark: #854d0e;  /* Tailwind yellow-800 */
     --theme-merah: #da251d;
-    --theme-putih: #0b132b;
+    --theme-putih: #0b132b;      /* Original dark navy text for light mode */
     
     --background: radial-gradient(circle, #aabee8, #adc1ea, #b0c3eb, #b4c6ed, #b7c9ee);
     --foreground: var(--theme-putih);
@@ -54,18 +54,30 @@ body {
   width: 8px;
 }
 
-::-webkit-scrollbar-track {
+.dark ::-webkit-scrollbar-track {
   background: var(--color-navy-dark);
 }
-
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb {
   background: var(--color-gold-dark);
   border-radius: 4px;
 }
-
-::-webkit-scrollbar-thumb:hover {
+.dark ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold);
 }
+.light ::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+.light ::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ========================================
+   LIGHT MODE — Comprehensive text & UI fixes
+   ======================================== */
 
 /* Force readable prose colors in light mode */
 .light .prose {
@@ -87,9 +99,36 @@ body {
   --tw-prose-td-borders: #e2e8f0;
 }
 
-/* Make all putih-based borders clearly visible in light mode */
+/* === Navbar & Header Fixes === */
+.light nav,
+.light .nav-area {
+  color: #1e293b;
+}
+
+/* Navbar background when scrolled in light mode */
+.light nav.bg-navy\/90 {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+
+/* === General text-putih overrides for light mode === */
+/* text-putih uses the CSS var which auto-swaps, so it becomes dark in light mode — this is correct.
+   However, opacity variants and backgrounds need help. */
+
+/* Make backgrounds with putih/N% opacity adapt */
+.light .bg-putih\/5,
+.light .bg-putih\/10 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+.light .bg-putih\/20 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Make borders with putih/N% visible in light mode */
 .light [class*="border-putih"] {
-  border-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.light [class*="border-white"] {
+  border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
 /* Allow gold hover borders to still show through */
@@ -99,13 +138,14 @@ body {
 
 /* Add subtle shadow to cards and rounded containers in light mode */
 .light [class*="rounded-2xl"][class*="border"],
-.light [class*="rounded-xl"][class*="border"] {
+.light [class*="rounded-xl"][class*="border"],
+.light [class*="rounded-3xl"][class*="border"] {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Make divide lines visible in light mode */
 .light [class*="divide-putih"] > * + * {
-  border-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Restore hover interactivity in light mode */
@@ -114,14 +154,222 @@ body {
   transition: all 0.2s ease;
 }
 
+/* === CRITICAL: Fix text-navy being invisible in light mode ===
+   In light mode, --theme-navy maps to the BG color (#f8fafc),
+   so text-navy would be light-on-light. Override text uses. */
+.light .text-navy {
+  color: #0f172a !important; /* slate-900 */
+}
+.light .text-navy\/40 {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+.light .text-navy\/50 {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+.light .text-navy\/60 {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+.light .text-navy\/70 {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+.light .text-navy\/80 {
+  color: rgba(15, 23, 42, 0.8) !important;
+}
+
+/* === Section backgrounds in light mode === */
+.light .bg-navy {
+  background-color: #f8fafc !important;
+}
+.light .bg-navy-light {
+  background-color: #ffffff !important;
+}
+.light .bg-navy-dark {
+  background-color: #e2e8f0 !important;
+}
+.light .bg-navy-light\/20,
+.light .bg-navy-light\/30,
+.light .bg-navy-light\/40,
+.light .bg-navy-light\/50 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+.light .bg-navy-dark\/50 {
+  background-color: rgba(226, 232, 240, 0.5) !important;
+}
+.light .bg-navy\/90 {
+  background-color: rgba(248, 250, 252, 0.9) !important;
+}
+
+/* === Hero & Landing page dark-themed sections in light mode === */
+/* UserGuideSection cards with hardcoded dark bg */
+.light .bg-\[\#1a1207\] {
+  background-color: #fef3c7 !important; /* amber-100 */
+}
+.light .bg-\[\#071222\] {
+  background-color: #dbeafe !important; /* blue-100 */
+}
+.light .bg-\[\#071a14\] {
+  background-color: #d1fae5 !important; /* emerald-100 */
+}
+
+/* Fix text-white in light mode for sections that use it */
+.light .bg-\[\#1a1207\] .text-white,
+.light .bg-\[\#1a1207\] .text-white\/70 {
+  color: #78350f !important; /* amber-900 */
+}
+.light .bg-\[\#071222\] .text-white,
+.light .bg-\[\#071222\] .text-white\/70 {
+  color: #1e3a5f !important; /* blue-900 */
+}
+.light .bg-\[\#071a14\] .text-white,
+.light .bg-\[\#071a14\] .text-white\/70 {
+  color: #064e3b !important; /* emerald-900 */
+}
+
+/* Fix text-white/60 and text-white/80 */
+.light .bg-\[\#1a1207\] .text-white\/60 { color: #92400e !important; }
+.light .bg-\[\#071222\] .text-white\/60 { color: #1e40af !important; }
+.light .bg-\[\#071a14\] .text-white\/60 { color: #065f46 !important; }
+
+.light .bg-\[\#1a1207\] .text-white\/80 { color: #78350f !important; }
+.light .bg-\[\#071222\] .text-white\/80 { color: #1e3a5f !important; }
+.light .bg-\[\#071a14\] .text-white\/80 { color: #064e3b !important; }
+
+/* === Feature cards bg fix for light mode === */
+.light .bg-gold\/5 { background-color: rgba(161, 98, 7, 0.05) !important; }
+.light .bg-gold\/10 { background-color: rgba(161, 98, 7, 0.08) !important; }
+.light .bg-gold\/20 { background-color: rgba(161, 98, 7, 0.12) !important; }
+
+/* === Fix border-gold opacity === */
+.light .border-gold\/20,
+.light .border-gold\/30,
+.light .border-gold\/40 {
+  border-color: rgba(161, 98, 7, 0.25) !important;
+}
+
+/* === Pricing section fix === */
+.light .bg-navy-dark {
+  background-color: #f1f5f9 !important;
+}
+
 /* Force all green status colors to gold (#a16207) in light mode for better contrast */
 .light .text-green-400,
 .light .text-green-500 {
-  color: #a16207 !important;
+  color: #15803d !important; /* green-700 for light mode */
 }
 .light .bg-green-500\/10 {
-  background-color: rgba(161, 98, 7, 0.1) !important;
+  background-color: rgba(21, 128, 61, 0.1) !important;
 }
 .light .bg-green-500\/20 {
-  background-color: rgba(161, 98, 7, 0.2) !important;
+  background-color: rgba(21, 128, 61, 0.2) !important;
+}
+
+/* === Demo section chat fix === */
+.light .bg-navy .text-sm {
+  color: var(--foreground);
+}
+
+/* === Select/Option dropdown fix for light mode === */
+.light select,
+.light select option {
+  color: #1e293b;
+  background-color: #ffffff;
+}
+
+/* === Footer in light mode === */
+/* Removed aggressive footer overrides to allow footer text to be naturally dark in light mode */
+
+/* === Konsultasi (Chat page) in light mode === */
+.light .bg-navy-dark {
+  background-color: #e2e8f0 !important;
+}
+
+/* Chat bubbles readability */
+.light .bg-gold\/10 {
+  background-color: rgba(161, 98, 7, 0.08) !important;
+}
+.light .text-putih\/90 {
+  color: #1e293b !important;
+}
+.light .text-putih\/80 {
+  color: #334155 !important;
+}
+.light .text-putih\/70 {
+  color: #475569 !important;
+}
+.light .text-putih\/60 {
+  color: #64748b !important;
+}
+.light .text-putih\/50 {
+  color: #94a3b8 !important;
+}
+.light .text-putih\/40 {
+  color: #94a3b8 !important;
+}
+.light .text-putih\/30 {
+  color: #cbd5e1 !important;
+}
+
+/* Ensure the textarea placeholder in light mode */
+.light textarea::placeholder,
+.light input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* === LegalKita cards — tags in light mode === */
+.light .bg-amber-900\/60 {
+  background-color: rgba(120, 53, 15, 0.15) !important;
+}
+.light .bg-blue-900\/60 {
+  background-color: rgba(30, 58, 138, 0.1) !important;
+}
+.light .bg-emerald-900\/60 {
+  background-color: rgba(6, 78, 59, 0.1) !important;
+}
+.light .text-amber-300 { color: #92400e !important; }
+.light .text-blue-300 { color: #1e40af !important; }
+.light .text-emerald-300 { color: #065f46 !important; }
+
+/* === Fix gradient text being invisible in light mode === */
+.light .from-gold {
+  --tw-gradient-from: #a16207;
+}
+.light .to-gold-light {
+  --tw-gradient-to: #854d0e;
+}
+.light .from-amber-500 {
+  --tw-gradient-from: #d97706;
+}
+.light .from-amber-400 {
+  --tw-gradient-from: #ca8a04;
+}
+
+/* === Badge/tag overrides === */
+.light .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.15) !important; }
+.light .text-red-400 { color: #dc2626 !important; }
+.light .border-red-500\/30 { border-color: rgba(239, 68, 68, 0.3) !important; }
+.light .bg-blue-500\/20 { background-color: rgba(59, 130, 246, 0.15) !important; }
+.light .text-blue-400 { color: #2563eb !important; }
+
+/* === Blur effects fix === */
+.light .bg-gold\/5 {
+  background-color: rgba(161, 98, 7, 0.04) !important;
+}
+
+/* Fix gradient background decorations visibility */
+.light .from-navy-light\/40 {
+  --tw-gradient-from: rgba(255, 255, 255, 0.4);
+}
+.light .from-navy {
+  --tw-gradient-from: #f8fafc;
+}
+.light .via-gold\/50 {
+  --tw-gradient-via: rgba(161, 98, 7, 0.5);
+}
+
+/* === Stat section border fix === */
+.light .border-y {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.light .divide-x > * + * {
+  border-color: rgba(0, 0, 0, 0.1) !important;
 }
