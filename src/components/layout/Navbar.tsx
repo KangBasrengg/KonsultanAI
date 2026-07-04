@@ -231,7 +231,7 @@ export default function Navbar() {
                 Pengaturan
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={logout}
                 className="flex items-center justify-center gap-2 text-merah border border-merah/20 bg-merah/5 py-3 rounded-xl font-bold mt-2 hover:bg-merah/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
