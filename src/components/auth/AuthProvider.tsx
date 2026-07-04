@@ -14,6 +14,8 @@ export interface UserProfile {
   tier: string;
   consultationCount: number;
   createdAt: string;
+  subscriptionStartedAt: string | null;
+  subscriptionExpiresAt: string | null;
 }
 
 interface AuthContextType {
@@ -71,7 +73,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from("users")
-        .select("email, full_name, is_premium, role, tier, created_at")
+        .select("email, full_name, is_premium, role, tier, created_at, subscription_started_at, subscription_expires_at")
         .eq("id", userId)
         .single();
 
@@ -95,6 +97,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         isPremium: profileData?.role === "admin" ? true : (profileData?.is_premium || false),
         role: profileData?.role || "user",
         tier: profileData?.role === "admin" ? "admin" : (profileData?.tier || "free"),
+        subscriptionStartedAt: profileData?.subscription_started_at || null,
+        subscriptionExpiresAt: profileData?.subscription_expires_at || null,
         consultationCount: count || 0,
         createdAt: profileData?.created_at || fallbackCreatedAt || new Date().toISOString()
       });

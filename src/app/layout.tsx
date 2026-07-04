@@ -70,6 +70,7 @@ export default function RootLayout({
             <GlobalThemeToggle />
           </AuthProvider>
         </ThemeProvider>
+        {/* Midtrans Snap - temporarily disabled, using static QRIS instead
         <script
           type="text/javascript"
           src={process.env.MIDTRANS_IS_PRODUCTION === 'true'
@@ -77,6 +78,7 @@ export default function RootLayout({
             : "https://app.sandbox.midtrans.com/snap/snap.js"}
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         ></script>
+        */}
         {/* Structured Data for Google Search (Knowledge Graph / About this result) */}
         <script
           type="application/ld+json"

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
+import { PLANS } from "@/lib/pricing";
 
 export default function PricingSection() {
   const { user, openAuthModal } = useAuth();
@@ -25,80 +26,8 @@ export default function PricingSection() {
     }
   };
 
-  const plans = [
-    {
-      name: "Free Trial",
-      priceMonthly: "Rp 0",
-      priceAnnual: "Rp 0",
-      desc: "Coba kemampuan AI kami untuk satu kasus.",
-      features: [
-        { name: "3x Generate Analisis", inc: true },
-        { name: "3x Generate Kontrak (LegalKita)", inc: true },
-        { name: "Rekomendasi Pasal", inc: true },
-        { name: "Penjelasan Sederhana", inc: true },
-        { name: "3 Materi Legal Learning", inc: true },
-        { name: "Preview Template (Watermark)", inc: true },
-        { name: "Download Laporan", inc: false },
-      ],
-      cta: "Coba Sekarang",
-      highlight: false
-    },
-    {
-      name: "Basic",
-      priceMonthly: "Rp 80.000",
-      priceAnnual: "Rp 70.000",
-      period: "/bulan",
-      desc: "Cocok untuk masyarakat umum yang butuh akses reguler.",
-      features: [
-        { name: "10x Generate Analisis", inc: true },
-        { name: "10x Generate Kontrak (LegalKita)", inc: true },
-        { name: "Rekomendasi Pasal", inc: true },
-        { name: "Penjelasan Sederhana", inc: true },
-        { name: "Riwayat Konsultasi", inc: true },
-        { name: "Download Laporan PDF", inc: true },
-        { name: "8 Materi Legal Learning", inc: true },
-      ],
-      cta: "Berlangganan",
-      highlight: true
-    },
-    {
-      name: "Pro",
-      priceMonthly: "Rp 149.000",
-      priceAnnual: "Rp 129.000",
-      period: "/bulan",
-      desc: "Untuk praktisi, mahasiswa hukum, dan UMKM.",
-      features: [
-        { name: "25x Generate Analisis", inc: true },
-        { name: "Unlimited Kontrak & Review (LegalKita)", inc: true },
-        { name: "Semua Fitur Basic", inc: true },
-        { name: "Analisis Mendalam & Detail", inc: true },
-        { name: "Template Laporan Premium", inc: true },
-        { name: "AI Legal Tutor", inc: true },
-        { name: "20 Materi & Sertifikat", inc: true },
-      ],
-      cta: "Berlangganan",
-      highlight: false
-    },
-    {
-      name: "Enterprise",
-      priceMonthly: "Rp 525.000",
-      priceAnnual: "Rp 445.000",
-      period: "/bulan",
-      desc: "Solusi enterprise untuk instansi pemerintah, perusahaan berskala besar, dan firma hukum.",
-      features: [
-        { name: "Semua Fitur Professional", inc: true },
-        { name: "Akses Tim (5 Akun)", inc: true },
-        { name: "AI Contract Review", inc: true },
-        { name: "Legal Compliance Checker", inc: true },
-        { name: "Template Kontrak Bisnis", inc: true },
-        { name: "Manajemen Dokumen Terpusat", inc: true },
-        { name: "Government Analytics Dashboard", inc: true },
-        { name: "Dukungan Prioritas", inc: true },
-      ],
-      cta: "Hubungi Sales",
-      highlight: false
-    }
-  ];
+  // Use centralized plans data
+  const plans = PLANS;
 
   return (
     <section id="harga" className="py-24 bg-navy-light/20">
@@ -126,8 +55,8 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* Navigation Arrows for Slider */}
-        <div className="flex justify-end gap-3 max-w-[1400px] w-full mx-auto px-6 md:px-4 mb-2">
+        {/* Navigation Arrows for Slider (Hidden on Desktop) */}
+        <div className="flex lg:hidden justify-end gap-3 max-w-[1400px] w-full mx-auto px-6 md:px-4 mb-2">
           <button 
             onClick={scrollLeft} 
             className="w-10 h-10 rounded-full bg-navy border border-putih/20 flex items-center justify-center text-putih/70 hover:text-gold hover:border-gold transition-colors group"
@@ -147,7 +76,7 @@ export default function PricingSection() {
         {/* Wrapper padding to allow scroll bleed on mobile, centered on desktop */}
         <div 
           ref={sliderRef}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-6 lg:gap-8 pb-12 pt-4 px-6 md:px-4 max-w-[1400px] w-full mx-auto items-stretch [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex lg:grid lg:grid-cols-4 overflow-x-auto lg:overflow-x-visible snap-x lg:snap-none snap-mandatory gap-6 lg:gap-4 xl:gap-8 pb-12 pt-4 px-6 md:px-4 max-w-[1400px] w-full mx-auto items-stretch [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {plans.map((plan, idx) => (
             <motion.div
@@ -156,7 +85,7 @@ export default function PricingSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.15 }}
-              className={`relative flex flex-col rounded-3xl p-8 border shrink-0 w-[85vw] sm:w-[350px] lg:w-[380px] snap-center ${plan.highlight
+              className={`relative flex flex-col rounded-3xl p-8 border shrink-0 w-[85vw] sm:w-[350px] lg:w-auto snap-center ${plan.highlight
                   ? "bg-navy-dark border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] z-10 md:scale-[1.03]"
                   : "bg-navy border-putih/20"
                 }`}
@@ -168,21 +97,16 @@ export default function PricingSection() {
               )}
 
               <h3 className="text-xl font-bold mb-2 text-putih">{plan.name}</h3>
-              <p className="text-sm text-putih/60 mb-6 min-h-[4.5rem]">{plan.desc}</p>
+              <p className="text-sm text-putih/60 mb-6 min-h-[4.5rem]">{plan.description}</p>
 
               <div className="mb-8">
                 <div className="flex items-baseline gap-1 whitespace-nowrap">
-                  <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.priceAnnual : plan.priceMonthly}</span>
-                  {plan.period && <span className="text-putih/50 text-sm">{plan.period}</span>}
+                  <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.displayAnnual : plan.displayMonthly}</span>
+                  {plan.priceMonthly > 0 && <span className="text-putih/50 text-sm">/bulan</span>}
                 </div>
-                {isAnnual && plan.name !== "Free Trial" && plan.name !== "Enterprise" && (
-                  <p className="text-xs text-green-400 mt-1 font-medium">
-                    Ditagih {plan.name === "Basic" ? "Rp 480.000" : "Rp 1.020.000"} per tahun
-                  </p>
-                )}
-                {isAnnual && plan.name === "Enterprise" && (
-                  <p className="text-xs text-putih/40 mt-1 font-medium italic">
-                    Ditagih Rp 2.100.000 per tahun
+                {isAnnual && plan.priceMonthly > 0 && (
+                  <p className={`text-xs mt-1 font-medium ${plan.name === "Enterprise" ? "text-putih/40 italic" : "text-green-400"}`}>
+                    Ditagih {plan.displayAnnualTotal} per tahun
                   </p>
                 )}
               </div>

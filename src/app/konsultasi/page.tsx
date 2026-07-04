@@ -227,7 +227,9 @@ export default function KonsultasiPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="text-center my-6">
             <span className="bg-navy-light border border-putih/20 text-putih/50 text-xs px-3 py-1 rounded-full">
-              Sesi Konsultasi Baru (Free Trial 1/1)
+              {isPremium 
+                ? "Sesi Konsultasi (Premium)" 
+                : `Sesi Konsultasi (Free Trial — ${profile?.consultationCount ?? 0}/3 generate)`}
             </span>
           </div>
 

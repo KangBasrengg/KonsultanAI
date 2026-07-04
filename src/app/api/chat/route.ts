@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText, convertToModelMessages } from "ai";
+import { streamText } from "ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
@@ -142,10 +142,11 @@ export async function POST(req: Request) {
       }
     });
 
-    // 3. Check authentication
+    // 3. Check authentication & enforce limits
     let userId: string | null = null;
     let isPremium = false;
     let isAdmin = false;
+    let placeholderId: string | null = null; // For race-condition-safe limit enforcement
     
     try {
       const supabase = await createClient();
@@ -153,7 +154,6 @@ export async function POST(req: Request) {
       
       if (user) {
         userId = user.id;
-        console.log("[Chat API] Authenticated user:", userId);
 
         const { data: profile } = await supabase
           .from("users")
@@ -163,42 +163,48 @@ export async function POST(req: Request) {
         isPremium = profile?.is_premium || false;
         isAdmin = profile?.role === "admin";
 
-        // Admin accounts bypass all consultation limits
-        if (!isAdmin) {
-          const twoDaysAgo = new Date();
-          twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        // Free users get 3 total generates; premium/admin bypass limits
+        if (!isAdmin && !isPremium) {
+          const FREE_LIMIT = 3;
 
           const { count } = await supabase
             .from("consultations")
             .select("*", { count: "exact", head: true })
-            .eq("user_id", user.id)
-            .gte("created_at", twoDaysAgo.toISOString());
+            .eq("user_id", user.id);
           
-          if (count && count >= 1) {
+          if (count !== null && count >= FREE_LIMIT) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
-              message: "Limit penggunaan tercapai. Jatah 1x konsultasi AI akan di-reset setiap 2 hari." 
+              message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
-        }
 
-        console.log("[Chat API] User role:", profile?.role, "isPremium:", isPremium, "isAdmin:", isAdmin);
-      } else {
-        console.log("[Chat API] No authenticated user, proceeding for dev");
+          // Claim a slot BEFORE calling AI to prevent race condition
+          // (concurrent requests can't both pass the count check)
+          const { data: placeholder, error: insertErr } = await supabase
+            .from("consultations")
+            .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: null })
+            .select("id")
+            .single();
+
+          if (insertErr) {
+            console.error("[Chat API] Failed to claim slot:", insertErr);
+          } else {
+            placeholderId = placeholder?.id || null;
+          }
+        }
       }
     } catch (authError) {
-      console.error("[Chat API] Auth check failed (proceeding):", authError);
+      console.error("[Chat API] Auth check failed:", authError);
     }
 
     // 4. Extract last user message text (for DB save)
     const lastUserMsg = messages[messages.length - 1];
     const lastUserMessage = extractText(lastUserMsg);
-    console.log("[Chat API] Calling AI with message:", lastUserMessage.substring(0, 100));
 
     if (!apiKey) {
       return new Response(JSON.stringify({ 
-        error: "API Key Freemodel tidak ditemukan di environment variables Cloudflare.",
-        details: "Mohon pastikan nama variabel FREEMODEL_API_KEY sudah benar dan sudah di-deploy ulang."
+        error: "API Key Freemodel tidak ditemukan di environment variables.",
       }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
@@ -208,7 +214,6 @@ export async function POST(req: Request) {
     const truncatedMessages = messages.length > MAX_CONTEXT_MESSAGES
       ? messages.slice(-MAX_CONTEXT_MESSAGES)
       : messages;
-    console.log("[Chat API] Messages: total=%d, sent=%d", messages.length, truncatedMessages.length);
 
     // Convert to strict core message format manually to bypass AI SDK's
     // Responses API lookups which cause "Not Found" errors on non-OpenAI endpoints
@@ -216,7 +221,6 @@ export async function POST(req: Request) {
       role: msg.role === "assistant" ? "assistant" : "user",
       content: extractText(msg)
     }));
-    console.log("[Chat API] Converted model messages count:", coreMessages.length);
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
@@ -224,22 +228,35 @@ export async function POST(req: Request) {
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {
-        // Hanya simpan (dan hitung limit) jika generate berhasil (stop/length)
         if (text && lastUserMessage && userId && (finishReason === 'stop' || finishReason === 'length')) {
           try {
             const supabase = await createClient();
-            const { error } = await supabase.from("consultations").insert({
-              user_id: userId,
-              chronology: lastUserMessage,
-              ai_analysis: text,
-            });
-            if (error) console.error("[Chat API] Failed to save:", error);
-            else console.log("[Chat API] Saved consultation");
+
+            if (placeholderId) {
+              // Update the pre-claimed placeholder row with actual data
+              await supabase.from("consultations")
+                .update({ chronology: lastUserMessage, ai_analysis: text })
+                .eq("id", placeholderId);
+            } else {
+              // Premium/admin users: just insert normally
+              const { error } = await supabase.from("consultations").insert({
+                user_id: userId,
+                chronology: lastUserMessage,
+                ai_analysis: text,
+              });
+              if (error) console.error("[Chat API] Failed to save:", error);
+            }
           } catch (saveError) {
             console.error("[Chat API] DB save error:", saveError);
           }
         } else {
-          console.log("[Chat API] Generate failed or incomplete, finishReason:", finishReason);
+          // AI failed — remove the placeholder so it doesn't waste a slot
+          if (placeholderId) {
+            try {
+              const supabase = await createClient();
+              await supabase.from("consultations").delete().eq("id", placeholderId);
+            } catch (_) { /* best-effort cleanup */ }
+          }
         }
       },
     });
@@ -247,9 +264,6 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error("[Chat API] Error:", error?.message || error);
-    
-    // DEBUG INFO: let's check if the API key was actually read from process.env
-    const apiKey = process.env.FREEMODEL_API_KEY || "";
     
     return new Response(JSON.stringify({ 
       error: "Terjadi kesalahan saat menghubungi AI. Silakan coba lagi nanti.",

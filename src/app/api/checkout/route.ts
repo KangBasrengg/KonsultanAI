@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import midtransClient from 'midtrans-client';
 import { createClient } from '@/lib/supabase/server';
+import { getPlanPrice } from '@/lib/pricing';
 
 const snap = new midtransClient.Snap({
   isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
@@ -23,21 +24,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Normalize plan name to handle old data or case mismatches
+    // Use centralized pricing config (single source of truth)
     const normalizedPlan = (planName || '').toString().toLowerCase().trim();
-    
-    let price = 0;
     const isAnnual = normalizedPlan.includes('tahunan') || normalizedPlan.includes('annual');
+    const price = getPlanPrice(planName, isAnnual);
 
-    if (normalizedPlan.includes('basic')) {
-      price = isAnnual ? 480000 : 49000;
-    } else if (normalizedPlan.includes('pro') || normalizedPlan.includes('premium')) {
-      price = isAnnual ? 1020000 : 99000;
-    } else if (normalizedPlan.includes('enterprise')) {
-      price = isAnnual ? 2100000 : 199000;
-    } else if (normalizedPlan.includes('free') || normalizedPlan.includes('trial')) {
-      price = 0;
-    } else {
+    if (price === null) {
       return NextResponse.json({ error: `Invalid plan: ${planName}` }, { status: 400 });
     }
     

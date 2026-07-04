@@ -8,13 +8,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import LoadingScreen from "@/components/auth/LoadingScreen";
-
-// Declare Midtrans Snap global object
-declare global {
-  interface Window {
-    snap: any;
-  }
-}
+import QRISPaymentModal from "@/components/payment/QRISPaymentModal";
 
 interface Chat {
   id: string;
@@ -49,6 +43,8 @@ function ChatContent() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [showQRIS, setShowQRIS] = useState(false);
+  const [qrisAmount, setQrisAmount] = useState(0);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -66,12 +62,9 @@ function ChatContent() {
     }
   }, [isVerifying, user]);
 
-  if (isVerifying) return <LoadingScreen />;
-  if (!user) return <LoadingScreen />;
-
   // Init chat - load history or create new
   useEffect(() => {
-    if (!user) return;
+    if (!user || isVerifying) return;
     let cancelled = false;
 
     const initChats = async () => {
@@ -147,7 +140,7 @@ function ChatContent() {
       supabase.removeChannel(chatChannel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, plan]);
+  }, [user?.id, isVerifying, plan]);
 
   // Fetch messages & subscribe to realtime once activeChatId is set
   useEffect(() => {
@@ -195,6 +188,10 @@ function ChatContent() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // === Early returns AFTER all hooks ===
+  if (isVerifying) return <LoadingScreen />;
+  if (!user) return <LoadingScreen />;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -262,6 +259,17 @@ function ChatContent() {
     }
   };
 
+  // Calculate price based on plan name
+  const getPlanPrice = (planName: string): number => {
+    const normalized = (planName || '').toLowerCase().trim();
+    const isAnnual = normalized.includes('tahunan') || normalized.includes('annual');
+
+    if (normalized.includes('basic')) return isAnnual ? 840000 : 80000;
+    if (normalized.includes('pro') || normalized.includes('premium')) return isAnnual ? 1548000 : 149000;
+    if (normalized.includes('enterprise')) return isAnnual ? 5340000 : 525000;
+    return 0;
+  };
+
   const handlePayment = async () => {
     if (!activeChatId || !user || !activeChat) return;
 
@@ -293,73 +301,15 @@ function ChatContent() {
       return;
     }
 
-    setIsPaying(true);
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chatId: activeChatId,
-          planName: activeChat.plan,
-          userEmail: user.email,
-          userName: user.user_metadata?.full_name || user.email?.split('@')[0]
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) throw new Error(data.error || 'Failed to get payment token');
-
-      if (window.snap) {
-        window.snap.pay(data.token, {
-          onSuccess: async function (result: any) {
-            console.log('Payment success:', result);
-            
-            // 1. Update chat status
-            await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
-            
-            // 2. Server-side Webhook will handle the plan upgrade
-            // We do not update 'users' table here to prevent client-side manipulation via DevTools.
-
-            // 3. Send automated thank you message
-            await supabase.from("messages").insert({
-              chat_id: activeChatId,
-              sender_id: user.id,
-              content: `Admin: Terima kasih atas pembayaran Anda untuk ${activeChat.plan}. Transaksi berhasil (Order ID: ${result.order_id}). Akun Anda telah diupgrade otomatis! Selamat menikmati layanan kami.`
-            });
-            
-            showNotification("Pembayaran berhasil! Transaksi selesai dan plan diperbarui.", "success");
-            
-            // 4. Force refresh profile globally if possible
-            // In a real app we'd call the refreshProfile from AuthContext
-            window.location.reload(); 
-          },
-          onPending: function (result: any) {
-            console.log('Payment pending:', result);
-            showNotification("Menunggu pembayaran. Silakan selesaikan pembayaran Anda.", "info");
-          },
-          onError: function (result: any) {
-            console.error('Payment error:', result);
-            showNotification("Pembayaran gagal. Silakan coba lagi.", "error");
-          },
-          onClose: function () {
-            console.log('Payment popup closed');
-            showNotification("Pembayaran dibatalkan atau belum diselesaikan.", "info");
-          }
-        });
-      } else {
-        showNotification("Sistem pembayaran belum siap. Silakan refresh halaman.", "error");
-      }
-    } catch (err) {
-      console.error('Payment initialization error:', err);
-      showNotification("Gagal memproses pembayaran. Silakan coba lagi nanti.", "error");
-    } finally {
-      setIsPaying(false);
-    }
+    // Open QRIS payment modal
+    const price = getPlanPrice(activeChat.plan);
+    setQrisAmount(price);
+    setShowQRIS(true);
   };
 
-  if (isVerifying) return null;
-  if (!user) return null;
+  const handleQRISSuccess = () => {
+    showNotification("Bukti pembayaran terkirim! Admin akan memverifikasi dalam 1x24 jam.", "success");
+  };
 
   const activeChat = chats.find(c => c.id === activeChatId);
 
@@ -460,7 +410,7 @@ function ChatContent() {
                 </div>
                 {activeChat?.status === "open" && (
                   <p className="text-xs text-putih/50 mt-1">
-                    Silakan klik "Bayar Sekarang" untuk membayar via Midtrans, atau unggah bukti transfer manual.
+                    Silakan klik "Bayar Sekarang" untuk membayar via QRIS, atau unggah bukti transfer manual di chat.
                   </p>
                 )}
               </div>
@@ -604,6 +554,21 @@ function ChatContent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* QRIS Payment Modal */}
+      {activeChat && (
+        <QRISPaymentModal
+          isOpen={showQRIS}
+          onClose={() => setShowQRIS(false)}
+          planName={activeChat.plan}
+          amount={qrisAmount}
+          chatId={activeChatId || undefined}
+          userEmail={user.email}
+          userName={user.user_metadata?.full_name || user.email?.split('@')[0]}
+          paymentType="subscription"
+          onSuccess={handleQRISSuccess}
+        />
+      )}
     </div>
   );
 }

@@ -84,17 +84,6 @@ export default function SettingsPage() {
       
     if (data) {
       setHistory(data);
-      
-      // Calculate next reset time for users (latest consultation + 2 days)
-      if (data.length > 0 && profile && profile.role !== "admin") {
-        const latestDate = new Date(data[0].created_at);
-        const resetDate = new Date(latestDate.getTime() + (2 * 24 * 60 * 60 * 1000));
-        
-        // Only set reset date if it's in the future
-        if (resetDate > new Date()) {
-          setNextResetDate(resetDate);
-        }
-      }
     }
   };
 
@@ -260,19 +249,46 @@ export default function SettingsPage() {
                 <div className="mb-6 bg-navy border border-gold/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-bold text-putih text-sm">Status Paket: <span className="text-gold">{isPremium ? "Premium" : "Free Trial"}</span></h3>
-                    {nextResetDate ? (
-                      <p className="text-xs text-putih/60 mt-1 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-gold" />
-                        Reset token AI selanjutnya pada: 
-                        <span className="font-medium text-gold">
-                          {nextResetDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
-                    ) : (
-                      <p className="text-xs text-green-400 mt-1 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Token AI tersedia dan siap digunakan.
-                      </p>
+                    
+                    {isPremium && (
+                      <div className="mt-2 mb-2 bg-gold/10 px-3 py-2 rounded-lg w-fit border border-gold/20">
+                        {profile?.subscriptionStartedAt && (
+                          <p className="text-xs text-gold flex items-center gap-1.5 mb-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Aktif Sejak: <span className="font-medium">{new Date(profile.subscriptionStartedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                          </p>
+                        )}
+                        {profile?.subscriptionExpiresAt && (
+                          <p className="text-xs text-gold flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" />
+                            Sisa Waktu: <span className="font-bold">{Math.max(0, Math.ceil((new Date(profile.subscriptionExpiresAt).getTime() - new Date().getTime()) / (1000 * 3600 * 24)))} hari</span> 
+                            ({new Date(profile.subscriptionExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })})
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {!isPremium && (
+                      <div className="mt-2">
+                        <p className="text-xs text-putih/60 flex items-center gap-1.5">
+                          <MessageSquare className="w-3.5 h-3.5 text-gold" />
+                          Generate terpakai: 
+                          <span className="font-bold text-gold">
+                            {profile?.consultationCount ?? 0}/3
+                          </span>
+                        </p>
+                        {(profile?.consultationCount ?? 0) >= 3 ? (
+                          <p className="text-xs text-merah mt-1 flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            Limit tercapai. Upgrade untuk melanjutkan.
+                          </p>
+                        ) : (
+                          <p className="text-xs text-green-400 mt-1 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Token AI tersedia dan siap digunakan.
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                   {!isPremium && (

@@ -8,12 +8,7 @@ import { ArrowLeft, Briefcase, Award, MapPin, Scale, RefreshCw, CheckCircle2, Sh
 import Link from "next/link";
 import Image from "next/image";
 import ScrollFadeIn from "@/components/ui/ScrollFadeIn";
-
-declare global {
-  interface Window {
-    snap: any;
-  }
-}
+import QRISPaymentModal from "@/components/payment/QRISPaymentModal";
 
 export default function AdvocateDetailPage() {
   const { id } = useParams();
@@ -27,6 +22,8 @@ export default function AdvocateDetailPage() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showQRIS, setShowQRIS] = useState(false);
+  const [bookingAmount, setBookingAmount] = useState(0);
 
   useEffect(() => {
     fetchAdvocate();
@@ -61,62 +58,21 @@ export default function AdvocateDetailPage() {
       return;
     }
 
-    setIsBooking(true);
-    setError(null);
+    if (!advocate) return;
 
-    try {
-      const res = await fetch("/api/booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ advocateId: id }),
-      });
+    // Calculate total amount (rate + service fee)
+    const rate = advocate.consultation_rate;
+    const serviceFeePercent = 10; // default
+    const serviceFee = Math.round(rate * (serviceFeePercent / 100));
+    const totalPayment = rate + serviceFee;
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal membuat sesi booking.");
+    setBookingAmount(totalPayment);
+    setShowQRIS(true);
+  };
 
-      if (window.snap) {
-        window.snap.pay(data.token, {
-          onSuccess: async function (result: any) {
-            console.log("Payment success:", result);
-            // Confirm booking and create consultation room
-            try {
-              const confirmRes = await fetch("/api/booking/confirm", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                  bookingId: data.bookingId, 
-                  orderId: data.orderId 
-                }),
-              });
-              const confirmData = await confirmRes.json();
-              if (confirmRes.ok && confirmData.roomId) {
-                setRoomId(confirmData.roomId);
-              }
-            } catch (e) {
-              console.error("Failed to confirm booking:", e);
-            }
-            setBookingSuccess(true);
-            setIsBooking(false);
-          },
-          onPending: function (result: any) {
-            console.log("Payment pending:", result);
-            alert("Menunggu pembayaran...");
-          },
-          onError: function (result: any) {
-            console.log("Payment error:", result);
-            setError("Pembayaran gagal. Silakan coba lagi.");
-          },
-          onClose: function () {
-            setIsBooking(false);
-          },
-        });
-      } else {
-        throw new Error("Sistem pembayaran (Midtrans) tidak dapat dimuat.");
-      }
-    } catch (err: any) {
-      setError(err.message);
-      setIsBooking(false);
-    }
+  const handleQRISBookingSuccess = () => {
+    setBookingSuccess(true);
+    setShowQRIS(false);
   };
 
   if (loading) {
@@ -275,7 +231,7 @@ export default function AdvocateDetailPage() {
                   </div>
                   <div className="flex items-start gap-3">
                     <Lock className="w-5 h-5 text-gold shrink-0" />
-                    <p>Pembayaran diproses secara aman oleh Midtrans.</p>
+                    <p>Pembayaran diproses secara aman melalui QRIS.</p>
                   </div>
                 </div>
 
@@ -301,6 +257,20 @@ export default function AdvocateDetailPage() {
           </div>
         )}
       </div>
+
+      {/* QRIS Payment Modal */}
+      {advocate && (
+        <QRISPaymentModal
+          isOpen={showQRIS}
+          onClose={() => setShowQRIS(false)}
+          planName={`Konsultasi: ${advocate.full_name}`}
+          amount={bookingAmount}
+          userEmail={user?.email}
+          userName={user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+          paymentType="booking"
+          onSuccess={handleQRISBookingSuccess}
+        />
+      )}
     </main>
   );
 }

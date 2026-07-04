@@ -45,11 +45,11 @@ export default function LimitModal({ isOpen, onClose, message }: LimitModalProps
                 </div>
                 <h3 className="text-2xl font-bold text-putih mb-4">Limit Akses Tercapai</h3>
                 <p className="text-putih/70 leading-relaxed text-sm mb-4">
-                  {message || "Anda telah mencapai limit penggunaan fitur AI. Token Anda akan di-reset otomatis setiap 2 hari untuk menjaga kestabilan server."}
+                  {message || "Anda telah mencapai limit 3x generate gratis. Upgrade ke Premium untuk konsultasi tanpa batas."}
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-gold/80 bg-gold/10 py-2 px-4 rounded-lg inline-flex">
-                  <Clock className="w-4 h-4" />
-                  <span>Tunggu 2 hari atau upgrade sekarang</span>
+                  <Crown className="w-4 h-4" />
+                  <span>Upgrade untuk akses tanpa batas</span>
                 </div>
               </div>
 

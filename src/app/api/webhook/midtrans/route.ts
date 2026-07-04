@@ -44,7 +44,8 @@ export async function POST(request: Request) {
       const chatIdFragment = orderId.split('-').slice(2).join('-'); // 8 char fragment
 
       if (isSuccess) {
-        // Find the chat by matching the chatId fragment
+        // IDEMPOTENCY CHECK: Only process if the chat status is still 'open'
+        // If Midtrans sends duplicate webhooks, subsequent ones will find no 'open' chat
         const { data: chats } = await supabase
           .from('chats')
           .select('id, user_id, plan')
@@ -60,14 +61,23 @@ export async function POST(request: Request) {
             .update({ status: 'resolved', updated_at: new Date().toISOString() })
             .eq('id', chat.id);
 
-          // Upgrade user plan
+          // Upgrade user plan and set expiration date
+          const isAnnual = chat.plan.toLowerCase().includes('tahunan') || chat.plan.toLowerCase().includes('annual');
+          const daysToAdd = isAnnual ? 365 : 30;
+          const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+
           await supabase.from('users')
-            .update({ tier: chat.plan, is_premium: chat.plan !== 'Free Trial' })
+            .update({ 
+              tier: chat.plan, 
+              is_premium: chat.plan !== 'Free Trial',
+              subscription_started_at: chat.plan !== 'Free Trial' ? new Date().toISOString() : null,
+              subscription_expires_at: chat.plan !== 'Free Trial' ? expiresAt : null 
+            })
             .eq('id', chat.user_id);
 
           console.log(`[Webhook] Subscription processed: user=${chat.user_id}, plan=${chat.plan}`);
         } else {
-          console.warn(`[Webhook] No matching open chat found for ORD fragment: ${chatIdFragment}`);
+          console.log(`[Webhook] Idempotency skip: No matching 'open' chat found for ORD fragment: ${chatIdFragment}. Likely already processed.`);
         }
       } else if (isFailed) {
         console.log(`[Webhook] Subscription payment failed/expired for ${orderId}`);
@@ -80,7 +90,7 @@ export async function POST(request: Request) {
       const bookingIdFragment = orderId.split('-').slice(2).join('-');
 
       if (isSuccess) {
-        // Find booking
+        // IDEMPOTENCY CHECK: Only process if booking payment_status is still 'unpaid'
         const { data: bookings } = await supabase
           .from('bookings')
           .select('id, advocate_id, advocate_earning')
@@ -96,6 +106,8 @@ export async function POST(request: Request) {
             .eq('id', booking.id);
 
           console.log(`[Webhook] Booking ${booking.id} marked as paid.`);
+        } else {
+          console.log(`[Webhook] Idempotency skip: Booking for ${bookingIdFragment} is already processed or not found.`);
         }
       } else if (isFailed) {
         const bookingIdFragment = orderId.split('-').slice(2).join('-');
@@ -120,6 +132,7 @@ export async function POST(request: Request) {
       const advocateIdFragment = orderId.split('-').slice(2).join('-');
 
       if (isSuccess) {
+        // Get advocate
         const { data: advocates } = await supabase
           .from('advocates')
           .select('id')

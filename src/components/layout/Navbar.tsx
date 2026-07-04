@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare, FileText, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import LogoImage from "@/components/images/LogoUpdate2.0.png";
@@ -15,9 +14,8 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, profile, isAdmin, openAuthModal } = useAuth();
+  const { user, profile, isAdmin, openAuthModal, logout } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,11 +26,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.reload();
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,8 +45,8 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-            <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
+          <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden" suppressHydrationWarning>
+            <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" suppressHydrationWarning />
           </div>
           <span className="hidden md:inline-block font-bold text-xl md:text-2xl tracking-tight text-putih dark:text-putih">
             Konsultan<span className="text-gold">AI</span>
@@ -160,7 +153,7 @@ export default function Navbar() {
                     </Link>
                     
                     <button
-                      onClick={handleLogout}
+                      onClick={logout}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-merah hover:bg-merah/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />

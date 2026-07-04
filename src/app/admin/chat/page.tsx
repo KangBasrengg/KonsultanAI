@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -32,7 +32,7 @@ interface Message {
 export default function AdminChatPage() {
   const { user, isVerifying, isAdmin } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<Chat | null>(null);
@@ -180,9 +180,29 @@ export default function AdminChatPage() {
   };
 
   const markAsResolved = async () => {
-    if (!activeChat) return;
+    if (!activeChat || !activeChat.user_id) return;
+    
+    // 1. Update chat status
     await supabase.from("chats").update({ status: "resolved" }).eq("id", activeChat.id);
+    
+    // 2. Upgrade User Plan and Set Expiration
+    if (activeChat.plan !== "Free Trial") {
+      const isAnnual = activeChat.plan.toLowerCase().includes('tahunan') || activeChat.plan.toLowerCase().includes('annual');
+      const daysToAdd = isAnnual ? 365 : 30;
+      const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+      
+      await supabase.from("users").update({
+        tier: activeChat.plan,
+        is_premium: true,
+        subscription_started_at: new Date().toISOString(),
+        subscription_expires_at: expiresAt
+      }).eq("id", activeChat.user_id);
+    }
+    
     setActiveChat({ ...activeChat, status: "resolved" });
+    
+    // Show a small notification inside the browser if possible (or just log it)
+    console.log(`Plan upgraded for user ${activeChat.user_id} to ${activeChat.plan}`);
   };
 
   if (isVerifying || !isAdmin) return <LoadingScreen />;
