@@ -111,8 +111,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let mounted = true;
 
-    async function verifySession() {
-      setIsVerifying(true);
+    // silent = true means don't show loading spinner (used for tab refocus)
+    // silent = false means show loading spinner (used for initial mount)
+    async function verifySession(silent = false) {
+      if (!silent) {
+        setIsVerifying(true);
+      }
       try {
         // getUser() performs a server-side verification (not just local token check)
         const { data: { user: authUser }, error } = await supabase.auth.getUser();
@@ -154,12 +158,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     }
 
-    verifySession();
+    // Initial mount — show loading spinner
+    verifySession(false);
 
-    // Re-verify when tab becomes visible again
+    // Re-verify when tab becomes visible again — SILENT (no loading spinner)
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        verifySession();
+        verifySession(true);
       }
     };
 
