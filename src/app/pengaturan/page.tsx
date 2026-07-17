@@ -171,12 +171,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleExportHistoryPDF = () => {
-    if (!isPremium) {
-      alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.");
-      router.push('/#harga');
-      return;
-    }
+  const handleExportHistoryPDF = (isWatermarked: boolean) => {
     if (!selectedHistory || !selectedHistory.ai_analysis) {
       alert("Detail riwayat tidak valid atau tidak memiliki analisis AI.");
       return;
@@ -188,7 +183,7 @@ export default function SettingsPage() {
       { role: "assistant", content: selectedHistory.ai_analysis }
     ];
     
-    exportConsultationPDF(historyMessages as any);
+    exportConsultationPDF(historyMessages as any, isWatermarked);
   };
 
   if (isVerifying) {
@@ -466,13 +461,35 @@ export default function SettingsPage() {
                   Detail Riwayat AI
                 </h3>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleExportHistoryPDF}
-                    className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors bg-gold text-navy hover:bg-gold-light"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Export PDF</span>
-                  </button>
+                  {!isPremium ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleExportHistoryPDF(true)}
+                        className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">PDF (Watermark)</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          alert("Fitur Download Laporan PDF Tanpa Watermark hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.");
+                          router.push('/#harga');
+                        }}
+                        className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors bg-putih/5 text-putih/50 hover:bg-putih/10 border border-putih/10"
+                      >
+                        <Lock className="w-3 h-3" />
+                        <span className="hidden sm:inline">PDF (Clean)</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleExportHistoryPDF(false)}
+                      className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors bg-gold text-navy hover:bg-gold-light"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Export PDF</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedHistory(null)}
                     className="p-1.5 rounded-lg hover:bg-putih/10 text-putih/60 hover:text-putih transition-colors"

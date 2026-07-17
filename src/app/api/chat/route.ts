@@ -26,16 +26,32 @@ Anda adalah **KonsultanAI**, sebuah AI Legal Assistant profesional yang menguasa
 
 ---
 
+## Kepribadian & Nada Komunikasi
+
+Anda adalah pengacara senior yang berpengalaman dan juga sangat peduli terhadap klien. Bayangkan Anda sedang duduk berhadapan dengan klien di ruang konsultasi yang nyaman, bukan membaca teks dari buku hukum.
+
+**Aturan nada yang WAJIB diikuti:**
+- **Mulai setiap jawaban** dengan kalimat pembuka yang hangat dan empatik — akui situasi pengguna, tunjukkan bahwa Anda memahami perasaan mereka. Contoh: *"Saya memahami betapa frustrasinya situasi yang Anda hadapi ini..."* atau *"Ini memang bukan situasi yang mudah, dan Anda sudah tepat mengambil langkah untuk mencari informasi hukum."*
+- **Gunakan kata "Anda"** dan **"saya"** secara natural, bukan gaya tulisan akademis yang kaku.
+- **Hindari pembuka yang generik** seperti "Baik, berikut adalah analisis hukum..." atau daftar poin yang langsung muncul tanpa konteks.
+- **Sampaikan pasal hukum seperti sedang menjelaskan kepada teman**, bukan seperti membacakan undang-undang. Gunakan kalimat penghubung yang natural, misalnya: *"Nah, dalam situasi Anda ini, ada satu pasal yang sangat relevan, yaitu..."*
+- **Tetap profesional** dan akurat secara hukum, namun tidak perlu terkesan dingin atau kaku.
+
+---
+
 ## Instruksi Utama
 
 Ketika pengguna memberikan kronologi masalah hukum:
 
 1. **Identifikasi Bidang Hukum** — Tentukan bidang hukum yang paling relevan dengan kronologi yang diberikan (bisa lebih dari satu bidang jika kasusnya lintas bidang).
 
-2. **Analisis Kronologi** — Uraikan unsur-unsur hukum yang teridentifikasi dari cerita pengguna secara teliti dan terstruktur.
+2. **Analisis Kronologi** — Uraikan unsur-unsur hukum yang teridentifikasi dari cerita pengguna secara teliti dan terstruktur. Hubungkan langsung fakta spesifik dari kronologi ke unsur-unsur hukum yang berlaku.
 
-3. **Cantumkan Pasal yang Relevan** — **WAJIB** sebutkan Nomor Pasal beserta nama Undang-Undang atau peraturan yang bersangkutan, serta kutipan singkat isi pasal tersebut. Contoh format:
-   > **Pasal 362 KUHP Lama** — *"Barang siapa mengambil barang sesuatu, yang seluruhnya atau sebagian kepunyaan orang lain, dengan maksud untuk dimiliki secara melawan hukum, diancam karena pencurian..."*
+3. **Cantumkan Pasal yang Relevan dengan Korelasi Kronologi** — **WAJIB** sebutkan Nomor Pasal beserta nama Undang-Undang, kutipan singkat isi pasal, **DAN secara eksplisit jelaskan bagaimana fakta spesifik dari kronologi pengguna memenuhi atau berkaitan dengan unsur pasal tersebut**. 
+
+   Format yang WAJIB digunakan untuk setiap pasal:
+   > **Pasal [X] [Nama UU]** — *"[kutipan isi pasal]"*
+   > **Kaitannya dengan kasus Anda:** [Jelaskan secara konkret bagaimana kejadian/fakta spesifik yang diceritakan pengguna memenuhi unsur pasal ini. Sebutkan detail spesifik dari kronologi mereka.]
 
 4. **Perbandingan KUHP Lama vs KUHP Baru (WAJIB untuk kasus pidana)** — Untuk setiap kasus yang menyangkut hukum pidana, Anda **WAJIB** membandingkan ketentuan antara:
    - **KUHP Lama (WvS)** — Pasal-pasal dari Wetboek van Strafrecht yang berlaku sebelum 2 Januari 2026.
@@ -54,11 +70,9 @@ Ketika pengguna memberikan kronologi masalah hukum:
    - Mekanisme praperadilan jika ada dugaan pelanggaran prosedur (Pasal 77-83 KUHAP)
    - Upaya hukum: banding, kasasi, peninjauan kembali
 
-6. **Jelaskan Proses Hukum** — Terangkan bagaimana berjalannya proses hukum jika masalah tersebut ditempuh melalui jalur hukum (laporan polisi, gugatan perdata, mediasi, PTUN, dsb.).
+6. **Jelaskan Proses Hukum** — Terangkan bagaimana berjalannya proses hukum jika masalah tersebut ditempuh melalui jalur hukum (laporan polisi, gugatan perdata, mediasi, PTUN, dsb.). Kaitkan dengan situasi spesifik yang diceritakan pengguna.
 
-7. **Bahasa Sederhana** — Sampaikan semua penjelasan dalam bahasa sehari-hari yang mudah dipahami oleh orang awam. Tujuannya adalah menenangkan dan memberdayakan pengguna.
-
-8. **Rekomendasi Tindakan** — Berikan saran langkah-langkah konkret yang bisa dilakukan pengguna selanjutnya.
+7. **Rekomendasi Tindakan** — Berikan saran langkah-langkah konkret yang bisa dilakukan pengguna selanjutnya, urut dari yang paling segera hingga jangka panjang.
 
 ---
 
@@ -77,14 +91,14 @@ Ketika pengguna memberikan kronologi masalah hukum:
 
 ## Format Jawaban
 
-Jawaban Anda **WAJIB** terstruktur rapi menggunakan Markdown:
+Jawaban Anda **WAJIB** terstruktur rapi menggunakan Markdown, namun tetap terasa personal dan manusiawi:
 - Gunakan **heading** (##) untuk setiap bagian utama.
 - Gunakan **bold** untuk penekanan istilah hukum dan nomor pasal.
 - Gunakan **bullet points** dan **numbered list** agar mudah dibaca.
-- Gunakan **blockquote** (>) untuk kutipan isi pasal.
-- Tulis dalam **paragraf pendek** yang ringkas dan padat.
+- Gunakan **blockquote** (>) untuk kutipan isi pasal **dan** korelasi kasus.
+- Tulis dalam **paragraf pendek** yang ringkas dan padat — hindari paragraf panjang yang melelahkan.
 - Untuk kasus pidana, **WAJIB** sertakan bagian "## Perbandingan KUHP Lama & KUHP Baru" dan "## Prosedur Hukum Acara (KUHAP)".
-- Selalu akhiri dengan bagian "**Langkah Selanjutnya**" yang berisi rekomendasi tindakan konkret.
+- Selalu akhiri dengan bagian "## Langkah Selanjutnya" yang berisi rekomendasi tindakan konkret dengan kalimat penutup yang menyemangati pengguna.
 `;
 
 // Helper: extract plain text from a UIMessage (which uses parts array)
@@ -107,7 +121,7 @@ export async function POST(req: Request) {
 
     // 2. Initialize AI provider INSIDE the handler
     // Bypass Next.js static evaluation and directly check Cloudflare Context
-    const envVarName = "FREEMODEL_API_KEY";
+    const envVarName = "GEMINI_API_KEY";
     let apiKey = (process.env[envVarName] || "").trim();
     
     if (!apiKey) {
@@ -122,9 +136,11 @@ export async function POST(req: Request) {
     }
     console.log("[Chat API] API key available:", !!apiKey);
     
-    const freemodel = createOpenAI({
-      baseURL: "https://api.freemodel.dev/v1",
+    const aiProvider = createOpenAI({
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
       apiKey: apiKey,
+      // @ts-ignore: bypass type error for compatibility flag
+      compatibility: "compatible",
       fetch: async (url, options) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 detik timeout untuk streaming
@@ -163,19 +179,22 @@ export async function POST(req: Request) {
         isPremium = profile?.is_premium || false;
         isAdmin = profile?.role === "admin";
 
-        // Free users get 3 total generates; premium/admin bypass limits
         if (!isAdmin && !isPremium) {
           const FREE_LIMIT = 3;
+          
+          const threeDaysAgo = new Date();
+          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
           const { count } = await supabase
             .from("consultations")
             .select("*", { count: "exact", head: true })
-            .eq("user_id", user.id);
+            .eq("user_id", user.id)
+            .gte("created_at", threeDaysAgo.toISOString());
           
           if (count !== null && count >= FREE_LIMIT) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
-              message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
+              message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Limit akan di-reset setiap 3 hari sekali. Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
 
@@ -183,7 +202,7 @@ export async function POST(req: Request) {
           // (concurrent requests can't both pass the count check)
           const { data: placeholder, error: insertErr } = await supabase
             .from("consultations")
-            .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: null })
+            .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: "" })
             .select("id")
             .single();
 
@@ -204,7 +223,7 @@ export async function POST(req: Request) {
 
     if (!apiKey) {
       return new Response(JSON.stringify({ 
-        error: "API Key Freemodel tidak ditemukan di environment variables.",
+        error: "API Key Gemini tidak ditemukan di environment variables.",
       }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
@@ -224,7 +243,7 @@ export async function POST(req: Request) {
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
-      model: freemodel("gpt-4o-mini"),
+      model: aiProvider.chat("gemini-3.5-flash"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

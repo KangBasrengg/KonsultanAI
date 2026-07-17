@@ -107,7 +107,7 @@ Platform menyediakan AI Legal Assistant yang mampu:
 Subscription / Membership
 
 ## Mekanisme Free Trial
-- User hanya dapat melakukan generate analisis hukum sebanyak 1x secara gratis
+- User hanya dapat melakukan generate analisis hukum sebanyak 3x secara gratis
 - Setelah penggunaan pertama:
   - User wajib berlangganan
   - Atau membeli akses premium
@@ -288,7 +288,7 @@ FR-05	User dapat menyimpan laporan
 FR-06	User dapat subscribe
 FR-07	Sistem generate QRIS otomatis
 FR-08	Subscription aktif otomatis
-FR-09	Sistem membatasi free trial 1x
+FR-09	Sistem membatasi free trial 3x
 FR-10	Admin dapat update database hukum
 14. Non Functional Requirements
 Kategori	Requirement
@@ -367,7 +367,7 @@ Membuat Terms of Service & Privacy Policy
 
 21. Success Metrics
 Metric	Target
-User aktif bulanan	10.000+
+User aktif bulanan	5.000+
 Conversion premium	>15%
 Akurasi rekomendasi	>85%
 Retensi pengguna	>60%
@@ -419,7 +419,7 @@ Sistem menggunakan Supabase sebagai Database utama dengan struktur tabel sebagai
 
 Untuk versi MVP awal ini, integrasi Payment Gateway otomatis (Midtrans/Xendit) **ditunda sementara**.
 Alur langganan menggunakan metode manual/simulasi:
-1. User yang batas *free trial*-nya (1x) habis akan diarahkan ke halaman pembayaran premium.
+1. User yang batas *free trial*-nya (3x) habis akan diarahkan ke halaman pembayaran premium.
 2. User diarahkan untuk melakukan transfer manual (misal: Transfer Bank biasa) atau menggunakan "Tombol Simulasi Pembayaran" selama masa *development*.
 3. Setelah konfirmasi, status `is_premium` pada tabel `users` akan diubah menjadi `true`.
 4. User langsung mendapatkan akses *unlimited* ke fitur konsultasi premium.

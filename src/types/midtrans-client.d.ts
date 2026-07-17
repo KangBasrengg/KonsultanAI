@@ -17,3 +17,7 @@ declare module 'midtrans-client' {
 
   export default { Snap };
 }
+
+interface Window {
+  snap: any;
+}

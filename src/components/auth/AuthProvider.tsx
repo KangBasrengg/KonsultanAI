@@ -36,10 +36,10 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isVerifying: false,
   isAdmin: false,
-  openAuthModal: () => {},
-  closeAuthModal: () => {},
-  logout: async () => {},
-  refreshProfile: async () => {},
+  openAuthModal: () => { },
+  closeAuthModal: () => { },
+  logout: async () => { },
+  refreshProfile: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -66,8 +66,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   // fetchProfile uses a ref-based approach to avoid dependency on `user` object.
   // The fallback email/createdAt are passed as params instead.
   const fetchProfile = useCallback(async (
-    userId: string, 
-    fallbackEmail?: string, 
+    userId: string,
+    fallbackEmail?: string,
     fallbackCreatedAt?: string
   ) => {
     try {
@@ -116,17 +116,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       try {
         // getUser() performs a server-side verification (not just local token check)
         const { data: { user: authUser }, error } = await supabase.auth.getUser();
-        
+
         if (error || !authUser) {
           // Session is invalid or expired
           if (mounted) {
             currentUserIdRef.current = null;
             setUser(null);
             setProfile(null);
-            
+
             // If there's an error (e.g. Invalid Refresh Token), clear the bad tokens
             if (error) {
-              await supabase.auth.signOut().catch(() => {});
+              await supabase.auth.signOut().catch(() => { });
             }
           }
         } else {

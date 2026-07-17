@@ -89,7 +89,7 @@ export default function UserDropdown() {
                   {tierLabel}
                 </p>
                 <p className="text-[10px] text-putih/40">
-                  {(isAdmin || profile?.isPremium) ? "Akses tidak terbatas" : "1x konsultasi gratis"}
+                  {(isAdmin || profile?.isPremium) ? "Akses tidak terbatas" : "3x konsultasi gratis"}
                 </p>
               </div>
               {!isAdmin && !profile?.isPremium && (
@@ -109,7 +109,7 @@ export default function UserDropdown() {
               <div className="flex-1">
                 <p className="text-xs font-semibold text-putih">Konsultasi</p>
                 <p className="text-[10px] text-putih/40">
-                  {profile?.consultationCount || 0} sesi{(!isAdmin && !profile?.isPremium) ? " / 1 maks" : ""}
+                  {profile?.consultationCount || 0} sesi{(!isAdmin && !profile?.isPremium) ? " / 3 maks" : ""}
                 </p>
               </div>
             </div>

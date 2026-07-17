@@ -22,9 +22,13 @@ export default function Footer() {
             <p className="text-putih/60 max-w-sm leading-relaxed">
               Memahami Hukum Indonesia Dengan Cepat, Mudah, dan Cerdas. Platform Legal Technology kebanggaan bangsa.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-merah/10 border border-merah/30 text-merah text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-putih"></span>
-              Karya Anak Bangsa
+            <div className="flex flex-col gap-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-merah/10 border border-merah/30 text-merah text-xs font-semibold w-max">
+                <span className="w-2 h-2 rounded-full bg-putih"></span>
+                Karya Anak Bangsa
+              </div>
+              
+
             </div>
           </div>
 

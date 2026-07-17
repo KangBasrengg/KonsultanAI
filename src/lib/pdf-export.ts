@@ -612,7 +612,7 @@ function drawPageFooter(doc: jsPDF, totalPages: number) {
   doc.setFontSize(6);
   doc.setFont("helvetica", "normal");
   setColor(doc, COLORS.goldDark);
-  doc.text("konsultanai.vercel.app", 14, y + 10);
+  doc.text("konsultan-ai.com", 14, y + 10);
 
   // Page number badge
   const pageNum = (doc as any).internal.getCurrentPageInfo().pageNumber;
@@ -691,7 +691,7 @@ function getMessageText(msg: ChatMessage): string {
   return "";
 }
 
-export function exportConsultationPDF(messages: ChatMessage[]) {
+export function exportConsultationPDF(messages: ChatMessage[], isWatermarked = false) {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -761,6 +761,23 @@ export function exportConsultationPDF(messages: ChatMessage[]) {
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     drawPageFooter(doc, totalPages);
+    
+    if (isWatermarked) {
+      doc.saveGraphicsState();
+      try {
+        doc.setGState(new (doc as any).GState({ opacity: 0.15 }));
+      } catch (e) {
+        // Fallback if GState is not available
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(60);
+      setColor(doc, COLORS.navyLight);
+      doc.text("KONSULTAN AI - FREE", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() / 2, {
+        align: "center",
+        angle: 45
+      });
+      doc.restoreGraphicsState();
+    }
   }
 
   // ─── Save ────────────────────────────────────────────────────────

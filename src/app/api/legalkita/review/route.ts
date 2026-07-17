@@ -35,11 +35,11 @@ ATURAN:
 4. Jika dokumen tidak jelas/terpotong, analisis sebaik mungkin dan catat keterbatasannya.`;
 
 function getApiKey(): string {
-  let apiKey = (process.env.FREEMODEL_API_KEY || "").trim();
+  let apiKey = (process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
     try {
       const cfContext = getCloudflareContext();
-      if (cfContext?.env) apiKey = ((cfContext.env as any).FREEMODEL_API_KEY || "").trim();
+      if (cfContext?.env) apiKey = ((cfContext.env as any).GEMINI_API_KEY || "").trim();
     } catch {}
   }
   return apiKey;
@@ -93,11 +93,11 @@ export async function POST(req: Request) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 45000);
       try {
-        response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
+        response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: "gemini-3.5-flash",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: userPrompt },

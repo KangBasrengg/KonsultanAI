@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle } from "lucide-react";
+import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import LogoImage from "@/components/images/LogoUpdate2.0.png";
@@ -146,14 +146,10 @@ export default function KonsultasiPage() {
     }
   };
 
-  const handleExportPDF = () => {
-    if (!isPremium) {
-      alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.");
-      return;
-    }
+  const handleExportPDF = (isWatermarked: boolean) => {
     // Only export if there is actual conversation
     if (messages.length <= 1) return alert("Belum ada percakapan untuk diekspor.");
-    exportConsultationPDF(messages as any);
+    exportConsultationPDF(messages as any, isWatermarked);
   };
 
   if (isVerifying || !user) {
@@ -203,18 +199,35 @@ export default function KonsultasiPage() {
             <span className="hidden md:inline">Riwayat</span>
           </button>
           
-          <button 
-            type="button" 
-            onClick={isPremium ? handleExportPDF : () => alert("Fitur Download Laporan PDF hanya tersedia untuk pengguna Premium.")}
-            className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
-              isPremium 
-                ? "bg-gold text-navy hover:bg-gold-light" 
-                : "bg-putih/10 text-putih/50 hover:bg-putih/20"
-            }`}
-          >
-            <Download className="w-4 h-4" />
-            <span className="hidden md:inline">Export PDF</span>
-          </button>
+          {!isPremium ? (
+            <div className="flex gap-2">
+              <button 
+                type="button" 
+                onClick={() => handleExportPDF(true)}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden md:inline">PDF (Watermark)</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => alert("Fitur Download Laporan PDF Tanpa Watermark hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.")}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-putih/5 text-putih/50 hover:bg-putih/10 border border-putih/10"
+              >
+                <Lock className="w-3 h-3" />
+                <span className="hidden md:inline">PDF (Clean)</span>
+              </button>
+            </div>
+          ) : (
+            <button 
+              type="button" 
+              onClick={() => handleExportPDF(false)}
+              className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-gold text-navy hover:bg-gold-light"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden md:inline">Export PDF</span>
+            </button>
+          )}
           
           <div className="ml-2 pl-2 border-l border-putih/20">
             <UserDropdown />

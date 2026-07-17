@@ -35,11 +35,11 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    let apiKey = (process.env.FREEMODEL_API_KEY || "").trim();
+    let apiKey = (process.env.GEMINI_API_KEY || "").trim();
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
-        if (cfContext?.env) apiKey = ((cfContext.env as any).FREEMODEL_API_KEY || "").trim();
+        if (cfContext?.env) apiKey = ((cfContext.env as any).GEMINI_API_KEY || "").trim();
       } catch {}
     }
 
@@ -47,9 +47,11 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "API Key tidak ditemukan." }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
-    const freemodel = createOpenAI({
-      baseURL: "https://api.freemodel.dev/v1",
+    const aiProvider = createOpenAI({
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
       apiKey,
+      // @ts-ignore: bypass type error for compatibility flag
+      compatibility: "compatible",
       fetch: async (url, options) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -107,7 +109,7 @@ export async function POST(req: Request) {
     }));
 
     const result = await streamText({
-      model: freemodel("gpt-4o-mini"),
+      model: aiProvider.chat("gemini-3.5-flash"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Anda harus login terlebih dahulu." }, { status: 401 });
     }
 
-    // Check free trial limit (1 intake form for free users)
+    // Check free trial limit (3 intake form for free users)
     const { data: profile } = await supabase
       .from("users")
       .select("is_premium, role, tier")
@@ -71,26 +71,26 @@ export async function POST(req: Request) {
 
     const isAdmin = profile?.role === "admin";
 
-    if (!isAdmin) {
-      const twoDaysAgo = new Date();
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    if (!isAdmin && profile?.tier !== "premium" && profile?.tier !== "pro" && profile?.tier !== "enterprise") {
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
       const { count } = await supabase
         .from("cases")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .gte("created_at", twoDaysAgo.toISOString());
+        .gte("created_at", threeDaysAgo.toISOString());
 
-      if (count && count >= 1) {
+      if (count !== null && count >= 3) {
         return Response.json({
           error: "Limit_Exceeded",
-          message: "Limit penggunaan tercapai. Jatah 1x analisis kasus akan di-reset setiap 2 hari."
+          message: "Limit uji coba gratis Anda telah habis (3x). Limit akan di-reset setiap 3 hari sekali. Silakan upgrade paket untuk akses tanpa batas."
         }, { status: 403 });
       }
     }
 
     // Initialize AI provider
-    const envVarName = "FREEMODEL_API_KEY";
+    const envVarName = "GEMINI_API_KEY";
     let apiKey = (process.env[envVarName] || "").trim();
     
     if (!apiKey) {
@@ -132,14 +132,14 @@ Berikan triage dalam format JSON sesuai instruksi.`;
       const timeoutId = setTimeout(() => controller.abort(), 35000);
 
       try {
-        response = await fetch("https://api.freemodel.dev/v1/chat/completions", {
+        response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: "gemini-3.5-flash",
             messages: [
               { role: "system", content: TRIAGE_SYSTEM_PROMPT },
               { role: "user", content: triagePrompt }
@@ -163,7 +163,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
       }
 
       // Retryable error — log and wait before retry
-      console.warn(`[Cases API] Freemodel API returned ${response.status}, attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
+      console.warn(`[Cases API] AI API returned ${response.status}, attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
       if (attempt < MAX_RETRIES) {
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
       }
@@ -172,7 +172,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
     if (!response || !response.ok) {
       const status = response?.status || 500;
       const errText = response ? await response.text() : 'No response';
-      console.error("[Cases API] Freemodel API Error after retries:", status, errText);
+      console.error("[Cases API] AI API Error after retries:", status, errText);
       throw new Error(
         status === 503
           ? "Server AI sedang sibuk (overloaded). Silakan tunggu 1-2 menit lalu coba lagi."
