@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import LogoImage from "@/components/images/LogoUpdate2.0.png";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/auth/LoadingScreen";
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
             </Link>
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-                <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
+                <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="40px" className="object-cover" />
               </div>
               <div>
                 <h1 className="font-bold text-lg leading-tight text-putih flex items-center gap-2">

@@ -3,7 +3,6 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import LogoImage from "@/components/images/LogoUpdate2.0.png";
 
 export default function Footer() {
   return (
@@ -13,7 +12,7 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-2">
               <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-                <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
+                <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="40px" className="object-cover" />
               </div>
               <span className="font-bold text-xl tracking-tight text-putih">
                 Konsultan<span className="text-gold">AI</span>
@@ -23,8 +22,8 @@ export default function Footer() {
               Memahami Hukum Indonesia Dengan Cepat, Mudah, dan Cerdas. Platform Legal Technology kebanggaan bangsa.
             </p>
             <div className="flex flex-col gap-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-merah/10 border border-merah/30 text-merah text-xs font-semibold w-max">
-                <span className="w-2 h-2 rounded-full bg-putih"></span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-merah/40 text-[#ff6b6b] text-xs font-semibold w-max">
+                <span className="w-2 h-2 rounded-full bg-merah"></span>
                 Karya Anak Bangsa
               </div>
               
@@ -33,7 +32,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">Tautan</h4>
+            <h3 className="font-bold text-lg mb-6">Tautan</h3>
             <ul className="space-y-4 text-putih/60">
               <li><Link href="#cara-kerja" className="hover:text-gold transition-colors">Cara Kerja</Link></li>
               <li><Link href="#fitur" className="hover:text-gold transition-colors">Keunggulan</Link></li>
@@ -42,7 +41,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">Legalitas</h4>
+            <h3 className="font-bold text-lg mb-6">Legalitas</h3>
             <ul className="space-y-4 text-putih/60">
               <li><Link href="/terms-of-service" className="hover:text-gold transition-colors">Terms of Service</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-gold transition-colors">Privacy Policy</Link></li>
@@ -51,7 +50,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">Dukungan</h4>
+            <h3 className="font-bold text-lg mb-6">Dukungan</h3>
             <ul className="space-y-4 text-putih/60">
               <li>
                 <a href="https://www.instagram.com/konsultanai/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold transition-colors group">
@@ -83,7 +82,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-putih/20 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/40">
+        <div className="pt-8 border-t border-putih/20 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/60">
           <p>© {new Date().getFullYear()} Muhammad Nuril & Bahrul Ilmi. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Dibuat dengan <Heart className="w-4 h-4 text-merah fill-merah" /> di Indonesia

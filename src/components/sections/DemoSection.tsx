@@ -97,12 +97,16 @@ export default function DemoSection() {
             <div className="p-4 bg-navy border-t border-putih/20">
               <div className="relative">
                 <input
+                  id="demo-chat-input"
+                  name="demoChatInput"
+                  aria-label="Ketik kronologi Anda"
                   type="text"
                   disabled={showResult}
                   placeholder="Ketik kronologi Anda..."
                   className="w-full bg-navy-light border border-putih/20 rounded-full py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-gold"
                 />
                 <button
+                  aria-label="Kirim Pesan"
                   onClick={simulateDemo}
                   disabled={showResult || isTyping}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gold flex items-center justify-center text-navy hover:scale-105 transition-transform disabled:opacity-50"

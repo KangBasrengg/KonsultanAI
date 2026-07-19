@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-import LogoImage from "@/components/images/LogoUpdate2.0.png";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -46,7 +45,7 @@ export default function Navbar() {
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden" suppressHydrationWarning>
-            <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" suppressHydrationWarning />
+            <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="44px" priority className="object-cover" suppressHydrationWarning />
           </div>
           <span className="hidden md:inline-block font-bold text-xl md:text-2xl tracking-tight text-putih dark:text-putih">
             Konsultan<span className="text-gold">AI</span>
@@ -69,6 +68,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4 relative" ref={dropdownRef}>
               <ThemeToggle />
               <button
+                aria-label="Toggle user menu"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-putih/20 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
               >
@@ -179,6 +179,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button 
+          aria-label="Toggle mobile menu"
           className="md:hidden text-putih p-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >

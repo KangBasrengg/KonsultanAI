@@ -1,15 +1,18 @@
 import Navbar from "@/components/layout/Navbar";
 import HeroSection from "@/components/sections/HeroSection";
-import UserGuideSection from "@/components/sections/UserGuideSection";
-import StatsSection from "@/components/sections/StatsSection";
-import HowItWorks from "@/components/sections/HowItWorks";
-import Features from "@/components/sections/Features";
-import DemoSection from "@/components/sections/DemoSection";
-import PricingSection from "@/components/sections/PricingSection";
-import FAQSection from "@/components/sections/FAQSection";
-import Footer from "@/components/layout/Footer";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import AuthTrigger from "@/components/auth/AuthTrigger";
+import dynamic from "next/dynamic";
+
+// Lazy-load below-the-fold sections to reduce initial JS bundle
+const UserGuideSection = dynamic(() => import("@/components/sections/UserGuideSection"));
+const StatsSection = dynamic(() => import("@/components/sections/StatsSection"));
+const HowItWorks = dynamic(() => import("@/components/sections/HowItWorks"));
+const Features = dynamic(() => import("@/components/sections/Features"));
+const DemoSection = dynamic(() => import("@/components/sections/DemoSection"));
+const PricingSection = dynamic(() => import("@/components/sections/PricingSection"));
+const FAQSection = dynamic(() => import("@/components/sections/FAQSection"));
+const Footer = dynamic(() => import("@/components/layout/Footer"));
 
 export default function Home() {
   return (

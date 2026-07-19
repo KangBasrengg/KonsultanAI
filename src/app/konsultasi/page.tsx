@@ -4,7 +4,6 @@ import { useRef, useEffect, useState } from "react";
 import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import LogoImage from "@/components/images/LogoUpdate2.0.png";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
 import { exportConsultationPDF } from "@/lib/pdf-export";
@@ -178,7 +177,7 @@ export default function KonsultasiPage() {
           </Link>
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-              <Image src={LogoImage} alt="KonsultanAI Logo" fill sizes="50px" className="object-cover" />
+              <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="40px" className="object-cover" />
             </div>
             <div className="hidden md:block">
               <h1 className="font-bold text-lg leading-tight text-putih">KonsultanAI</h1>

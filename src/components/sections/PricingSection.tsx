@@ -40,6 +40,7 @@ export default function PricingSection() {
           <div className="flex items-center justify-center gap-4">
             <span className={`font-semibold ${!isAnnual ? "text-putih" : "text-putih/50"}`}>Bulanan</span>
             <button 
+              aria-label={isAnnual ? "Ganti ke paket bulanan" : "Ganti ke paket tahunan"}
               onClick={() => setIsAnnual(!isAnnual)}
               className="w-14 h-7 rounded-full bg-navy border border-gold/30 p-1 relative transition-colors duration-300"
             >

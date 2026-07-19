@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { GlobalThemeToggle } from "@/components/layout/GlobalThemeToggle";
+import Script from "next/script";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -70,13 +71,13 @@ export default function RootLayout({
             <GlobalThemeToggle />
           </AuthProvider>
         </ThemeProvider>
-        <script
-          type="text/javascript"
+        <Script
           src={process.env.MIDTRANS_IS_PRODUCTION === 'true'
             ? "https://app.midtrans.com/snap/snap.js"
             : "https://app.sandbox.midtrans.com/snap/snap.js"}
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-        ></script>
+          strategy="lazyOnload"
+        />
         {/* Structured Data for Google Search (Knowledge Graph / About this result) */}
         <script
           type="application/ld+json"

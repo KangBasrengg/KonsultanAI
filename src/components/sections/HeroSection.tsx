@@ -65,7 +65,7 @@ export default function HeroSection() {
               <div className="p-3 bg-gold/10 text-gold rounded-xl mb-4">
                 {feature.icon}
               </div>
-              <h3 className="font-semibold text-lg mb-2 text-putih">{feature.title}</h3>
+              <h2 className="font-semibold text-lg mb-2 text-putih">{feature.title}</h2>
               <p className="text-sm text-putih/60">{feature.desc}</p>
             </div>
           ))}
