@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { GlobalThemeToggle } from "@/components/layout/GlobalThemeToggle";
 import Script from "next/script";
 
 const poppins = Poppins({
@@ -68,7 +67,6 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             {children}
-            <GlobalThemeToggle />
           </AuthProvider>
         </ThemeProvider>
         <Script

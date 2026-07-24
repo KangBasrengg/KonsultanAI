@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare, FileText, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import Image from "next/image";
 
@@ -66,12 +65,10 @@ export default function Navbar() {
 
           {isLoading ? (
             <div className="flex items-center gap-4">
-              <ThemeToggle />
               <div className="w-10 h-10 bg-putih/10 animate-pulse rounded-full"></div>
             </div>
           ) : user ? (
             <div className="flex items-center gap-4 relative" ref={dropdownRef}>
-              <ThemeToggle />
               <button
                 aria-label="Toggle user menu"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -170,7 +167,6 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <ThemeToggle />
               <button
                 type="button"
                 onClick={() => openAuthModal("login")}
@@ -209,10 +205,6 @@ export default function Navbar() {
           </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
 
-          <div className="flex items-center justify-between py-2 border-b border-t border-navy/20 dark:border-putih/20 my-2">
-            <span className="text-navy/80 dark:text-putih/80 text-sm font-medium">Tema Tampilan</span>
-            <ThemeToggle />
-          </div>
 
           {isLoading ? (
             <div className="w-full flex justify-center py-4">
