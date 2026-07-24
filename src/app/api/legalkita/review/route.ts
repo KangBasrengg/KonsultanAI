@@ -35,11 +35,11 @@ ATURAN:
 4. Jika dokumen tidak jelas/terpotong, analisis sebaik mungkin dan catat keterbatasannya.`;
 
 function getApiKey(): string {
-  let apiKey = (process.env.GEMINI_API_KEY || "").trim();
+  let apiKey = (process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
     try {
       const cfContext = getCloudflareContext();
-      if (cfContext?.env) apiKey = ((cfContext.env as any).GEMINI_API_KEY || "").trim();
+      if (cfContext?.env) apiKey = ((cfContext.env as any).GOOGLE_GEMINI_API_KEY || "").trim();
     } catch {}
   }
   return apiKey;
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gemini-3.5-flash",
+            model: "gemini-2.0-flash",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: userPrompt },

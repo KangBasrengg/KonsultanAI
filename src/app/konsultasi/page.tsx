@@ -1,11 +1,18 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle, Lock } from "lucide-react";
+import { Send, ArrowLeft, Bot, User, FileText, Download, AlertCircle, Lock, Crown, X, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
+import { memo } from "react";
+
+const MemoizedMarkdown = memo(
+  ({ children }: { children: string }) => <ReactMarkdown>{children}</ReactMarkdown>,
+  (prevProps, nextProps) => prevProps.children === nextProps.children
+);
+
 import { exportConsultationPDF } from "@/lib/pdf-export";
 import UserDropdown from "@/components/konsultasi/UserDropdown";
 import HistoryPanel from "@/components/konsultasi/HistoryPanel";
@@ -13,6 +20,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/auth/LoadingScreen";
 import LimitModal from "@/components/ui/LimitModal";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Helper: extract visible text from a message's parts array (AI SDK v3/v6 format)
 function getMessageText(msg: any): string {
@@ -55,6 +63,8 @@ export default function KonsultasiPage() {
     ] as UIMessage[];
   });
 
+  const [apiModel, setApiModel] = useState<'freemodel' | 'gemini'>('freemodel');
+
   const { messages, setMessages, sendMessage, status, error } = useChat({
     messages: initialMessages,
     onError: (err) => {
@@ -70,6 +80,8 @@ export default function KonsultasiPage() {
 
   const [input, setInput] = useState("");
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPdfOptionsModal, setShowPdfOptionsModal] = useState<{isOpen: boolean, isClean: boolean}>({isOpen: false, isClean: false});
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "streaming" || status === "submitted";
   const { isVerifying, user, profile } = useAuth();
@@ -92,17 +104,44 @@ export default function KonsultasiPage() {
     try {
       const kronologi = sessionStorage.getItem('intake_kronologi');
       const caseType = sessionStorage.getItem('intake_case_type');
+      const sudahAdvokat = sessionStorage.getItem('intake_sudah_advokat');
+      const sudahLaporPolisi = sessionStorage.getItem('intake_sudah_lapor_polisi');
       
       if (kronologi) {
         hasAutoSent.current = true;
         // Clear storage immediately so it doesn't re-trigger
         sessionStorage.removeItem('intake_kronologi');
         sessionStorage.removeItem('intake_case_type');
+        sessionStorage.removeItem('intake_sudah_advokat');
+        sessionStorage.removeItem('intake_sudah_lapor_polisi');
         
         // Build context-rich prompt from intake data
-        const autoPrompt = caseType 
-          ? `[Kasus: ${caseType}]\n\nKronologi:\n${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`
-          : `${kronologi}\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`;
+        let autoPrompt = caseType 
+          ? `[Kasus: ${caseType}]\n\nKronologi:\n${kronologi}`
+          : kronologi;
+
+        // Add advokat/polisi context
+        const contextParts: string[] = [];
+        if (sudahAdvokat === 'tidak') {
+          contextParts.push('Saya belum memiliki advokat/pengacara.');
+        }
+        if (sudahLaporPolisi === 'tidak') {
+          contextParts.push('Saya belum melapor ke polisi.');
+        }
+        if (contextParts.length > 0) {
+          autoPrompt += `\n\nInformasi tambahan: ${contextParts.join(' ')}`;
+        }
+
+        autoPrompt += `\n\nTolong analisis aspek hukum dari kronologi kasus saya di atas, serta rekomendasikan pasal-pasal yang relevan dan langkah hukum yang dapat saya tempuh.`;
+
+        // If user doesn't have an advocate, ask AI to explain how to get one
+        if (sudahAdvokat === 'tidak') {
+          autoPrompt += ` Sertakan juga panduan lengkap cara mendapatkan advokat/pengacara.`;
+        }
+        // If user hasn't reported to police, ask AI to explain the process
+        if (sudahLaporPolisi === 'tidak') {
+          autoPrompt += ` Sertakan juga tata cara dan prosedur melapor ke polisi.`;
+        }
         
         sendMessage({ text: autoPrompt }).catch((err) => {
           console.error("[Konsultasi] Auto-send from intake failed:", err);
@@ -123,7 +162,12 @@ export default function KonsultasiPage() {
     if (!input.trim() || isLoading) return;
     const userMessage = input.trim();
     setInput("");
-    await sendMessage({ text: userMessage });
+    try {
+      await sendMessage({ text: userMessage });
+    } catch (e) {
+      // The error is already handled by useChat's onError, but we catch it here to prevent Unhandled Promise Rejection
+      console.warn("sendMessage caught error:", e);
+    }
   };
 
   const handleRetry = async () => {
@@ -134,7 +178,20 @@ export default function KonsultasiPage() {
       const lastUserMsg = messages[actualIndex];
       const text = getMessageText(lastUserMsg);
       setMessages(messages.slice(0, actualIndex));
-      await sendMessage({ text });
+      try {
+        await sendMessage({ text });
+      } catch (e) {
+        console.warn("retry caught error:", e);
+      }
+    }
+  };
+
+  // Continue an incomplete/truncated AI response
+  const handleContinue = async () => {
+    try {
+      await sendMessage({ text: "Lanjutkan jawaban Anda yang sebelumnya terpotong. Langsung lanjutkan dari bagian terakhir tanpa mengulang." });
+    } catch (e) {
+      console.warn("continue caught error:", e);
     }
   };
 
@@ -145,11 +202,36 @@ export default function KonsultasiPage() {
     }
   };
 
-  const handleExportPDF = (isWatermarked: boolean) => {
+  const handleExportPDF = (isClean: boolean) => {
     // Only export if there is actual conversation
     if (messages.length <= 1) return alert("Belum ada percakapan untuk diekspor.");
-    exportConsultationPDF(messages as any, isWatermarked);
+    exportConsultationPDF(messages as any, !isClean, 'gemini');
   };
+
+  const executeExportPDF = (modelChoice: 'freemodel' | 'gemini') => {
+    // This is no longer used, but kept to prevent reference errors if any button still calls it
+    setShowPdfOptionsModal({ isOpen: false, isClean: false });
+    exportConsultationPDF(messages as any, !showPdfOptionsModal.isClean, 'gemini');
+  };
+
+  // Detect if the last AI message appears truncated
+  const isLastResponseTruncated = (() => {
+    if (isLoading) return false;
+    const lastMsg = messages[messages.length - 1];
+    if (!lastMsg || lastMsg.role !== "assistant") return false;
+    const text = getMessageText(lastMsg);
+    if (!text || text.length < 200) return false;
+    
+    // Check for signs of truncation: ends mid-sentence, no proper ending section
+    const trimmed = text.trim();
+    const endsWithPunctuation = /[.!?。:：\n]$/.test(trimmed);
+    const hasClosingSection = /##\s*(Langkah|Kesimpulan|Penutup|Rekomendasi|Saran)/i.test(trimmed);
+    const endsAbruptly = !endsWithPunctuation && trimmed.length > 500;
+    const lastChar = trimmed.slice(-1);
+    const midSentenceEnd = /[,;—\-]$/.test(lastChar);
+    
+    return endsAbruptly || (midSentenceEnd && !hasClosingSection && trimmed.length > 800);
+  })();
 
   if (isVerifying || !user) {
     return (
@@ -202,7 +284,7 @@ export default function KonsultasiPage() {
             <div className="flex gap-2">
               <button 
                 type="button" 
-                onClick={() => handleExportPDF(true)}
+                onClick={() => handleExportPDF(false)}
                 className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30"
               >
                 <Download className="w-4 h-4" />
@@ -210,7 +292,7 @@ export default function KonsultasiPage() {
               </button>
               <button 
                 type="button" 
-                onClick={() => alert("Fitur Download Laporan PDF Tanpa Watermark hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda.")}
+                onClick={() => setShowUpgradeModal(true)}
                 className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-putih/5 text-putih/50 hover:bg-putih/10 border border-putih/10"
               >
                 <Lock className="w-3 h-3" />
@@ -220,7 +302,7 @@ export default function KonsultasiPage() {
           ) : (
             <button 
               type="button" 
-              onClick={() => handleExportPDF(false)}
+              onClick={() => handleExportPDF(true)}
               className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-colors bg-gold text-navy hover:bg-gold-light"
             >
               <Download className="w-4 h-4" />
@@ -276,7 +358,7 @@ export default function KonsultasiPage() {
                         AI sedang berpikir...
                       </div>
                     ) : (
-                      <ReactMarkdown>{text}</ReactMarkdown>
+                      <MemoizedMarkdown>{text}</MemoizedMarkdown>
                     )
                   ) : (
                     text
@@ -305,7 +387,11 @@ export default function KonsultasiPage() {
                 <AlertCircle className="w-6 h-6" />
               </div>
               <h3 className="text-putih font-bold text-lg">Terjadi Kesalahan</h3>
-              <p className="text-putih/70 text-sm mb-2">{error.message || "Gagal terhubung ke AI. Silakan coba lagi."}</p>
+              <p className="text-putih/70 text-sm mb-2">
+                {error.message?.includes("Service Unavailable") || error.message?.includes("Failed after")
+                  ? "Server AI sedang sibuk (overloaded) atau koneksi tidak stabil. Silakan coba lagi dalam beberapa saat."
+                  : error.message || "Gagal terhubung ke AI. Silakan coba lagi."}
+              </p>
               <button
                 type="button"
                 onClick={handleRetry}
@@ -316,29 +402,80 @@ export default function KonsultasiPage() {
             </div>
           )}
 
+          {/* Truncated response detection — Continue button */}
+          {isLastResponseTruncated && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-center"
+            >
+              <button
+                type="button"
+                onClick={handleContinue}
+                disabled={isLoading}
+                className="flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold px-5 py-2.5 rounded-xl font-medium text-sm hover:bg-gold/20 transition-all disabled:opacity-50 shadow-lg shadow-gold/10"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Lanjutkan Jawaban AI
+              </button>
+            </motion.div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
       </main>
 
       {/* Input Area */}
       <footer className="bg-navy-dark border-t border-putih/20 p-4 shrink-0">
-        <div className="max-w-4xl mx-auto relative">
-          <textarea 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKeyDown}
-            disabled={isLoading || error?.message?.includes("Limit")}
-            placeholder="Tuliskan kronologi masalah Anda secara lengkap..."
-            className="w-full bg-navy border border-putih/20 rounded-2xl py-4 pl-5 pr-14 focus:outline-none focus:border-gold resize-none h-[80px] text-sm custom-scrollbar placeholder:text-putih/30"
-          />
-          <button 
-            type="button"
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading || error?.message?.includes("Limit")}
-            className="absolute right-3 bottom-4 w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-navy hover:bg-gold-light transition-colors disabled:opacity-50 disabled:hover:bg-gold"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+        <div className="max-w-4xl mx-auto flex flex-col gap-3">
+          
+          {/* Model Toggle (Hidden as per user request to stick with Gemini Native) */}
+          <div className="flex justify-end hidden">
+            <div className="bg-navy-light/50 p-1 rounded-full border border-putih/10 inline-flex relative overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setApiModel('freemodel')}
+                className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-colors ${apiModel === 'freemodel' ? 'text-navy' : 'text-putih/50 hover:text-putih'}`}
+              >
+                Freemodel AI
+              </button>
+              <button
+                type="button"
+                onClick={() => setApiModel('gemini')}
+                className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-colors ${apiModel === 'gemini' ? 'text-navy' : 'text-putih/50 hover:text-putih'}`}
+              >
+                Gemini Native
+              </button>
+              <motion.div
+                layout
+                className="absolute top-1 bottom-1 w-[50%] bg-gold rounded-full z-0"
+                initial={false}
+                animate={{
+                  left: apiModel === 'freemodel' ? "4px" : "calc(50% - 4px)",
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            </div>
+          </div>
+
+          <div className="relative">
+            <textarea 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKeyDown}
+              disabled={isLoading || !!(error?.message?.includes("Limit"))}
+              placeholder="Tuliskan kronologi masalah Anda secara lengkap..."
+              className="w-full bg-navy border border-putih/20 rounded-2xl py-4 pl-5 pr-14 focus:outline-none focus:border-gold resize-none h-[80px] text-sm custom-scrollbar placeholder:text-putih/30"
+            />
+            <button 
+              type="button"
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading || !!(error?.message?.includes("Limit"))}
+              className="absolute right-3 bottom-4 w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-navy hover:bg-gold-light transition-colors disabled:opacity-50 disabled:hover:bg-gold"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         <div className="text-center mt-3 text-xs text-putih/40 max-w-2xl mx-auto">
           AI Legal Assistant dapat membuat kesalahan. Harap gunakan hasil analisis sebagai referensi awal, bukan sebagai nasehat hukum final.
@@ -354,6 +491,156 @@ export default function KonsultasiPage() {
         onClose={() => {}} 
         message={error?.message || "Limit tercapai."} 
       />
+
+      {/* Upgrade Modal for PDF Clean */}
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowUpgradeModal(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            <div className="fixed inset-0 flex items-center justify-center p-4 z-[100] pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-navy border border-gold/30 rounded-3xl p-8 max-w-md w-full shadow-2xl pointer-events-auto relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-gold to-yellow-300" />
+                
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="absolute top-4 right-4 p-2 text-putih/50 hover:text-putih hover:bg-putih/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="text-center mb-8 mt-4">
+                  <div className="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                    <div className="absolute inset-0 bg-gold/20 animate-ping rounded-full" style={{ animationDuration: '2s' }} />
+                    <Crown className="w-10 h-10 text-gold" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-putih mb-4">Fitur Premium</h3>
+                  <p className="text-putih/70 leading-relaxed text-sm mb-4">
+                    Download Laporan PDF tanpa watermark hanya tersedia untuk pengguna <span className="text-gold font-semibold">Premium</span>. 
+                    Upgrade paket Anda untuk mendapatkan akses ke semua fitur eksklusif.
+                  </p>
+
+                  {/* Feature comparison */}
+                  <div className="bg-navy-dark/60 rounded-2xl p-4 text-left mb-2 border border-putih/10">
+                    <div className="flex items-center justify-between py-2 border-b border-putih/5">
+                      <span className="text-sm text-putih/60">PDF Watermark</span>
+                      <span className="text-sm text-green-400 font-medium">✓ Gratis</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-putih/5">
+                      <span className="text-sm text-putih/60">PDF Clean (Tanpa Watermark)</span>
+                      <span className="text-sm text-gold font-medium">★ Premium</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-sm text-putih/60">Generate Tanpa Batas</span>
+                      <span className="text-sm text-gold font-medium">★ Premium</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Link 
+                    href="/#harga"
+                    onClick={() => setShowUpgradeModal(false)}
+                    className="flex items-center justify-center w-full py-4 bg-gold text-navy font-bold rounded-xl hover:bg-gold-light transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)]"
+                  >
+                    Berlangganan Sekarang
+                  </Link>
+                  <button
+                    onClick={() => setShowUpgradeModal(false)}
+                    className="w-full py-4 text-putih/60 font-medium hover:text-putih hover:bg-putih/5 rounded-xl transition-colors"
+                  >
+                    Nanti Saja
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* PDF Export Options Modal */}
+      <AnimatePresence>
+        {showPdfOptionsModal.isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPdfOptionsModal({ isOpen: false, isClean: false })}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            <div className="fixed inset-0 flex items-center justify-center p-4 z-[100] pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-navy border border-gold/30 rounded-3xl p-8 max-w-md w-full shadow-2xl pointer-events-auto relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-gold to-yellow-300" />
+                
+                <button
+                  onClick={() => setShowPdfOptionsModal({ isOpen: false, isClean: false })}
+                  className="absolute top-4 right-4 p-2 text-putih/50 hover:text-putih hover:bg-putih/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="text-center mb-8 mt-4">
+                  <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Download className="w-8 h-8 text-gold" />
+                  </div>
+                  <h3 className="text-xl font-bold text-putih mb-2">Pilih Versi PDF</h3>
+                  <p className="text-putih/70 text-sm mb-6">
+                    Pilih label AI yang ingin Anda sertakan sebagai pengesahan dokumen.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => executeExportPDF('freemodel')}
+                    className="flex items-center justify-between w-full p-4 bg-navy-light/60 border border-putih/10 hover:border-gold/50 rounded-xl transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-putih/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <Bot className="w-4 h-4 text-putih group-hover:text-gold" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-putih font-bold text-sm">Versi Freemodel</p>
+                        <p className="text-putih/50 text-xs">Label PDF: KonsultanAI (Freemodel)</p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => executeExportPDF('gemini')}
+                    className="flex items-center justify-between w-full p-4 bg-navy-light/60 border border-putih/10 hover:border-gold/50 rounded-xl transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-putih/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <Bot className="w-4 h-4 text-putih group-hover:text-gold" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-putih font-bold text-sm">Versi Gemini</p>
+                        <p className="text-putih/50 text-xs">Label PDF: KonsultanAI (Gemini)</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

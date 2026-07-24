@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Scale, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { X, Scale, AlertCircle, Eye, EyeOff, ChevronDown, Phone, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -12,12 +12,60 @@ interface AuthModalProps {
   defaultView?: "login" | "register";
 }
 
+// Comprehensive country code list
+const COUNTRY_CODES = [
+  { code: "+62", country: "Indonesia", flag: "🇮🇩", iso: "ID" },
+  { code: "+1", country: "United States", flag: "🇺🇸", iso: "US" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧", iso: "GB" },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾", iso: "MY" },
+  { code: "+65", country: "Singapore", flag: "🇸🇬", iso: "SG" },
+  { code: "+61", country: "Australia", flag: "🇦🇺", iso: "AU" },
+  { code: "+81", country: "Japan", flag: "🇯🇵", iso: "JP" },
+  { code: "+82", country: "South Korea", flag: "🇰🇷", iso: "KR" },
+  { code: "+86", country: "China", flag: "🇨🇳", iso: "CN" },
+  { code: "+91", country: "India", flag: "🇮🇳", iso: "IN" },
+  { code: "+66", country: "Thailand", flag: "🇹🇭", iso: "TH" },
+  { code: "+63", country: "Philippines", flag: "🇵🇭", iso: "PH" },
+  { code: "+84", country: "Vietnam", flag: "🇻🇳", iso: "VN" },
+  { code: "+971", country: "UAE", flag: "🇦🇪", iso: "AE" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦", iso: "SA" },
+  { code: "+49", country: "Germany", flag: "🇩🇪", iso: "DE" },
+  { code: "+33", country: "France", flag: "🇫🇷", iso: "FR" },
+  { code: "+39", country: "Italy", flag: "🇮🇹", iso: "IT" },
+  { code: "+34", country: "Spain", flag: "🇪🇸", iso: "ES" },
+  { code: "+31", country: "Netherlands", flag: "🇳🇱", iso: "NL" },
+  { code: "+46", country: "Sweden", flag: "🇸🇪", iso: "SE" },
+  { code: "+47", country: "Norway", flag: "🇳🇴", iso: "NO" },
+  { code: "+7", country: "Russia", flag: "🇷🇺", iso: "RU" },
+  { code: "+55", country: "Brazil", flag: "🇧🇷", iso: "BR" },
+  { code: "+52", country: "Mexico", flag: "🇲🇽", iso: "MX" },
+  { code: "+27", country: "South Africa", flag: "🇿🇦", iso: "ZA" },
+  { code: "+234", country: "Nigeria", flag: "🇳🇬", iso: "NG" },
+  { code: "+20", country: "Egypt", flag: "🇪🇬", iso: "EG" },
+  { code: "+90", country: "Turkey", flag: "🇹🇷", iso: "TR" },
+  { code: "+48", country: "Poland", flag: "🇵🇱", iso: "PL" },
+  { code: "+380", country: "Ukraine", flag: "🇺🇦", iso: "UA" },
+  { code: "+64", country: "New Zealand", flag: "🇳🇿", iso: "NZ" },
+  { code: "+880", country: "Bangladesh", flag: "🇧🇩", iso: "BD" },
+  { code: "+92", country: "Pakistan", flag: "🇵🇰", iso: "PK" },
+  { code: "+94", country: "Sri Lanka", flag: "🇱🇰", iso: "LK" },
+  { code: "+95", country: "Myanmar", flag: "🇲🇲", iso: "MM" },
+  { code: "+855", country: "Cambodia", flag: "🇰🇭", iso: "KH" },
+  { code: "+856", country: "Laos", flag: "🇱🇦", iso: "LA" },
+  { code: "+673", country: "Brunei", flag: "🇧🇳", iso: "BN" },
+  { code: "+670", country: "Timor-Leste", flag: "🇹🇱", iso: "TL" },
+];
+
 export default function AuthModal({ isOpen, onClose, defaultView = "login" }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(defaultView === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]); // Default: Indonesia
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Reset state when modal opens
@@ -27,6 +75,8 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
       setSuccess(null);
       setIsLoading(false);
       setIsLogin(defaultView === "login");
+      setIsCountryDropdownOpen(false);
+      setCountrySearch("");
     }
   }, [isOpen, defaultView]);
 
@@ -38,6 +88,25 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
+
+  // Close country dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
+        setIsCountryDropdownOpen(false);
+        setCountrySearch("");
+      }
+    };
+    if (isCountryDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isCountryDropdownOpen]);
+
+  const filteredCountries = COUNTRY_CODES.filter(c =>
+    c.country.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    c.code.includes(countrySearch)
+  );
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -85,11 +154,26 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
         router.push("/intake");
       } else {
         const fullName = formData.get("full_name") as string;
-        const { error } = await supabase.auth.signUp({
+        const phoneNumberRaw = formData.get("phone_number") as string;
+        const phoneNumber = phoneNumberRaw ? phoneNumberRaw.trim() : "";
+        
+        if (phoneNumber.startsWith("0")) {
+          setError("Sesuai instruksi, mohon masukkan nomor HP tanpa angka 0 di depan.");
+          setIsLoading(false);
+          return;
+        }
+        
+        const fullPhone = phoneNumber ? `${selectedCountry.code}${phoneNumber}` : "";
+
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName },
+            data: { 
+              full_name: fullName,
+              phone: fullPhone,
+              country_code: selectedCountry.code,
+            },
           },
         });
         if (error) {
@@ -97,10 +181,25 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
           setIsLoading(false);
           return;
         }
-        // Check if email confirmation is required
-        setSuccess("Akun berhasil dibuat! Silakan cek email Anda untuk konfirmasi, atau langsung masuk.");
-        setIsLogin(true);
-        setIsLoading(false);
+
+        // Send welcome email (fire-and-forget)
+        fetch("/api/auth/welcome-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, fullName }),
+        }).catch(() => {/* non-critical */});
+
+        if (data.session) {
+          // Auto-logged in!
+          onClose();
+          router.refresh();
+          router.push("/intake");
+        } else {
+          // Check if email confirmation is required
+          setSuccess("Akun berhasil dibuat! Silakan cek email Anda untuk konfirmasi, atau langsung masuk.");
+          setIsLogin(true);
+          setIsLoading(false);
+        }
       }
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
@@ -132,7 +231,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.3, type: "spring", damping: 25 }}
-            className="relative w-full max-w-md z-10"
+            className="relative w-full max-w-md z-10 max-h-[90vh] overflow-y-auto custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-navy-light/70 backdrop-blur-xl border border-putih/20 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
@@ -286,6 +385,100 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                     />
                   </div>
 
+                  {/* Phone number field (register only) */}
+                  <AnimatePresence>
+                    {!isLogin && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-1.5"
+                      >
+                        <label className="text-sm font-medium text-putih/80 ml-1 flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5" />
+                          Nomor HP
+                        </label>
+                        <div className="flex gap-2">
+                          {/* Country code selector */}
+                          <div className="relative" ref={countryDropdownRef}>
+                            <button
+                              type="button"
+                              onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                              className="flex items-center gap-1.5 bg-navy border border-putih/15 rounded-xl px-3 py-3 text-sm text-putih hover:border-putih/30 focus:outline-none focus:border-gold/60 focus:ring-1 focus:ring-gold/20 transition-all min-w-[110px]"
+                            >
+                              <span className="text-base leading-none">{selectedCountry.flag}</span>
+                              <span className="font-medium">{selectedCountry.code}</span>
+                              <ChevronDown className={`w-3.5 h-3.5 text-putih/40 transition-transform ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {/* Dropdown */}
+                            <AnimatePresence>
+                              {isCountryDropdownOpen && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                                  transition={{ duration: 0.15 }}
+                                  className="absolute top-full left-0 mt-1 w-[280px] bg-navy-dark border border-putih/20 rounded-xl shadow-2xl shadow-black/60 z-50 overflow-hidden"
+                                >
+                                  {/* Search */}
+                                  <div className="p-2 border-b border-putih/10">
+                                    <div className="relative">
+                                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-putih/30" />
+                                      <input
+                                        type="text"
+                                        value={countrySearch}
+                                        onChange={(e) => setCountrySearch(e.target.value)}
+                                        placeholder="Cari negara..."
+                                        autoFocus
+                                        className="w-full bg-putih/5 border border-putih/10 rounded-lg pl-9 pr-3 py-2 text-xs text-putih placeholder:text-putih/30 focus:outline-none focus:border-gold/40"
+                                      />
+                                    </div>
+                                  </div>
+                                  {/* Country list */}
+                                  <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                                    {filteredCountries.map((country) => (
+                                      <button
+                                        key={country.iso}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedCountry(country);
+                                          setIsCountryDropdownOpen(false);
+                                          setCountrySearch("");
+                                        }}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-putih/10 transition-colors ${
+                                          selectedCountry.iso === country.iso ? 'bg-gold/10 text-gold' : 'text-putih'
+                                        }`}
+                                      >
+                                        <span className="text-base">{country.flag}</span>
+                                        <span className="flex-1 text-left truncate">{country.country}</span>
+                                        <span className="text-putih/50 text-xs font-mono">{country.code}</span>
+                                      </button>
+                                    ))}
+                                    {filteredCountries.length === 0 && (
+                                      <p className="text-putih/40 text-xs text-center py-4">Negara tidak ditemukan</p>
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
+                          {/* Phone number input */}
+                          <input
+                            name="phone_number"
+                            type="tel"
+                            required={!isLogin}
+                            placeholder="812 3456 7890"
+                            pattern="[0-9\s\-]+"
+                            className="flex-1 bg-navy border border-putih/15 rounded-xl px-4 py-3 text-sm text-putih placeholder:text-putih/25 focus:outline-none focus:border-gold/60 focus:ring-1 focus:ring-gold/20 transition-all"
+                          />
+                        </div>
+                        <p className="text-[11px] text-putih/30 ml-1">Masukkan tanpa angka 0 di depan</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Password field */}
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-putih/80 ml-1">Password</label>
@@ -329,4 +522,3 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
     </AnimatePresence>
   );
 }
-

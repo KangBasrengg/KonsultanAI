@@ -36,7 +36,7 @@ setInterval(() => {
   }
 }, RATE_LIMIT_WINDOW_MS * 5)
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // --- Rate Limiting for API routes ---

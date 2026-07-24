@@ -17,11 +17,11 @@ ATURAN PENTING:
 6. WAJIB akhiri dokumen dengan catatan: "Dokumen ini dibuat sebagai draft awal oleh AI LegalKita dan bukan merupakan nasihat hukum resmi. Konsultasikan dengan pengacara berlisensi untuk finalisasi."`;
 
 function getApiKey(): string {
-  let apiKey = (process.env.GEMINI_API_KEY || "").trim();
+  let apiKey = (process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
     try {
       const cfContext = getCloudflareContext();
-      if (cfContext?.env) apiKey = ((cfContext.env as any).GEMINI_API_KEY || "").trim();
+      if (cfContext?.env) apiKey = ((cfContext.env as any).GOOGLE_GEMINI_API_KEY || "").trim();
     } catch {}
   }
   return apiKey;
@@ -98,7 +98,7 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gemini-3.5-flash",
+            model: "gemini-2.0-flash",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: userPrompt },

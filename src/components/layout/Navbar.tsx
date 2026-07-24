@@ -13,7 +13,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, profile, isAdmin, openAuthModal, logout } = useAuth();
+  const { user, profile, isAdmin, isLoading, openAuthModal, logout } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,7 +64,12 @@ export default function Navbar() {
           </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
 
-          {user ? (
+          {isLoading ? (
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <div className="w-10 h-10 bg-putih/10 animate-pulse rounded-full"></div>
+            </div>
+          ) : user ? (
             <div className="flex items-center gap-4 relative" ref={dropdownRef}>
               <ThemeToggle />
               <button
@@ -209,7 +214,11 @@ export default function Navbar() {
             <ThemeToggle />
           </div>
 
-          {user ? (
+          {isLoading ? (
+            <div className="w-full flex justify-center py-4">
+              <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+            </div>
+          ) : user ? (
             <>
               {isAdmin && (
                 <Link href="/admin" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>

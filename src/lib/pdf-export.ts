@@ -34,7 +34,7 @@ function setFillColor(doc: jsPDF, color: RGB) {
 // ── Decorative Elements ───────────────────────────────────────────────
 
 /** Draw the premium header banner with logo */
-function drawHeader(doc: jsPDF) {
+function drawHeader(doc: jsPDF, modelChoice: 'freemodel' | 'gemini') {
   const pageW = doc.internal.pageSize.getWidth();
 
   // Navy gradient background (simulated with layered rects)
@@ -63,7 +63,7 @@ function drawHeader(doc: jsPDF) {
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   setColor(doc, COLORS.goldLight);
-  doc.text("AI Legal Assistant Indonesia", 54, 30);
+  doc.text(`AI Legal Assistant Indonesia (${modelChoice === 'gemini' ? 'Gemini Native' : 'Freemodel'})`, 54, 30);
 
   // Small decorative text - report label on the right
   doc.setFontSize(8);
@@ -691,7 +691,7 @@ function getMessageText(msg: ChatMessage): string {
   return "";
 }
 
-export function exportConsultationPDF(messages: ChatMessage[], isWatermarked = false) {
+export function exportConsultationPDF(messages: ChatMessage[], isWatermarked = false, modelChoice: 'freemodel' | 'gemini' = 'freemodel') {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -708,7 +708,7 @@ export function exportConsultationPDF(messages: ChatMessage[], isWatermarked = f
   });
 
   // ─── Page 1: Header & Content ────────────────────────────────────
-  drawHeader(doc);
+  drawHeader(doc, modelChoice);
   let y = drawMetaInfo(doc, dateStr, 58);
 
   // Section title

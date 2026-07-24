@@ -35,11 +35,11 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    let apiKey = (process.env.GEMINI_API_KEY || "").trim();
+    let apiKey = (process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "").trim();
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
-        if (cfContext?.env) apiKey = ((cfContext.env as any).GEMINI_API_KEY || "").trim();
+        if (cfContext?.env) apiKey = ((cfContext.env as any).GOOGLE_GEMINI_API_KEY || "").trim();
       } catch {}
     }
 
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     }));
 
     const result = await streamText({
-      model: aiProvider.chat("gemini-3.5-flash"),
+      model: aiProvider.chat("gemini-2.0-flash"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

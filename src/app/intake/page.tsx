@@ -464,10 +464,12 @@ export default function IntakeFormPage() {
                       <Link 
                         href={`/konsultasi?caseId=${triageResult.case_id}`}
                         onClick={() => {
-                          // Store kronologi in sessionStorage so konsultasi page can auto-send
+                          // Store kronologi + intake metadata in sessionStorage so konsultasi page can auto-send
                           try {
                             sessionStorage.setItem('intake_kronologi', formData.kronologi);
                             sessionStorage.setItem('intake_case_type', `${formData.case_type} (${formData.sub_category})`);
+                            sessionStorage.setItem('intake_sudah_advokat', formData.sudah_advokat ? 'ya' : 'tidak');
+                            sessionStorage.setItem('intake_sudah_lapor_polisi', formData.sudah_lapor_polisi ? 'ya' : 'tidak');
                           } catch (e) { /* ignore */ }
                         }}
                         className="flex items-center justify-between w-full p-6 rounded-2xl border-2 border-gold bg-gold/10 hover:bg-gold/20 transition-all group"

@@ -90,8 +90,8 @@ export async function POST(req: Request) {
     }
 
     // Initialize AI provider
-    const envVarName = "GEMINI_API_KEY";
-    let apiKey = (process.env[envVarName] || "").trim();
+    const envVarName = "GOOGLE_GEMINI_API_KEY";
+    let apiKey = (process.env[envVarName] || process.env.GEMINI_API_KEY || "").trim();
     
     if (!apiKey) {
       try {
@@ -129,7 +129,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 35000);
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
 
       try {
         response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
@@ -139,7 +139,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
             "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "gemini-3.5-flash",
+            model: "gemini-2.0-flash",
             messages: [
               { role: "system", content: TRIAGE_SYSTEM_PROMPT },
               { role: "user", content: triagePrompt }

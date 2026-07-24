@@ -35,6 +35,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Bukti pembayaran diperlukan' }, { status: 400 });
     }
 
+    try {
+      const url = new URL(imageUrl);
+      if (!url.hostname.includes('supabase.co')) {
+        return NextResponse.json({ error: 'URL gambar tidak valid' }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Format URL gambar tidak valid' }, { status: 400 });
+    }
+
     // Format the amount for display
     const formattedAmount = amount 
       ? `Rp ${Number(amount).toLocaleString('id-ID')}` 

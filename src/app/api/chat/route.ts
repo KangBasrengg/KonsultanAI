@@ -99,6 +99,36 @@ Jawaban Anda **WAJIB** terstruktur rapi menggunakan Markdown, namun tetap terasa
 - Tulis dalam **paragraf pendek** yang ringkas dan padat — hindari paragraf panjang yang melelahkan.
 - Untuk kasus pidana, **WAJIB** sertakan bagian "## Perbandingan KUHP Lama & KUHP Baru" dan "## Prosedur Hukum Acara (KUHAP)".
 - Selalu akhiri dengan bagian "## Langkah Selanjutnya" yang berisi rekomendasi tindakan konkret dengan kalimat penutup yang menyemangati pengguna.
+
+---
+
+## Panduan Khusus: Cara Mendapatkan Advokat
+
+Jika pengguna menyatakan bahwa mereka **belum memiliki advokat/pengacara**, Anda **WAJIB** menyertakan bagian khusus dengan heading "## Cara Mendapatkan Advokat/Pengacara" yang menjelaskan:
+
+1. **Pos Bantuan Hukum (Posbakum)** — Tersedia di setiap Pengadilan Negeri, gratis untuk masyarakat tidak mampu. Cukup datang dengan KTP dan surat keterangan tidak mampu dari RT/RW.
+2. **Lembaga Bantuan Hukum (LBH)** — Organisasi seperti YLBHI, LBH Jakarta, LBH Apik, dll. Memberikan bantuan hukum gratis sesuai UU No. 16 Tahun 2011 tentang Bantuan Hukum.
+3. **Organisasi Advokat** — PERADI (Perhimpunan Advokat Indonesia), KAI, dll. Bisa membantu merujuk advokat sesuai spesialisasi.
+4. **Konsultasi di Kantor Hukum** — Banyak kantor hukum menyediakan konsultasi awal gratis. Cari kantor hukum di kota Anda.
+5. **Advokat Pro Bono** — Setiap advokat WAJIB menjalankan minimal 50 jam kerja pro bono per tahun (Peraturan PERADI).
+6. **Platform Online** — Gunakan fitur LegalKita di KonsultanAI untuk menemukan advokat yang sesuai.
+
+## Panduan Khusus: Cara Melapor ke Polisi
+
+Jika pengguna menyatakan bahwa mereka **belum melapor ke polisi**, Anda **WAJIB** menyertakan bagian khusus dengan heading "## Tata Cara Melapor ke Polisi" yang menjelaskan:
+
+1. **Persiapan Dokumen** — Siapkan KTP/identitas, bukti-bukti (foto, video, chat, dokumen), kronologi tertulis, dan data saksi jika ada.
+2. **Datang ke Kantor Polisi** — Kunjungi Polsek (tingkat kecamatan) atau Polres (tingkat kabupaten/kota) terdekat. Untuk kasus besar, langsung ke Polda atau Bareskrim.
+3. **Melapor di SPKT** — Datangi bagian **Sentra Pelayanan Kepolisian Terpadu (SPKT)**. Sampaikan kronologi kejadian secara jelas.
+4. **Pembuatan Laporan Polisi** — Petugas akan mencatat laporan Anda dan membuat **Surat Tanda Penerimaan Laporan (STPL)**. Simpan STPL ini baik-baik.
+5. **Proses Selanjutnya** — Laporan akan diteruskan ke unit penyidik (Reskrim/Satreskrim) untuk dilakukan penyelidikan, kemudian penyidikan.
+6. **Hak Pelapor** — Anda berhak mendapat salinan laporan, mengetahui perkembangan penyidikan, dan mendapatkan perlindungan sesuai KUHAP.
+7. **Laporan Online** — Beberapa Polda menerima laporan online melalui website resmi kepolisian atau aplikasi POLISIKU.
+8. **Batas Waktu** — Usahakan melapor sesegera mungkin. Beberapa tindak pidana memiliki daluwarsa penuntutan (Pasal 78-82 KUHP).
+
+NOTE: Bagian-bagian di atas hanya disertakan jika pengguna secara eksplisit menyatakan belum punya advokat atau belum melapor polisi.
+
+9. **Pertanyaan Lanjutan** — WAJIB akhiri setiap analisis Anda dengan 1-2 pertanyaan lanjutan (follow-up) kepada pengguna untuk menggali informasi lebih dalam tentang kasus mereka. Yakinkan pengguna bahwa mereka bisa terus berdiskusi jika masih ada yang kurang jelas.
 `;
 
 // Helper: extract plain text from a UIMessage (which uses parts array)
@@ -116,40 +146,40 @@ function extractText(msg: any): string {
 export async function POST(req: Request) {
   try {
     // 1. Parse request body
-    const { messages } = await req.json();
-    console.log("[Chat API] Received messages count:", messages?.length);
+    const { messages, modelType } = await req.json();
+    console.log("[Chat API] Received messages count:", messages?.length, "Model Type:", modelType);
 
-    // 2. Initialize AI provider INSIDE the handler
-    // Bypass Next.js static evaluation and directly check Cloudflare Context
-    const envVarName = "GEMINI_API_KEY";
-    let apiKey = (process.env[envVarName] || "").trim();
+    // 2. Initialize AI provider based on modelType
+    const isNativeGemini = true; // Forced to always use Gemini Native
+    const envVarName = isNativeGemini ? "GOOGLE_GEMINI_API_KEY" : "GEMINI_API_KEY";
+    let apiKey = (process.env[envVarName] || process.env["GEMINI_API_KEY"] || "").trim();
     
     if (!apiKey) {
       try {
         const cfContext = getCloudflareContext();
         if (cfContext && cfContext.env) {
-          apiKey = ((cfContext.env as any)[envVarName] || "").trim();
+          apiKey = ((cfContext.env as any)[envVarName] || (cfContext.env as any)["GEMINI_API_KEY"] || "").trim();
         }
       } catch (e) {
         console.warn("[Chat API] getCloudflareContext failed", e);
       }
     }
-    console.log("[Chat API] API key available:", !!apiKey);
+    console.log(`[Chat API] API key available for ${isNativeGemini ? 'Gemini' : 'Freemodel'}:`, !!apiKey);
     
     const aiProvider = createOpenAI({
-      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+      baseURL: isNativeGemini ? "https://generativelanguage.googleapis.com/v1beta/openai" : "https://api.freemodel.dev/v1",
       apiKey: apiKey,
       // @ts-ignore: bypass type error for compatibility flag
       compatibility: "compatible",
       fetch: async (url, options) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 detik timeout untuk streaming
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 menit timeout untuk streaming panjang
         
         try {
           return await fetch(url, { ...options, signal: controller.signal });
         } catch (err: any) {
           if (err.name === 'AbortError') {
-            throw new Error("Koneksi ke AI (Freemodel) terputus karena terlalu lama (timeout).");
+            throw new Error(`Koneksi ke AI (${isNativeGemini ? 'Gemini' : 'Freemodel'}) terputus karena terlalu lama (timeout).`);
           }
           throw err;
         } finally {
@@ -158,10 +188,14 @@ export async function POST(req: Request) {
       }
     });
 
-    // 3. Check authentication & enforce limits
-    let userId: string | null = null;
+    // 3. Extract last user message text
+    const lastUserMsg = messages[messages.length - 1];
+    const lastUserMessage = extractText(lastUserMsg);
+
+    // 4. Rate Limiting & Auth Check (Supabase)
     let isPremium = false;
     let isAdmin = false;
+    let userId: string | null = null;
     let placeholderId: string | null = null; // For race-condition-safe limit enforcement
     
     try {
@@ -191,35 +225,39 @@ export async function POST(req: Request) {
             .eq("user_id", user.id)
             .gte("created_at", threeDaysAgo.toISOString());
           
-          if (count !== null && count >= FREE_LIMIT) {
+          // Check if this is a "continue" request (not a new question)
+          const isContinueRequest = lastUserMessage && (
+            lastUserMessage.includes("Lanjutkan jawaban Anda yang sebelumnya terpotong") ||
+            lastUserMessage.includes("lanjutkan dari bagian terakhir")
+          );
+
+          if (count !== null && count >= FREE_LIMIT && !isContinueRequest) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
               message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Limit akan di-reset setiap 3 hari sekali. Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
 
-          // Claim a slot BEFORE calling AI to prevent race condition
-          // (concurrent requests can't both pass the count check)
-          const { data: placeholder, error: insertErr } = await supabase
-            .from("consultations")
-            .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: "" })
-            .select("id")
-            .single();
+          // Don't claim a slot for continue requests (they're free)
+          if (!isContinueRequest) {
+            // Claim a slot BEFORE calling AI to prevent race condition
+            const { data: placeholder, error: insertErr } = await supabase
+              .from("consultations")
+              .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: "" })
+              .select("id")
+              .single();
 
-          if (insertErr) {
-            console.error("[Chat API] Failed to claim slot:", insertErr);
-          } else {
-            placeholderId = placeholder?.id || null;
+            if (insertErr) {
+              console.error("[Chat API] Failed to claim slot:", insertErr);
+            } else {
+              placeholderId = placeholder?.id || null;
+            }
           }
         }
       }
     } catch (authError) {
       console.error("[Chat API] Auth check failed:", authError);
     }
-
-    // 4. Extract last user message text (for DB save)
-    const lastUserMsg = messages[messages.length - 1];
-    const lastUserMessage = extractText(lastUserMsg);
 
     if (!apiKey) {
       return new Response(JSON.stringify({ 
@@ -243,7 +281,7 @@ export async function POST(req: Request) {
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
-      model: aiProvider.chat("gemini-3.5-flash"),
+      model: aiProvider.chat(isNativeGemini ? "gemini-2.0-flash" : "gpt-5.6-luna"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

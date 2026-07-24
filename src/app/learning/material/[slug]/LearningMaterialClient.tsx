@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useState } from "react";
+import DOMPurify from 'isomorphic-dompurify';
 
 type QuizData = {
   id: string;
@@ -137,7 +138,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
                 <div
                   className="prose prose-invert prose-lg max-w-none text-putih/80 leading-relaxed relative z-10"
                   dangerouslySetInnerHTML={{
-                    __html: material.content
+                    __html: DOMPurify.sanitize(material.content
                       // Handle blockquotes starting with >
                       .replace(/(> .*(\n> .*)*)/g, (match) => {
                         return `<div class="border-l-4 border-gold pl-6 py-5 my-8 bg-putih/5 rounded-r-2xl text-putih/90 italic shadow-inner">${match.replace(/> /g, '').replace(/\n/g, '<br/>')}</div>`;
@@ -150,6 +151,7 @@ export default function LearningMaterialClient({ material, quizzes, hasAccess, i
                       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-putih font-semibold">$1</strong>')
                       // Handle remaining newlines
                       .replace(/\n/g, '<br/>')
+                    )
                   }}
                 />
               </div>

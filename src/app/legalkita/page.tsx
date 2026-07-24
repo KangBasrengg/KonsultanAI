@@ -15,20 +15,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 
 const FEATURES = [
   {
-    id: "generator",
-    href: "/legalkita/generator",
-    icon: <FileText className="w-8 h-8" />,
-    title: "Generator Kontrak",
-    subtitle: "Buat kontrak dalam 2 menit",
-    desc: "Kontrak kerja, sewa, jual-beli, kemitraan — semua dokumen legal UMKM Anda dibuat otomatis oleh AI sesuai hukum Indonesia.",
-    tags: ["Kontrak Kerja", "Sewa Menyewa", "Jual-Beli", "Kemitraan"],
-    cardBg: "bg-[#1a1207]",
-    borderColor: "border-amber-700/50 hover:border-amber-500",
-    iconBg: "bg-amber-600/30 text-amber-400",
-    subtitleColor: "text-amber-400",
-    tagBg: "bg-amber-900/60 text-amber-300 border-amber-600/40",
-  },
-  {
     id: "chat",
     href: "/legalkita/chat",
     icon: <MessageSquare className="w-8 h-8" />,
@@ -118,10 +104,10 @@ export default function LegalKitaPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                href="/legalkita/generator"
+                href="/legalkita/chat"
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-amber-500 to-gold text-navy font-bold text-lg hover:from-amber-400 hover:to-gold-light transition-all transform hover:scale-105 flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(245,158,11,0.3)]"
               >
-                Buat Kontrak Sekarang
+                Chat Ahli Hukum UMKM
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link

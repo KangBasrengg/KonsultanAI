@@ -47,3 +47,6 @@ next-env.d.ts
 # deploy artifacts
 deploy.zip
 deploy.tar.gz
+Bin/
+deploy.tar.gz
+~$*
