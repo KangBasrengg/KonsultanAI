@@ -281,7 +281,7 @@ export async function POST(req: Request) {
 
     // 6. Call AI via OpenAI-compatible endpoint
     const result = await streamText({
-      model: aiProvider.chat(isNativeGemini ? "gemini-3.5-flash-lite" : "gpt-5.6-luna"),
+      model: aiProvider.chat(isNativeGemini ? "gemini-3.5-flash" : "gpt-5.6-luna"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

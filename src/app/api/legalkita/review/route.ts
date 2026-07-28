@@ -97,7 +97,7 @@ export async function POST(req: Request) {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gemini-3.5-flash-lite",
+            model: "gemini-3.5-flash",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: userPrompt },
