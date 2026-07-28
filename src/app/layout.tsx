@@ -67,19 +67,16 @@ export default function RootLayout({
       className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://hdvuzjabpfqabcxhbbci.supabase.co" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://hdvuzjabpfqabcxhbbci.supabase.co" />
+      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col font-sans">
         <ThemeProvider>
           <AuthProvider>
             {children}
           </AuthProvider>
         </ThemeProvider>
-        <Script
-          src={process.env.MIDTRANS_IS_PRODUCTION === 'true'
-            ? "https://app.midtrans.com/snap/snap.js"
-            : "https://app.sandbox.midtrans.com/snap/snap.js"}
-          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-          strategy="lazyOnload"
-        />
         {/* Structured Data for Google Search (Knowledge Graph / About this result) */}
         <script
           type="application/ld+json"

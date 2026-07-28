@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import LoadingScreen from "@/components/auth/LoadingScreen";
+import Script from "next/script";
 
 interface Chat {
   id: string;
@@ -612,9 +613,18 @@ function ChatContent() {
 
 export default function UserChatPage() {
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <ChatContent />
-    </Suspense>
+    <>
+      <Script
+        src={process.env.MIDTRANS_IS_PRODUCTION === 'true'
+          ? "https://app.midtrans.com/snap/snap.js"
+          : "https://app.sandbox.midtrans.com/snap/snap.js"}
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="lazyOnload"
+      />
+      <Suspense fallback={<LoadingScreen />}>
+        <ChatContent />
+      </Suspense>
+    </>
   );
 }
 
