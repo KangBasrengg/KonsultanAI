@@ -2,6 +2,11 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (e) {}
 
 // System Prompt — Universal Indonesian Legal AI Assistant
 const SYSTEM_PROMPT = `

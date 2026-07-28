@@ -3,6 +3,11 @@ import { generateText } from "ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { IntakeFormData, TriageResult, TriageRecommendation } from "@/types/cases";
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (e) {}
 
 const TRIAGE_SYSTEM_PROMPT = `Anda adalah AI Legal Case Classifier yang ahli dalam hukum Indonesia. 
 Tugas Anda: menganalisis kasus hukum berdasarkan intake form dan memberikan triage yang akurat.

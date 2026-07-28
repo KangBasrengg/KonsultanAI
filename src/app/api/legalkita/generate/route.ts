@@ -1,5 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (e) {}
 
 const SYSTEM_PROMPT = `Anda adalah AI Legal Document Generator khusus untuk UMKM Indonesia.
 Tugas Anda: menghasilkan draft dokumen hukum yang lengkap, profesional, dan sesuai hukum Indonesia.
