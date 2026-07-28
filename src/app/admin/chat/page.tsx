@@ -56,15 +56,38 @@ export default function AdminChatPage() {
     if (!isAdmin) return;
 
     const fetchChats = async () => {
-      const { data } = await supabase
+      const { data: chatsData, error: chatsError } = await supabase
         .from("chats")
-        .select(`
-          id, user_id, plan, status, updated_at,
-          user:users(email, full_name)
-        `)
+        .select("id, user_id, plan, status, updated_at")
         .order("updated_at", { ascending: false });
 
-      if (data) setChats(data as any);
+      if (chatsError || !chatsData) {
+        console.error("Failed to load admin chats:", chatsError);
+        setChats([]);
+        return;
+      }
+
+      if (chatsData.length > 0) {
+        const userIds = [...new Set(chatsData.map((c: any) => c.user_id).filter(Boolean))];
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("id, email, full_name")
+          .in("id", userIds);
+
+        const userMap = new Map();
+        if (usersData) {
+          usersData.forEach((u: any) => userMap.set(u.id, u));
+        }
+
+        const mergedChats = chatsData.map((c: any) => ({
+          ...c,
+          user: userMap.get(c.user_id) || { email: "Unknown", full_name: "Unknown User" }
+        }));
+
+        setChats(mergedChats as any);
+      } else {
+        setChats([]);
+      }
     };
 
     fetchChats();
