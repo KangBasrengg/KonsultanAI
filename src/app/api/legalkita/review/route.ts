@@ -109,7 +109,8 @@ export async function POST(req: Request) {
         clearTimeout(timeoutId);
         if (attempt === 2) {
           if (e.name === "AbortError") throw new Error("Koneksi AI timeout.");
-          throw new Error("Gagal terhubung ke server AI (gangguan koneksi/jaringan). Silakan coba lagi.");
+          const reason = e?.cause?.code || e?.cause?.message || e?.message || "Network Error";
+          throw new Error(`Gagal terhubung ke server AI (Alasan teknis server hosting: ${reason}). Mohon info ke CS Jagoan Hosting agar dibukakan koneksi Outbound/DNS ke Google.`);
         }
         await new Promise(r => setTimeout(r, 2000));
         continue;
