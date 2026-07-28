@@ -139,7 +139,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
             "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "gemini-3.5-flash",
+            model: "gemini-3.1-flash-lite",
             messages: [
               { role: "system", content: TRIAGE_SYSTEM_PROMPT },
               { role: "user", content: triagePrompt }
