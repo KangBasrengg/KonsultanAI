@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     }));
 
     const result = await streamText({
-      model: aiProvider.chat("gemini-2.0-flash"),
+      model: aiProvider.chat("gemini-3.5-flash-lite"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
       onFinish: async ({ text, finishReason }) => {

@@ -98,7 +98,7 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gemini-2.0-flash",
+            model: "gemini-3.5-flash-lite",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: userPrompt },
