@@ -61,7 +61,8 @@ export async function POST(req: Request) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000);
         try {
-          return await fetch(url, { ...options, signal: controller.signal });
+          const headers = { ...options?.headers, "Connection": "close" };
+          return await fetch(url, { ...options, headers, signal: controller.signal });
         } catch (err: any) {
           if (err.name === "AbortError") throw new Error("Koneksi AI timeout.");
           throw err;

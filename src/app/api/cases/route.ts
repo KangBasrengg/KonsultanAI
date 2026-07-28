@@ -141,7 +141,8 @@ Berikan triage dalam format JSON sesuai instruksi.`;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
+            "Authorization": `Bearer ${apiKey}`,
+            "Connection": "close"
           },
           body: JSON.stringify({
             model: "gemini-3.1-flash-lite",

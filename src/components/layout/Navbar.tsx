@@ -63,7 +63,7 @@ export default function Navbar() {
           </Link>
           <Link href="/#harga" className="text-putih/80 hover:text-gold transition-colors">Harga</Link>
 
-          {isLoading ? (
+          {isLoading && !user ? (
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-putih/10 animate-pulse rounded-full"></div>
             </div>
@@ -74,9 +74,13 @@ export default function Navbar() {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-navy-light/50 hover:bg-putih/10 border border-putih/20 rounded-full pl-1.5 pr-3 py-1.5 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-sm">
-                  {profile?.fullName ? profile.fullName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
-                </div>
+                {profile?.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-gold/40" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-sm">
+                    {profile?.fullName ? profile.fullName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex flex-col items-start hidden lg:flex">
                   <span className="text-sm font-semibold text-putih leading-tight max-w-[100px] truncate">
                     {profile?.fullName || user.email?.split("@")[0]}
@@ -206,7 +210,7 @@ export default function Navbar() {
           <Link href="/#harga" className="text-putih/80 hover:text-gold" onClick={() => setIsMobileMenuOpen(false)}>Harga</Link>
 
 
-          {isLoading ? (
+          {isLoading && !user ? (
             <div className="w-full flex justify-center py-4">
               <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
             </div>

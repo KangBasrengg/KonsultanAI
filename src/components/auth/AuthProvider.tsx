@@ -9,6 +9,7 @@ export interface UserProfile {
   id: string;
   email: string;
   fullName: string | null;
+  avatarUrl: string | null;
   isPremium: boolean;
   role: "user" | "admin" | "advokat" | "government" | "enterprise";
   tier: string;
@@ -48,8 +49,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-
-
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -64,11 +63,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const currentUserIdRef = useRef<string | null>(null);
 
   // fetchProfile uses a ref-based approach to avoid dependency on `user` object.
-  // The fallback email/createdAt are passed as params instead.
   const fetchProfile = useCallback(async (
     userId: string,
     fallbackEmail?: string,
-    fallbackCreatedAt?: string
+    fallbackCreatedAt?: string,
+    fallbackMetadata?: any
   ) => {
     try {
       const { data: profileData, error: profileError } = await supabase
@@ -93,7 +92,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       setProfile({
         id: userId,
         email: profileData?.email || fallbackEmail || "",
-        fullName: profileData?.full_name || null,
+        fullName: profileData?.full_name || fallbackMetadata?.full_name || fallbackMetadata?.name || null,
+        avatarUrl: fallbackMetadata?.avatar_url || fallbackMetadata?.picture || null,
         isPremium: profileData?.role === "admin" ? true : (profileData?.is_premium || false),
         role: profileData?.role || "user",
         tier: profileData?.role === "admin" ? "admin" : (profileData?.tier || "free"),
@@ -105,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     } catch (e) {
       console.error("[AuthProvider] Failed to fetch profile data:", e);
     }
-  }, [supabase]); // Only depends on stable supabase ref — never changes
+  }, [supabase]);es
 
   // Verify session on mount and on tab refocus
   useEffect(() => {
@@ -135,7 +135,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             if (currentUserIdRef.current !== authUser.id) {
               currentUserIdRef.current = authUser.id;
               setUser(authUser);
-              await fetchProfile(authUser.id, authUser.email, authUser.created_at);
+              await fetchProfile(authUser.id, authUser.email, authUser.created_at, authUser.user_metadata);
             }
           }
         }
@@ -162,14 +162,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         if (event === "SIGNED_IN" && session?.user) {
           currentUserIdRef.current = session.user.id;
           setUser(session.user);
-          await fetchProfile(session.user.id, session.user.email, session.user.created_at);
+          await fetchProfile(session.user.id, session.user.email, session.user.created_at, session.user.user_metadata);
+          setIsLoading(false);
         } else if (event === "SIGNED_OUT") {
           currentUserIdRef.current = null;
           setUser(null);
           setProfile(null);
+          setIsLoading(false);
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          // Token refreshed — update user object but don't re-fetch profile
           setUser(session.user);
+          setIsLoading(false);
         }
       }
     );
@@ -198,10 +200,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   }, [supabase]);
 
   const refreshProfile = useCallback(async () => {
-    if (currentUserIdRef.current) {
-      await fetchProfile(currentUserIdRef.current);
+    if (currentUserIdRef.current && user) {
+      await fetchProfile(currentUserIdRef.current, user.email, user.created_at, user.user_metadata);
     }
-  }, [fetchProfile]);
+  }, [fetchProfile, user]);
 
   const isAdmin = profile?.role === "admin";
 

@@ -181,7 +181,8 @@ export async function POST(req: Request) {
         const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 menit timeout untuk streaming panjang
         
         try {
-          return await fetch(url, { ...options, signal: controller.signal });
+          const headers = { ...options?.headers, "Connection": "close" };
+          return await fetch(url, { ...options, headers, signal: controller.signal });
         } catch (err: any) {
           if (err.name === 'AbortError') {
             throw new Error(`Koneksi ke AI (${isNativeGemini ? 'Gemini' : 'Freemodel'}) terputus karena terlalu lama (timeout).`);

@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       try {
         response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}`, "Connection": "close" },
           body: JSON.stringify({
             model: "gemini-3.1-flash-lite",
             messages: [
