@@ -12,12 +12,16 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://konsultan-ai.com"),
   title: "KonsultanAI - Asisten Hukum AI Pertama di Indonesia",
   description: "Dapatkan analisis kasus, rekomendasi pasal, dan template dokumen hukum secara instan dan cerdas dengan KonsultanAI. Solusi legal yang cepat, tepat, dan terjangkau untuk seluruh masyarakat Indonesia.",
   keywords: ["Konsultan AI", "KonsultanAI", "AI Legal Assistant", "Konsultasi Hukum AI", "Hukum Indonesia", "Pengacara AI", "Konsultan Hukum Cerdas", "Bantuan Hukum Online"],
   authors: [{ name: "KonsultanAI Team" }],
   creator: "KonsultanAI",
   publisher: "KonsultanAI",
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     title: "KonsultanAI - Asisten Hukum AI Pertama di Indonesia",
     description: "Dapatkan analisis kasus, rekomendasi pasal, dan template dokumen hukum secara instan dan cerdas dengan KonsultanAI.",

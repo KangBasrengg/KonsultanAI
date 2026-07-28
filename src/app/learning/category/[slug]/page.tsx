@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import LearningCategoryClient from "./LearningCategoryClient";
@@ -14,9 +15,43 @@ type Props = {
   params: Promise<{ slug: string }>
 };
 
-export default async function CategoryPage({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
+  try {
+    const { data: allCategories } = await supabase.from("legal_categories").select("name, description");
+    if (!allCategories) return {};
+
+    const category = allCategories.find(cat => {
+      const catSlug = cat.name
+        .toLowerCase()
+        .replace(/&/g, 'dan')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      return catSlug === slug;
+    });
+
+    if (!category) return {};
+
+    return {
+      title: `Kategori ${category.name} | KonsultanAI Learning`,
+      description: category.description || `Pelajari materi hukum kategori ${category.name} bersama KonsultanAI.`,
+      alternates: {
+        canonical: `/learning/category/${slug}`,
+      },
+      openGraph: {
+        title: `${category.name} - KonsultanAI Learning Center`,
+        description: category.description || `Pelajari materi hukum kategori ${category.name}`,
+        url: `https://konsultan-ai.com/learning/category/${slug}`,
+      }
+    };
+  } catch {
+    return {};
+  }
+}
+
+export default async function CategoryPage({ params }: Props) {
+  const { slug } = await params;
   // Fetch all Categories to match the slug
   const { data: allCategories, error: catListError } = await supabase
     .from("legal_categories")

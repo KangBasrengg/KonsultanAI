@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
@@ -14,6 +15,44 @@ const supabaseAdmin = createAdminClient(
 type Props = {
   params: Promise<{ slug: string }>
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
+
+  try {
+    const { data: allMaterials } = await supabaseAdmin.from("legal_materials").select("title, content");
+    if (!allMaterials) return {};
+
+    const matchedMat = allMaterials.find(m => {
+      const matSlug = m.title
+        .toLowerCase()
+        .replace(/&/g, 'dan')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      return matSlug === decodedSlug;
+    });
+
+    if (!matchedMat) return {};
+
+    const shortDesc = matchedMat.content ? matchedMat.content.substring(0, 160).replace(/[#*`]/g, '') : "Materi pembelajaran hukum KonsultanAI";
+
+    return {
+      title: `${matchedMat.title} | KonsultanAI Learning`,
+      description: shortDesc,
+      alternates: {
+        canonical: `/learning/material/${decodedSlug}`,
+      },
+      openGraph: {
+        title: `${matchedMat.title} - KonsultanAI`,
+        description: shortDesc,
+        url: `https://konsultan-ai.com/learning/material/${decodedSlug}`,
+      }
+    };
+  } catch {
+    return {};
+  }
+}
 
 export default async function MaterialPage({ params }: Props) {
   const { slug } = await params;
