@@ -105,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     } catch (e) {
       console.error("[AuthProvider] Failed to fetch profile data:", e);
     }
-  }, [supabase]);es
+  }, [supabase]);
 
   // Verify session on mount and on tab refocus
   useEffect(() => {
