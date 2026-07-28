@@ -107,12 +107,16 @@ export async function POST(req: Request) {
         });
       } catch (e: any) {
         clearTimeout(timeoutId);
-        if (e.name === "AbortError") throw new Error("Koneksi AI timeout.");
-        throw e;
+        if (attempt === 2) {
+          if (e.name === "AbortError") throw new Error("Koneksi AI timeout.");
+          throw new Error("Gagal terhubung ke server AI (gangguan koneksi/jaringan). Silakan coba lagi.");
+        }
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
       } finally {
         clearTimeout(timeoutId);
       }
-      if (response.ok || ![502, 503, 429].includes(response.status)) break;
+      if (response && (response.ok || ![502, 503, 429].includes(response.status))) break;
       if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
     }
 
@@ -134,7 +138,11 @@ export async function POST(req: Request) {
 
     return Response.json({ review });
   } catch (error: any) {
-    console.error("[LegalKita Review]", error?.message);
-    return Response.json({ error: error?.message || "Terjadi kesalahan." }, { status: 500 });
+    let msg = error?.message || "Terjadi kesalahan.";
+    if (msg === "fetch failed" || msg.includes("ECONNRESET") || msg.includes("ENOTFOUND")) {
+      msg = "Gagal terhubung ke server AI (gangguan koneksi/jaringan). Silakan coba kembali dalam beberapa saat.";
+    }
+    console.error("[LegalKita Review]", msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }

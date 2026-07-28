@@ -110,13 +110,14 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
         clearTimeout(timeoutId);
         if (attempt === 2) {
           if (e.name === "AbortError") throw new Error("Koneksi ke AI timeout.");
-          throw e;
+          throw new Error("Gagal terhubung ke server AI (gangguan koneksi/jaringan). Silakan coba lagi.");
         }
+        await new Promise(r => setTimeout(r, 2000));
         continue;
       } finally {
         clearTimeout(timeoutId);
       }
-      if (response.ok || ![502, 503, 429].includes(response.status)) break;
+      if (response && (response.ok || ![502, 503, 429].includes(response.status))) break;
       if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
     }
 
@@ -147,7 +148,11 @@ Buatkan dokumen lengkap dengan semua pasal standar yang diperlukan.`;
 
     return Response.json({ contract });
   } catch (error: any) {
-    console.error("[LegalKita Generate]", error?.message);
-    return Response.json({ error: error?.message || "Terjadi kesalahan." }, { status: 500 });
+    let msg = error?.message || "Terjadi kesalahan.";
+    if (msg === "fetch failed" || msg.includes("ECONNRESET") || msg.includes("ENOTFOUND")) {
+      msg = "Gagal terhubung ke server AI (gangguan koneksi/jaringan). Silakan coba kembali dalam beberapa saat.";
+    }
+    console.error("[LegalKita Generate]", msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }

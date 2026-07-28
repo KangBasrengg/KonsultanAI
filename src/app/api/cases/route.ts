@@ -149,16 +149,22 @@ Berikan triage dalam format JSON sesuai instruksi.`;
         });
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
-        if (fetchError.name === 'AbortError') {
-          throw new Error("Koneksi ke AI terputus karena terlalu lama (timeout). Silakan coba lagi.");
+        if (attempt === MAX_RETRIES) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error("Koneksi ke AI terputus karena terlalu lama (timeout). Silakan coba lagi.");
+          }
+          console.error("[Cases API] Final fetch error:", fetchError?.message || fetchError);
+          throw new Error("Gagal terhubung ke server Google AI (masalah koneksi atau jaringan). Silakan coba kembali dalam beberapa saat.");
         }
-        throw fetchError;
+        console.warn(`[Cases API] Fetch error attempt ${attempt + 1}/${MAX_RETRIES + 1}, retrying...`, fetchError?.message);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+        continue;
       } finally {
         clearTimeout(timeoutId);
       }
 
       // If success or non-retryable error, break
-      if (response.ok || ![502, 503, 429].includes(response.status)) {
+      if (response && (response.ok || ![502, 503, 429].includes(response.status))) {
         break;
       }
 
@@ -275,9 +281,11 @@ Berikan triage dalam format JSON sesuai instruksi.`;
 
     return Response.json(triageResult);
   } catch (error: any) {
-    console.error("[Cases API] Error:", error?.message || error);
-    return Response.json({
-      error: error?.message || "Terjadi kesalahan saat memproses kasus Anda.",
-    }, { status: 500 });
+    let msg = error?.message || "Terjadi kesalahan saat memproses kasus Anda.";
+    if (msg === "fetch failed" || msg.includes("ECONNRESET") || msg.includes("ENOTFOUND")) {
+      msg = "Gagal terhubung ke server AI (gangguan koneksi atau jaringan). Silakan coba lagi dalam beberapa saat.";
+    }
+    console.error("[Cases API] Error:", msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }
