@@ -47,6 +47,9 @@ next-env.d.ts
 # deploy artifacts
 deploy.zip
 deploy.tar.gz
+deploy-temp/
+deploy/.next/
+deploy/app/node_modules/
+deploy/app/.env*
 Bin/
-deploy.tar.gz
 ~$*

@@ -1,6 +1,0 @@
-User-Agent: *
-Allow: /
-Disallow: /konsultasi/
-Disallow: /api/
-
-Sitemap: https://konsultan-ai.com/sitemap.xml
