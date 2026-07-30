@@ -10,7 +10,7 @@ import {
   CASE_TYPE_OPTIONS, 
   CASE_SUB_CATEGORIES, 
   URGENCY_OPTIONS, 
-  WILAYAH_OPTIONS,
+  PROVINSI_KOTA_DATA,
   type IntakeFormData,
   type CaseType,
   type TriageResult
@@ -33,6 +33,8 @@ export default function IntakeFormPage() {
     case_type: "perdata",
     sub_category: "",
     wilayah: "",
+    provinsi: "",
+    kabupaten_kota: "",
     urgency_level: "normal",
     kronologi: "",
     jumlah_nilai: undefined,
@@ -50,8 +52,8 @@ export default function IntakeFormPage() {
   const handleNextStep = () => {
     setError("");
     if (step === 1) {
-      if (!formData.case_type || !formData.sub_category || !formData.wilayah) {
-        setError("Mohon lengkapi jenis kasus, sub kategori, dan wilayah Anda.");
+      if (!formData.case_type || !formData.sub_category || !formData.provinsi || !formData.kabupaten_kota) {
+        setError("Mohon lengkapi jenis kasus, sub kategori, serta provinsi dan kota Anda.");
         return;
       }
     } else if (step === 2) {
@@ -223,16 +225,36 @@ export default function IntakeFormPage() {
 
                   <div className="space-y-4">
                     <label className="block text-sm font-medium text-navy/80 dark:text-putih/80">Wilayah / Lokasi</label>
-                    <select
-                      value={formData.wilayah}
-                      onChange={(e) => handleInputChange("wilayah", e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-navy border border-slate-200 dark:border-putih/20 rounded-xl px-4 py-3.5 text-navy dark:text-putih focus:outline-none focus:border-gold transition-colors"
-                    >
-                      <option value="" disabled>Pilih lokasi terdekat Anda...</option>
-                      {WILAYAH_OPTIONS.map(wil => (
-                        <option key={wil} value={wil}>{wil}</option>
-                      ))}
-                    </select>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <select
+                        value={formData.provinsi || ""}
+                        onChange={(e) => {
+                          handleInputChange("provinsi", e.target.value);
+                          handleInputChange("kabupaten_kota", ""); // reset kota when provinsi changes
+                        }}
+                        className="w-full bg-slate-50 dark:bg-navy border border-slate-200 dark:border-putih/20 rounded-xl px-4 py-3.5 text-navy dark:text-putih focus:outline-none focus:border-gold transition-colors"
+                      >
+                        <option value="" disabled>Pilih Provinsi...</option>
+                        {Object.keys(PROVINSI_KOTA_DATA).map(prov => (
+                          <option key={prov} value={prov}>{prov}</option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={formData.kabupaten_kota || ""}
+                        onChange={(e) => {
+                          handleInputChange("kabupaten_kota", e.target.value);
+                          handleInputChange("wilayah", `${formData.provinsi} - ${e.target.value}`);
+                        }}
+                        disabled={!formData.provinsi}
+                        className="w-full bg-slate-50 dark:bg-navy border border-slate-200 dark:border-putih/20 rounded-xl px-4 py-3.5 text-navy dark:text-putih focus:outline-none focus:border-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="" disabled>Pilih Kabupaten/Kota...</option>
+                        {formData.provinsi && PROVINSI_KOTA_DATA[formData.provinsi]?.map(kota => (
+                          <option key={kota} value={kota}>{kota}</option>
+                        ))}
+                      </select>
+                    </div>
                     <p className="text-xs text-navy/50 dark:text-putih/40">
                       * Lokasi membantu kami mencarikan peraturan daerah dan advokat terdekat yang relevan.
                     </p>

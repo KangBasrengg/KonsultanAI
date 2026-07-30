@@ -113,6 +113,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     async function verifySession() {
       setIsVerifying(true);
+      
+      // Fallback timeout to prevent infinite loading screen if Supabase hangs
+      const fallbackTimeout = setTimeout(() => {
+        if (mounted) {
+          console.warn("[AuthProvider] Session verification timeout reached");
+          setIsVerifying(false);
+          setIsLoading(false);
+        }
+      }, 5000);
+
       try {
         // getUser() performs a server-side verification (not just local token check)
         const { data: { user: authUser }, error } = await supabase.auth.getUser();
@@ -147,6 +157,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           setProfile(null);
         }
       } finally {
+        clearTimeout(fallbackTimeout);
         if (mounted) {
           setIsVerifying(false);
           setIsLoading(false);
@@ -164,14 +175,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           setUser(session.user);
           await fetchProfile(session.user.id, session.user.email, session.user.created_at, session.user.user_metadata);
           setIsLoading(false);
+          setIsVerifying(false);
         } else if (event === "SIGNED_OUT") {
           currentUserIdRef.current = null;
           setUser(null);
           setProfile(null);
           setIsLoading(false);
+          setIsVerifying(false);
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
           setUser(session.user);
           setIsLoading(false);
+          setIsVerifying(false);
         }
       }
     );
