@@ -198,6 +198,10 @@ export async function POST(req: Request) {
     const lastUserMsg = messages[messages.length - 1];
     const lastUserMessage = extractText(lastUserMsg);
 
+    // Check if this is a follow-up question (user has sent more than 1 prompt in this session)
+    const userMessageCount = messages.filter((m: any) => m.role === "user").length;
+    const isFollowUp = userMessageCount > 1;
+
     // 4. Rate Limiting & Auth Check (Supabase)
     let isPremium = false;
     let isAdmin = false;
@@ -231,21 +235,15 @@ export async function POST(req: Request) {
             .eq("user_id", user.id)
             .gte("created_at", threeDaysAgo.toISOString());
           
-          // Check if this is a "continue" request (not a new question)
-          const isContinueRequest = lastUserMessage && (
-            lastUserMessage.includes("Lanjutkan jawaban Anda yang sebelumnya terpotong") ||
-            lastUserMessage.includes("lanjutkan dari bagian terakhir")
-          );
-
-          if (count !== null && count >= FREE_LIMIT && !isContinueRequest) {
+          if (count !== null && count >= FREE_LIMIT && !isFollowUp) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
               message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Limit akan di-reset setiap 3 hari sekali. Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
           }
 
-          // Don't claim a slot for continue requests (they're free)
-          if (!isContinueRequest) {
+          // Don't claim a slot for follow-up requests (they don't create a new history row)
+          if (!isFollowUp) {
             // Claim a slot BEFORE calling AI to prevent race condition
             const { data: placeholder, error: insertErr } = await supabase
               .from("consultations")
@@ -300,8 +298,8 @@ export async function POST(req: Request) {
               await supabase.from("consultations")
                 .update({ chronology: lastUserMessage, ai_analysis: text })
                 .eq("id", placeholderId);
-            } else {
-              // Premium/admin users: just insert normally
+            } else if (!isFollowUp) {
+              // Premium/admin users: just insert normally for NEW questions
               const { error } = await supabase.from("consultations").insert({
                 user_id: userId,
                 chronology: lastUserMessage,
