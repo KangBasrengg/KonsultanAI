@@ -69,6 +69,9 @@ export default function KonsultasiPage() {
     messages: initialMessages,
     onError: (err) => {
       console.error("[Konsultasi] useChat error:", err.message);
+    },
+    onFinish: () => {
+      refreshProfile();
     }
   });
 
@@ -85,7 +88,7 @@ export default function KonsultasiPage() {
   const [showHomeConfirm, setShowHomeConfirm] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "streaming" || status === "submitted";
-  const { isVerifying, user, profile } = useAuth();
+  const { isVerifying, user, profile, refreshProfile } = useAuth();
   const router = useRouter();
 
   const isPremium = profile?.isPremium || profile?.role === "admin";

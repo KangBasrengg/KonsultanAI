@@ -56,7 +56,7 @@ export default function UserDropdown() {
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-72 bg-navy-dark border border-putih/20 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Profile Header */}
-          <div className="p-4 border-b border-putih/20 bg-navy-light/30">
+          <Link href="/pengaturan" onClick={() => setIsOpen(false)} className="block p-4 border-b border-putih/20 bg-navy-light/30 hover:bg-putih/5 transition-colors">
             <div className="flex items-center gap-3">
               <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm ${
                 isAdmin ? "bg-gold/20 text-gold" : "bg-gold/20 text-gold"
@@ -73,7 +73,7 @@ export default function UserDropdown() {
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Status Cards */}
           <div className="p-3 space-y-2">
