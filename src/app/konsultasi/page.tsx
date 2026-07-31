@@ -342,7 +342,7 @@ export default function KonsultasiPage() {
                   {msg.role === "assistant" ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
                 </div>
                 
-                <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed ${
+                <div className={`group/msg max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user" 
                     ? "bg-navy-light border border-putih/20 rounded-tr-none text-putih whitespace-pre-wrap" 
                     : "bg-gold/10 border border-gold/20 rounded-tl-none text-putih prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-navy-dark max-w-none"
@@ -358,7 +358,32 @@ export default function KonsultasiPage() {
                         AI sedang berpikir...
                       </div>
                     ) : (
-                      <MemoizedMarkdown>{text}</MemoizedMarkdown>
+                      <div className="relative">
+                        <MemoizedMarkdown>{text}</MemoizedMarkdown>
+                        {text && (
+                          <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gold/10 opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(text);
+                                // Optional: simple toast or alert
+                              }}
+                              title="Salin Teks"
+                              className="flex items-center gap-1.5 text-[11px] font-medium text-gold/70 hover:text-gold bg-gold/5 hover:bg-gold/10 px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              📋 Copy
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setInput("Tolong jelaskan ulang jawaban di atas menggunakan bahasa yang jauh lebih sederhana, ringkas, dan mudah dipahami oleh orang awam yang tidak mengerti hukum sama sekali.")}
+                              title="Jelaskan Sederhana"
+                              className="flex items-center gap-1.5 text-[11px] font-medium text-gold/70 hover:text-gold bg-gold/5 hover:bg-gold/10 px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              🔄 Sederhanakan
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     )
                   ) : (
                     text
@@ -457,6 +482,28 @@ export default function KonsultasiPage() {
               />
             </div>
           </div>
+
+          {/* Quick Action Chips */}
+          {messages.length <= 2 && (
+            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+              {[
+                { icon: "📄", text: "Draft Kontrak Sewa Rumah" },
+                { icon: "⚖️", text: "Apa syarat pembuatan PT?" },
+                { icon: "🚨", text: "Langkah hukum korban penipuan online" },
+                { icon: "💼", text: "Aturan pesangon PHK" },
+              ].map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setInput(chip.text)}
+                  className="shrink-0 flex items-center gap-2 bg-navy-light border border-putih/10 hover:border-gold/50 px-3 py-1.5 rounded-full text-xs text-putih/70 hover:text-putih transition-colors"
+                >
+                  <span>{chip.icon}</span>
+                  {chip.text}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="relative">
             <textarea 

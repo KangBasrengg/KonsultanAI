@@ -247,7 +247,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
 
     // Also insert anonymized record into case_analytics (best-effort)
     try {
-      // Determine province from wilayah (simplified mapping)
+      // Use explicit provinsi and kabupaten_kota if provided, fallback to legacy mapping
       const provinceMap: Record<string, string> = {
         'Jakarta Pusat': 'DKI Jakarta', 'Jakarta Barat': 'DKI Jakarta',
         'Jakarta Timur': 'DKI Jakarta', 'Jakarta Selatan': 'DKI Jakarta',
@@ -260,6 +260,9 @@ Berikan triage dalam format JSON sesuai instruksi.`;
         'Tangerang': 'Banten', 'Tangerang Selatan': 'Banten',
       };
 
+      const finalProvinsi = formData.provinsi || provinceMap[formData.wilayah] || 'Lainnya';
+      const finalKabupaten = formData.kabupaten_kota || formData.wilayah;
+
       await supabase
         .from("case_analytics")
         .insert({
@@ -267,8 +270,8 @@ Berikan triage dalam format JSON sesuai instruksi.`;
           sub_category: formData.sub_category,
           severity_level: triageData.severity,
           urgency_level: formData.urgency_level,
-          wilayah_kabupaten: formData.wilayah,
-          wilayah_provinsi: provinceMap[formData.wilayah] || 'Lainnya',
+          wilayah_kabupaten: finalKabupaten,
+          wilayah_provinsi: finalProvinsi,
           has_advokat: formData.sudah_advokat,
         });
     } catch (analyticsError) {

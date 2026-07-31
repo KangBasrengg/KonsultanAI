@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, Globe } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -26,7 +26,7 @@ export default function Footer() {
                 <span className="w-2 h-2 rounded-full bg-merah"></span>
                 Karya Anak Bangsa
               </div>
-              
+
 
             </div>
           </div>
@@ -78,12 +78,23 @@ export default function Footer() {
                   </div>
                 </a>
               </li>
+              <li>
+                <a href="https://hoodtech.my.id" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold transition-colors group">
+                  <div className="p-2 bg-putih/5 rounded-lg group-hover:bg-gold/10 transition-colors">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-putih">Hoodtech</p>
+                    <p className="text-xs">Lihat Portofolio</p>
+                  </div>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 border-t border-putih/20 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-putih/60">
-          <p>© {new Date().getFullYear()} Muhammad Nuril & Bahrul Ilmi. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Hoodtech. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Dibuat dengan <Heart className="w-4 h-4 text-merah fill-merah" /> di Indonesia
           </p>

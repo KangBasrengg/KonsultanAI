@@ -482,7 +482,6 @@ export default function IntakeFormPage() {
 
                   {/* Primary Action: Lanjutkan Analisis AI (Full-width) */}
                   <div className="space-y-4 pt-4">
-                    {(triageResult.recommendation === 'AI_ANALYSIS' || triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommendation === 'TEMPLATES') && (
                       <Link 
                         href={`/konsultasi?caseId=${triageResult.case_id}`}
                         onClick={() => {
@@ -507,7 +506,6 @@ export default function IntakeFormPage() {
                         </div>
                         <div className="text-gold text-2xl group-hover:translate-x-1 transition-transform shrink-0 ml-2">→</div>
                       </Link>
-                    )}
 
                     {/* Secondary Actions: Compact row */}
                     <div className="grid grid-cols-3 gap-3">

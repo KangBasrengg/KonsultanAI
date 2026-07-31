@@ -62,6 +62,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]); // Default: Indonesia
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
@@ -77,6 +78,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
       setIsLogin(defaultView === "login");
       setIsCountryDropdownOpen(false);
       setCountrySearch("");
+      setPassword("");
     }
   }, [isOpen, defaultView]);
 
@@ -207,6 +209,22 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
     }
   };
 
+  const getPasswordStrength = (pass: string) => {
+    if (!pass) return { score: 0, label: "", color: "bg-putih/10" };
+    let score = 0;
+    if (pass.length >= 6) score += 1;
+    if (pass.length >= 8) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+
+    if (score <= 2) return { score: 1, label: "Lemah", color: "bg-merah" };
+    if (score <= 4) return { score: 2, label: "Sedang", color: "bg-yellow-500" };
+    return { score: 3, label: "Kuat", color: "bg-green-500" };
+  };
+
+  const strength = getPasswordStrength(password);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -273,7 +291,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                 <div className="flex bg-navy p-1 rounded-xl mb-6 border border-putih/20 relative">
                   <button
                     type="button"
-                    onClick={() => { setIsLogin(true); setError(null); setSuccess(null); }}
+                    onClick={() => { setIsLogin(true); setError(null); setSuccess(null); setPassword(""); }}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${
                       isLogin ? "text-navy" : "text-putih/60 hover:text-putih"
                     }`}
@@ -282,7 +300,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setIsLogin(false); setError(null); setSuccess(null); }}
+                    onClick={() => { setIsLogin(false); setError(null); setSuccess(null); setPassword(""); }}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${
                       !isLogin ? "text-navy" : "text-putih/60 hover:text-putih"
                     }`}
@@ -487,6 +505,8 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                         name="password"
                         type={showPassword ? "text" : "password"}
                         required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Minimal 6 karakter"
                         minLength={6}
                         className="w-full bg-navy border border-putih/15 rounded-xl px-4 py-3 pr-11 text-sm text-putih placeholder:text-putih/25 focus:outline-none focus:border-gold/60 focus:ring-1 focus:ring-gold/20 transition-all"
@@ -499,6 +519,35 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                    {/* Password Strength Indicator */}
+                    <AnimatePresence>
+                      {!isLogin && password.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="pt-1 overflow-hidden"
+                        >
+                          <div className="flex gap-1 mb-1.5 mt-2">
+                            {[1, 2, 3].map((level) => (
+                              <div
+                                key={level}
+                                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                                  strength.score >= level ? strength.color : "bg-putih/10"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className={`text-[11px] text-right font-medium ${
+                            strength.score === 1 ? "text-merah" :
+                            strength.score === 2 ? "text-yellow-500" :
+                            "text-green-500"
+                          }`}>
+                            Kekuatan: {strength.label}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Submit button */}

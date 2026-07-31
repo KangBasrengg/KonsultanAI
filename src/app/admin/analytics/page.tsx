@@ -9,6 +9,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell 
 } from "recharts";
 import { Download, Users, TrendingUp, AlertTriangle, ShieldAlert, Scale } from "lucide-react";
+import { PROVINSI_KOTA_DATA } from "@/types/cases";
 
 export default function AnalyticsDashboardPage() {
   const { user, profile, isVerifying } = useAuth();
@@ -16,9 +17,12 @@ export default function AnalyticsDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [trends, setTrends] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [wilayah, setWilayah] = useState("all");
+  const [provinsi, setProvinsi] = useState("all");
+  const [kota, setKota] = useState("all");
   const hasFetched = useRef(false);
   const userRole = profile?.role;
+  
+  const wilayahParam = kota !== "all" ? kota : (provinsi !== "all" ? provinsi : "all");
 
   // Role access check — separate from data fetching to avoid coupling
   useEffect(() => {
@@ -36,8 +40,8 @@ export default function AnalyticsDashboardPage() {
   const fetchData = useCallback(async () => {
     try {
       const [dashRes, trendsRes] = await Promise.all([
-        fetch(`/api/analytics/dashboard?wilayah=${wilayah}`),
-        fetch(`/api/analytics/trends?wilayah=${wilayah}`)
+        fetch(`/api/analytics/dashboard?wilayah=${wilayahParam}`),
+        fetch(`/api/analytics/trends?wilayah=${wilayahParam}`)
       ]);
 
       if (dashRes.ok) {
@@ -51,7 +55,7 @@ export default function AnalyticsDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [wilayah]);
+  }, [wilayahParam]);
 
   useEffect(() => {
     if (!user || isVerifying) return;
@@ -64,7 +68,7 @@ export default function AnalyticsDashboardPage() {
     }
 
     fetchData();
-  }, [user, isVerifying, userRole, wilayah, fetchData]);
+  }, [user, isVerifying, userRole, wilayahParam, fetchData]);
 
   if (isLoading || !data) {
     return (
@@ -93,30 +97,38 @@ export default function AnalyticsDashboardPage() {
             <p className="text-navy/60 dark:text-putih/60 mt-1">Intelligence & Insights for Legal Cases</p>
           </div>
           
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             <select
-              value={wilayah}
-              onChange={(e) => setWilayah(e.target.value)}
-              className="bg-white dark:bg-navy-light border border-slate-200 dark:border-putih/10 text-navy dark:text-putih rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold"
+              value={provinsi}
+              onChange={(e) => {
+                setProvinsi(e.target.value);
+                setKota("all"); // Reset kota when provinsi changes
+              }}
+              className="w-full sm:w-auto bg-white dark:bg-navy-light border border-slate-200 dark:border-putih/10 text-navy dark:text-putih rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold"
             >
-              <option value="all">Semua Wilayah (Nasional)</option>
-              {[
-                "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Jambi", "Sumatera Selatan", "Bengkulu", "Lampung", "Kepulauan Bangka Belitung", "Kepulauan Riau",
-                "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Banten",
-                "Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur",
-                "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
-                "Sulawesi Utara", "Sulawesi Tengah", "Sulawesi Selatan", "Sulawesi Tenggara", "Gorontalo", "Sulawesi Barat",
-                "Maluku", "Maluku Utara",
-                "Papua", "Papua Barat", "Papua Selatan", "Papua Tengah", "Papua Pegunungan", "Papua Barat Daya"
-              ].map(prov => (
+              <option value="all">Semua Provinsi (Nasional)</option>
+              {Object.keys(PROVINSI_KOTA_DATA).map(prov => (
                 <option key={prov} value={prov}>{prov}</option>
               ))}
             </select>
+            
+            <select
+              value={kota}
+              onChange={(e) => setKota(e.target.value)}
+              disabled={provinsi === "all"}
+              className="w-full sm:w-auto bg-white dark:bg-navy-light border border-slate-200 dark:border-putih/10 text-navy dark:text-putih rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="all">Semua Kabupaten/Kota</option>
+              {provinsi !== "all" && PROVINSI_KOTA_DATA[provinsi]?.map(k => (
+                <option key={k} value={k}>{k}</option>
+              ))}
+            </select>
+
             <button 
               onClick={() => {
-                window.location.href = `/api/analytics/export?wilayah=${wilayah}`;
+                window.location.href = `/api/analytics/export?wilayah=${wilayahParam}`;
               }}
-              className="flex items-center gap-2 bg-gold text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold-light transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gold text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold-light transition-colors"
             >
               <Download className="w-4 h-4" /> Export CSV
             </button>
