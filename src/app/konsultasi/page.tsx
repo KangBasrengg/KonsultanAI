@@ -82,6 +82,7 @@ export default function KonsultasiPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showPdfOptionsModal, setShowPdfOptionsModal] = useState<{isOpen: boolean, isClean: boolean}>({isOpen: false, isClean: false});
+  const [showHomeConfirm, setShowHomeConfirm] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "streaming" || status === "submitted";
   const { isVerifying, user, profile } = useAuth();
@@ -505,6 +506,19 @@ export default function KonsultasiPage() {
             </div>
           )}
 
+          {messages.length > 2 && (
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-2 px-1">
+              <p className="text-putih/70 text-xs text-center md:text-left">Apakah Anda ingin bertanya lagi dengan bidang hukum yang berbeda?</p>
+              <button 
+                type="button"
+                onClick={() => setShowHomeConfirm(true)}
+                className="text-xs font-semibold bg-navy-light hover:bg-putih/10 text-putih border border-putih/20 px-4 py-1.5 rounded-full transition-colors shrink-0"
+              >
+                Ya (Ke Beranda)
+              </button>
+            </div>
+          )}
+
           <div className="relative">
             <textarea 
               value={input}
@@ -538,6 +552,52 @@ export default function KonsultasiPage() {
         onClose={() => {}} 
         message={error?.message || "Limit tercapai."} 
       />
+
+      {/* Home Confirmation Modal */}
+      <AnimatePresence>
+        {showHomeConfirm && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowHomeConfirm(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            <div className="fixed inset-0 flex items-center justify-center p-4 z-[100] pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-navy border border-gold/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl pointer-events-auto relative overflow-hidden text-center"
+              >
+                <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-putih mb-2">Peringatan</h3>
+                <p className="text-putih/70 text-sm mb-8 leading-relaxed">
+                  Jika Anda kembali ke beranda Anda akan menutup sesi konsultasi kronologi ini.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowHomeConfirm(false)}
+                    className="flex-1 py-3 bg-navy-light border border-putih/20 text-putih font-bold rounded-xl hover:bg-putih/10 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <Link
+                    href="/"
+                    onClick={() => setShowHomeConfirm(false)}
+                    className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors text-center"
+                  >
+                    Ya
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Upgrade Modal for PDF Clean */}
       <AnimatePresence>

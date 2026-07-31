@@ -249,7 +249,7 @@ export async function POST(req: Request) {
             // Claim a slot BEFORE calling AI to prevent race condition
             const { data: placeholder, error: insertErr } = await supabase
               .from("consultations")
-              .insert({ user_id: user.id, chronology: "__pending__", ai_analysis: "" })
+              .insert({ user_id: user.id, chronology: lastUserMessage || "Sesi Konsultasi Baru", ai_analysis: "" })
               .select("id")
               .single();
 
