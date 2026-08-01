@@ -25,7 +25,7 @@ export default function TemplatesPage() {
   const getTierColor = (tier: string) => {
     switch(tier) {
       case 'free': return 'bg-green-100 text-gold border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20';
-      case 'basic': return 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
+      case 'enterprise': return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20';
       case 'professional': return 'bg-yellow-100 text-gold border-yellow-200 dark:bg-gold/10 dark:text-gold dark:border-gold/20';
       case 'business': return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20';
       default: return 'bg-slate-100 text-slate-600 dark:bg-putih/10 dark:text-putih/60';
@@ -37,7 +37,7 @@ export default function TemplatesPage() {
     if (profile?.role === "admin" || profile?.role === "advokat") return false;
     
     const userTier = profile?.tier || "free";
-    const tiers = ["free", "basic", "professional", "business"];
+    const tiers = ["free", "professional", "enterprise"];
     
     return tiers.indexOf(requiredTier) > tiers.indexOf(userTier);
   };

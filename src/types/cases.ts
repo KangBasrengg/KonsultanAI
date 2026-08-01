@@ -147,6 +147,7 @@ export interface TriageResult {
   severity: number; // 1-5
   recommendation: TriageRecommendation;
   analysis: string;
+  anonymized_chronology?: string;
   recommended_modules: string[];
   recommended_templates: string[];
   follow_up_questions: string[];
@@ -184,7 +185,7 @@ export interface LegalTemplate {
   category: TemplateCategory;
   title: string;
   description: string;
-  tier_required: 'free' | 'basic' | 'professional' | 'business';
+  tier_required: 'free' | 'professional' | 'enterprise';
   placeholders: TemplatePlaceholder[];
   content: string; // Markdown with placeholders like [NAMA_PENGGUGAT]
 }

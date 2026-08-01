@@ -125,24 +125,47 @@ export async function POST(request: Request) {
             .update({ status: 'resolved', updated_at: new Date().toISOString() })
             .eq('id', chat.id);
 
-          // Upgrade user plan and set expiration date
-          const isAnnual = chat.plan.toLowerCase().includes('tahunan') || chat.plan.toLowerCase().includes('annual');
-          const daysToAdd = isAnnual ? 365 : 30;
-          const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+          const isTopUp = chat.plan.toLowerCase().includes('top-up kuota');
 
-          await supabase.from('users')
-            .update({ 
+          if (isTopUp) {
+            const match = chat.plan.match(/\((\d+)\s+token\)/i);
+            const tokensToAdd = match ? parseInt(match[1], 10) : 4;
+
+            // Fetch current balance
+            const { data: userData } = await supabase.from('users').select('token_balance').eq('id', chat.user_id).single();
+            const currentBalance = userData?.token_balance || 0;
+
+            await supabase.from('users')
+              .update({ token_balance: currentBalance + tokensToAdd })
+              .eq('id', chat.user_id);
+              
+            console.log(`[Webhook] Top-Up processed: user=${chat.user_id}, tokens added=${tokensToAdd}, new balance=${currentBalance + tokensToAdd}`);
+            await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Top-Up Kuota', `${tokensToAdd} Token`);
+          } else {
+            // Upgrade user plan and set expiration date
+            const isAnnual = chat.plan.toLowerCase().includes('tahunan') || chat.plan.toLowerCase().includes('annual');
+            const daysToAdd = isAnnual ? 365 : 30;
+            const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+
+            const updatePayload: any = { 
               tier: chat.plan, 
               is_premium: chat.plan !== 'Free Trial',
               subscription_started_at: chat.plan !== 'Free Trial' ? new Date().toISOString() : null,
               subscription_expires_at: chat.plan !== 'Free Trial' ? expiresAt : null 
-            })
-            .eq('id', chat.user_id);
+            };
 
-          console.log(`[Webhook] Subscription processed: user=${chat.user_id}, plan=${chat.plan}`);
-          
-          // Kirim email notifikasi ke admin
-          await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Langganan Paket (Subscription)', chat.plan);
+            // If it's an Enterprise plan, give them their monthly token quota
+            if (chat.plan.toLowerCase().includes('enterprise')) {
+              updatePayload.token_balance = isAnnual ? (18 * 12) : 18;
+            }
+
+            await supabase.from('users')
+              .update(updatePayload)
+              .eq('id', chat.user_id);
+
+            console.log(`[Webhook] Subscription processed: user=${chat.user_id}, plan=${chat.plan}`);
+            await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Langganan Paket (Subscription)', chat.plan);
+          }
         } else {
           console.log(`[Webhook] Idempotency skip: No matching 'open' chat found for ORD fragment: ${chatIdFragment}. Likely already processed.`);
         }

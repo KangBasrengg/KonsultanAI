@@ -95,11 +95,17 @@ export async function middleware(request: NextRequest) {
     if (isAdminRoute) {
       const { data: profile } = await supabase
         .from('users')
-        .select('role')
+        .select('role, has_analytics_access, institution_type')
         .eq('id', user.id)
         .single()
 
-      if (profile?.role !== 'admin') {
+      let isAllowed = profile?.role === 'admin'
+      
+      if (pathname.startsWith('/admin/analytics')) {
+        isAllowed = isAllowed || profile?.role === 'government' || profile?.has_analytics_access || profile?.institution_type === 'pemerintah'
+      }
+
+      if (!isAllowed) {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }

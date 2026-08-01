@@ -6,7 +6,7 @@ import {
   ArrowLeft, Users, Crown, Shield, Search, 
   ChevronDown, Check, X, RefreshCw, 
   BarChart3, UserCheck, TrendingUp, MessageSquare,
-  Clock, CheckCircle, ExternalLink, Scale, FileText, Briefcase
+  Clock, CheckCircle, ExternalLink, Scale, FileText, Briefcase, AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,6 +25,10 @@ interface UserData {
   tier: string;
   created_at: string;
   consultationCount: number;
+  institution_name?: string | null;
+  institution_type?: string | null;
+  has_analytics_access?: boolean;
+  token_balance?: number;
 }
 
 interface ChatData {
@@ -42,8 +46,8 @@ interface ChatData {
 
 const TIER_CONFIG = {
   free: { label: "Free", color: "text-putih/50", bg: "bg-putih/5", border: "border-putih/20", badge: "bg-putih/10 text-putih/60" },
-  basic: { label: "Basic", color: "text-blue-400", bg: "bg-blue-500/5", border: "border-blue-500/20", badge: "bg-blue-500/20 text-blue-300" },
   professional: { label: "Professional", color: "text-gold", bg: "bg-gold/5", border: "border-gold/20", badge: "bg-gold/20 text-gold" },
+  enterprise: { label: "Enterprise", color: "text-purple-400", bg: "bg-purple-500/5", border: "border-purple-500/20", badge: "bg-purple-500/20 text-purple-300" },
 };
 
 export default function AdminDashboard() {
@@ -58,7 +62,7 @@ export default function AdminDashboard() {
   const [tierFilter, setTierFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "advocates" | "bookings">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "advocates" | "bookings" | "enterprise">("users");
   const [transactionTab, setTransactionTab] = useState<"consultations" | "listings">("consultations");
   const [advocates, setAdvocates] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
@@ -69,7 +73,15 @@ export default function AdminDashboard() {
   
   // Edit user state
   const [editUserModal, setEditUserModal] = useState<{isOpen: boolean, user: UserData | null}>({isOpen: false, user: null});
-  const [editFormData, setEditFormData] = useState({full_name: "", role: ""});
+  const [editFormData, setEditFormData] = useState({full_name: "", role: "", institution_name: "", token_balance: 0, institution_type: "swasta", has_analytics_access: false});
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
 
   // Redirect non-admins
   useEffect(() => {
@@ -261,6 +273,9 @@ export default function AdminDashboard() {
               : u
           )
         );
+      } else {
+        const errorData = await res.json();
+        showNotification("Gagal mengupdate tier: " + (errorData.error || "Server Error"), "error");
       }
     } catch (e) {
       console.error("Failed to update tier:", e);
@@ -273,25 +288,51 @@ export default function AdminDashboard() {
     if (!editUserModal.user) return;
     setUpdatingId(editUserModal.user.id);
     try {
-      const { error } = await supabase
-        .from("users")
-        .update({
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: editUserModal.user.id,
           full_name: editFormData.full_name,
-          role: editFormData.role
-        })
-        .eq("id", editUserModal.user.id);
+          role: editFormData.role,
+          institution_name: editFormData.institution_name,
+          token_balance: editFormData.token_balance,
+          institution_type: editFormData.institution_type,
+          has_analytics_access: editFormData.has_analytics_access
+        }),
+      });
 
-      if (error) throw error;
+      if (!res.ok) throw new Error("Gagal memperbarui");
       
       setUsers(prev => prev.map(u => 
-        u.id === editUserModal.user?.id ? { ...u, full_name: editFormData.full_name, role: editFormData.role } : u
+        u.id === editUserModal.user?.id ? { ...u, full_name: editFormData.full_name, role: editFormData.role, institution_name: editFormData.institution_name, token_balance: editFormData.token_balance, institution_type: editFormData.institution_type, has_analytics_access: editFormData.has_analytics_access } : u
       ));
       setEditUserModal({isOpen: false, user: null});
+      showNotification("Pengguna berhasil diperbarui", "success");
     } catch (error) {
       console.error("Error updating user:", error);
-      alert("Gagal memperbarui pengguna");
+      showNotification("Gagal memperbarui pengguna", "error");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, name: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus akun ${name}? Data tidak dapat dikembalikan.`)) return;
+    
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch(`/api/admin/users?id=${userId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Gagal menghapus pengguna");
+      
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      showNotification("Pengguna berhasil dihapus", "success");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      showNotification("Gagal menghapus pengguna", "error");
     }
   };
 
@@ -336,7 +377,7 @@ export default function AdminDashboard() {
             </Link>
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden">
-                <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="40px" className="object-cover" />
+                <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="40px" className="object-cover" priority />
               </div>
               <div>
                 <h1 className="font-bold text-lg leading-tight text-putih flex items-center gap-2">
@@ -461,6 +502,12 @@ export default function AdminDashboard() {
           >
             Transaksi Advokat
           </button>
+          <button
+            onClick={() => setActiveTab("enterprise")}
+            className={`font-bold pb-2 border-b-2 transition-colors ${activeTab === "enterprise" ? "border-gold text-gold" : "border-transparent text-putih/50 hover:text-putih"}`}
+          >
+            Klien Enterprise
+          </button>
         </div>
 
         {activeTab === "users" ? (
@@ -498,8 +545,8 @@ export default function AdminDashboard() {
               >
                 <option value="all">Semua Tier</option>
                 <option value="free">Free</option>
-                <option value="basic">Basic</option>
                 <option value="professional">Professional</option>
+                <option value="enterprise">Enterprise</option>
               </select>
 
               {/* Refresh */}
@@ -533,6 +580,7 @@ export default function AdminDashboard() {
                     <th className="text-left py-3 px-4 font-semibold hidden md:table-cell">Email</th>
                     <th className="text-center py-3 px-4 font-semibold">Tier</th>
                     <th className="text-center py-3 px-4 font-semibold hidden sm:table-cell">Konsultasi</th>
+                    <th className="text-center py-3 px-4 font-semibold">Saldo Token</th>
                     <th className="text-center py-3 px-4 font-semibold hidden lg:table-cell">Bergabung</th>
                     <th className="text-center py-3 px-4 font-semibold">Aksi</th>
                   </tr>
@@ -582,6 +630,18 @@ export default function AdminDashboard() {
                         {/* Consultation Count */}
                         <td className="py-3 px-4 text-center hidden sm:table-cell">
                           <span className="text-putih/60">{u.consultationCount}</span>
+                        </td>
+
+                        {/* Token Balance */}
+                        <td className="py-3 px-4 text-center">
+                          <div className="flex flex-col items-center">
+                            <span className="text-gold font-bold">{u.token_balance || 0}</span>
+                            {u.tier === 'free' && (
+                              <span className="text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded mt-0.5">
+                                +{Math.max(0, 3 - (u.consultationCount || 0))} Trial
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Joined Date */}
@@ -656,7 +716,7 @@ export default function AdminDashboard() {
                                       type="button"
                                       onClick={() => {
                                         setOpenDropdownId(null);
-                                        setEditFormData({full_name: u.full_name || "", role: u.role});
+                                        setEditFormData({full_name: u.full_name || "", role: u.role, institution_name: u.institution_name || "", token_balance: u.token_balance || 0, institution_type: u.institution_type || "swasta", has_analytics_access: u.has_analytics_access || false});
                                         setEditUserModal({isOpen: true, user: u});
                                       }}
                                       className="w-full text-left px-3 py-2.5 text-sm text-putih hover:bg-putih/5 transition-colors flex items-center gap-2"
@@ -870,7 +930,7 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "bookings" ? (
           <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden p-6 space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-putih/20 pb-4">
               <div className="flex items-center gap-3">
@@ -1009,7 +1069,146 @@ export default function AdminDashboard() {
               )
             )}
           </div>
-        )}
+        ) : activeTab === "enterprise" ? (
+          <div className="bg-navy-light/30 border border-putih/20 rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-putih/20 pb-4">
+              <div className="flex items-center gap-3">
+                <Briefcase className="w-5 h-5 text-gold" />
+                <h2 className="font-bold text-lg">Kelola Klien Enterprise</h2>
+              </div>
+              <button
+                type="button"
+                onClick={fetchUsers}
+                className="p-2 bg-navy border border-putih/15 rounded-lg hover:bg-putih/5 transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 text-putih/50 ${loadingUsers ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+            
+            {loadingUsers ? (
+              <div className="flex justify-center py-10"><RefreshCw className="w-6 h-6 animate-spin text-gold" /></div>
+            ) : users.filter(u => u.tier === "enterprise").length === 0 ? (
+              <div className="text-center text-putih/50 py-10 flex flex-col items-center">
+                <Briefcase className="w-10 h-10 mb-3 opacity-30" />
+                <p>Belum ada klien Enterprise yang terdaftar.</p>
+                <p className="text-sm mt-1">Ubah tier pengguna menjadi 'Enterprise' di tab Pengguna.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {users.filter(u => u.tier === "enterprise").map(instansi => {
+                  const subAccounts = users.filter(u => u.parent_id === instansi.id);
+                  const isExpired = instansi.subscription_expires_at ? new Date(instansi.subscription_expires_at) < new Date() : false;
+                  
+                  return (
+                    <div key={instansi.id} className="bg-navy border border-putih/20 rounded-xl p-5">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4 border-b border-putih/10 pb-4">
+                        <div>
+                          <h3 className="font-bold text-xl text-putih">{instansi.institution_name || "Instansi Tanpa Nama"}</h3>
+                          <p className="text-sm text-putih/60 mt-1">Admin: {instansi.full_name} ({instansi.email})</p>
+                          <div className="flex items-center gap-3 mt-3">
+                            <span className="text-xs bg-gold/10 text-gold px-2 py-1 rounded font-bold border border-gold/20">
+                              Saldo Induk: {instansi.token_balance || 0}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded font-bold border ${isExpired ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-green-500/10 text-green-400 border-green-500/20"}`}>
+                              Berakhir: {instansi.subscription_expires_at ? new Date(instansi.subscription_expires_at).toLocaleDateString("id-ID") : "Tidak ditentukan"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-1 rounded font-bold border border-blue-500/20 capitalize">
+                              {instansi.institution_type === 'pemerintah' ? 'Pemerintahan' : 'Swasta'}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded font-bold border ${instansi.has_analytics_access ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-putih/10 text-putih/40 border-putih/20"}`}>
+                              Gov Analytics: {instansi.has_analytics_access ? "Akses Diberikan" : "Tidak Ada Akses"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right flex flex-col items-end gap-2">
+                          <div className="text-right">
+                            <p className="text-sm text-putih/50">Total Akun Cabang</p>
+                            <p className="text-2xl font-bold text-putih">{subAccounts.length} / 5</p>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => {
+                                setEditFormData({full_name: instansi.full_name || "", role: instansi.role, institution_name: instansi.institution_name || "", token_balance: instansi.token_balance || 0, institution_type: instansi.institution_type || "swasta", has_analytics_access: instansi.has_analytics_access || false});
+                                setEditUserModal({isOpen: true, user: instansi});
+                              }}
+                              className="text-xs text-gold border border-gold/30 hover:bg-gold/10 px-3 py-1.5 rounded transition-colors"
+                            >
+                              Edit Instansi
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(instansi.id, instansi.institution_name || instansi.full_name || instansi.email)}
+                              className="text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 px-3 py-1.5 rounded transition-colors"
+                            >
+                              Hapus
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Sub accounts list */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-putih/70 mb-3">Daftar Akun Karyawan / Cabang</h4>
+                        {subAccounts.length === 0 ? (
+                          <p className="text-xs text-putih/40 italic">Belum ada akun cabang yang dibuat oleh instansi ini.</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="text-left text-putih/40 text-xs border-b border-putih/10">
+                                  <th className="pb-2 font-medium">Nama & Email</th>
+                                  <th className="pb-2 font-medium text-center">Saldo Token</th>
+                                  <th className="pb-2 font-medium text-right">Dibuat Pada</th>
+                                  <th className="pb-2 font-medium text-right">Aksi</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-putih/5">
+                                {subAccounts.map(sub => (
+                                  <tr key={sub.id}>
+                                    <td className="py-2">
+                                      <p className="text-putih">{sub.full_name || "Tanpa Nama"}</p>
+                                      <p className="text-xs text-putih/40">{sub.email}</p>
+                                    </td>
+                                    <td className="py-2 text-center">
+                                      <span className="text-gold font-bold">{sub.token_balance || 0}</span>
+                                    </td>
+                                    <td className="py-2 text-right text-xs text-putih/40">
+                                      {new Date(sub.created_at).toLocaleDateString("id-ID")}
+                                    </td>
+                                    <td className="py-2 text-right">
+                                      <div className="flex items-center justify-end gap-2">
+                                        <button
+                                          onClick={() => {
+                                            setEditFormData({full_name: sub.full_name || "", role: sub.role, institution_name: sub.institution_name || "", token_balance: sub.token_balance || 0, institution_type: sub.institution_type || "swasta", has_analytics_access: sub.has_analytics_access || false});
+                                            setEditUserModal({isOpen: true, user: sub});
+                                          }}
+                                          className="text-[10px] text-gold border border-gold/30 hover:bg-gold/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteUser(sub.id, sub.full_name || sub.email)}
+                                          className="text-[10px] text-red-400 border border-red-500/30 hover:bg-red-500/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                          Hapus
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : null}
       </main>
 
       {/* Edit User Modal */}
@@ -1038,6 +1237,55 @@ export default function AdminDashboard() {
                   <option value="advocate">Advocate</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+              {editUserModal.user.tier === 'enterprise' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-putih/70 mb-1">Nama Instansi (Khusus Enterprise)</label>
+                    <input
+                      type="text"
+                      value={editFormData.institution_name}
+                      onChange={(e) => setEditFormData({...editFormData, institution_name: e.target.value})}
+                      placeholder="Kosongkan jika bukan enterprise..."
+                      className="w-full bg-navy border border-putih/15 rounded-lg px-4 py-2 text-putih focus:outline-none focus:border-gold/40"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-putih/70 mb-1">Tipe Instansi (Khusus Enterprise)</label>
+                    <select
+                      value={editFormData.institution_type}
+                      onChange={(e) => setEditFormData({...editFormData, institution_type: e.target.value})}
+                      className="w-full bg-navy border border-putih/15 rounded-lg px-4 py-2 text-putih focus:outline-none focus:border-gold/40"
+                    >
+                      <option value="swasta">Swasta</option>
+                      <option value="pemerintah">Pemerintahan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-3 p-3 bg-navy border border-putih/15 rounded-lg cursor-pointer hover:bg-putih/5 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={editFormData.has_analytics_access}
+                        onChange={(e) => setEditFormData({...editFormData, has_analytics_access: e.target.checked})}
+                        className="w-5 h-5 accent-gold cursor-pointer rounded border-putih/20"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-putih">Akses Government Analytics</span>
+                        <span className="text-xs text-putih/50">Izinkan instansi ini untuk melihat data analitik</span>
+                      </div>
+                    </label>
+                  </div>
+                </>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-putih/70 mb-1">Saldo Token</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editFormData.token_balance}
+                  onChange={(e) => setEditFormData({...editFormData, token_balance: parseInt(e.target.value) || 0})}
+                  className="w-full bg-navy border border-putih/15 rounded-lg px-4 py-2 text-putih focus:outline-none focus:border-gold/40"
+                />
               </div>
               <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-lg text-xs text-orange-400">
                 <span className="font-bold block mb-1">Peringatan:</span>
@@ -1071,6 +1319,34 @@ export default function AdminDashboard() {
           onClick={() => setOpenDropdownId(null)}
         />
       )}
+
+      {/* Floating Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md min-w-[300px] max-w-[90vw] ${
+              notification.type === 'success' 
+                ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                : 'bg-red-500/10 border-red-500/20 text-red-400'
+            }`}
+          >
+            {notification.type === 'success' && <CheckCircle className="w-6 h-6 shrink-0" />}
+            {notification.type === 'error' && <AlertCircle className="w-6 h-6 shrink-0" />}
+            
+            <p className="font-medium text-sm flex-1">{notification.message}</p>
+            
+            <button 
+              onClick={() => setNotification(null)}
+              className="p-1 hover:bg-putih/10 rounded-full transition-colors ml-2"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -126,7 +126,7 @@ export default async function MaterialPage({ params }: Props) {
   if (isAdmin || !material.is_premium) {
     hasAccess = true; // Admins see everything, Free material is free
   } else if (user) {
-    const tierLevels = { free: 0, basic: 1, professional: 2, business: 3 };
+    const tierLevels = { free: 0, professional: 1, enterprise: 2 };
     const requiredLevel = tierLevels[material.required_tier as keyof typeof tierLevels] || 0;
     const userLevel = tierLevels[userTier as keyof typeof tierLevels] || 0;
     

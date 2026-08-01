@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User as UserIcon, ChevronDown, LogOut, Crown, Clock, X, Shield } from "lucide-react";
+import { User as UserIcon, ChevronDown, LogOut, Crown, Clock, X, Shield, TrendingUp } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import Link from "next/link";
 
@@ -34,7 +34,7 @@ export default function UserDropdown() {
     ? new Date(profile.createdAt).toLocaleDateString("id-ID", { year: "numeric", month: "long" })
     : "";
 
-  const tierLabel = isAdmin ? "Admin" : profile?.tier === "professional" ? "Professional" : profile?.tier === "basic" ? "Basic" : "Free Trial";
+  const tierLabel = isAdmin ? "Admin" : profile?.tier === "enterprise" ? "Enterprise" : profile?.tier === "professional" ? "Professional" : "Free Tier";
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -125,6 +125,36 @@ export default function UserDropdown() {
                 <div className="flex-1">
                   <p className="text-xs font-semibold text-gold">Admin Dashboard</p>
                   <p className="text-[10px] text-putih/40">Kelola pengguna</p>
+                </div>
+              </Link>
+            )}
+
+            {/* Enterprise Dashboard Link */}
+            {profile?.tier === "enterprise" && (
+              <Link
+                href="/enterprise"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 hover:bg-blue-500/10 transition-colors"
+              >
+                <Shield className="w-4 h-4 text-blue-400" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-blue-400">Enterprise Dashboard</p>
+                  <p className="text-[10px] text-putih/40">Manajemen Kuota Karyawan</p>
+                </div>
+              </Link>
+            )}
+
+            {/* Government Analytics Link */}
+            {(isAdmin || profile?.role === "government" || profile?.hasAnalyticsAccess || profile?.institutionType === "pemerintah") && (
+              <Link
+                href="/admin/analytics"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 hover:bg-purple-500/10 transition-colors mt-2"
+              >
+                <TrendingUp className="w-4 h-4 text-purple-400" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-purple-400">Gov Analytics</p>
+                  <p className="text-[10px] text-putih/40">Lihat wawasan data</p>
                 </div>
               </Link>
             )}

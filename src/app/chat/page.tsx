@@ -262,7 +262,6 @@ function ChatContent() {
     const normalized = (planName || '').toLowerCase().trim();
     const isAnnual = normalized.includes('tahunan') || normalized.includes('annual');
 
-    if (normalized.includes('basic')) return isAnnual ? 840000 : 80000;
     if (normalized.includes('pro') || normalized.includes('premium')) return isAnnual ? 1548000 : 149000;
     if (normalized.includes('enterprise')) return isAnnual ? 5340000 : 525000;
     return 0;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogIn, Shield, Scale, LogOut, User, ChevronDown, Settings, MessageSquare, FileText, TrendingUp, Briefcase } from "lucide-react";
+import { Menu, X, LogIn, Shield, Scale, LogOut, User, Users, ChevronDown, Settings, MessageSquare, FileText, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -97,7 +97,7 @@ export default function Navbar() {
                     ) : (
                       <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                         profile?.tier === "professional" ? "bg-gold/20 text-gold border-gold/30" : 
-                        profile?.tier === "basic" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" : 
+                        profile?.tier === "enterprise" ? "bg-purple-500/20 text-purple-300 border-purple-500/30" : 
                         "bg-putih/10 text-putih/60 border-putih/20"
                       }`}>
                         {profile?.tier || "Free"}
@@ -143,8 +143,15 @@ export default function Navbar() {
                         Admin Dashboard
                       </Link>
                     )}
+
+                    {profile?.tier === "enterprise" && (
+                      <Link href="/enterprise" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-purple-400 transition-colors">
+                        <Users className="w-4 h-4" />
+                        Enterprise Dashboard
+                      </Link>
+                    )}
                     
-                    {(isAdmin || profile?.role === "government" || profile?.role === "enterprise") && (
+                    {(isAdmin || profile?.role === "government" || profile?.hasAnalyticsAccess || profile?.institutionType === "pemerintah") && (
                       <Link href="/admin/analytics" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
                         <TrendingUp className="w-4 h-4" />
                         Government Analytics
@@ -222,7 +229,13 @@ export default function Navbar() {
                   Admin Dashboard
                 </Link>
               )}
-              {(isAdmin || profile?.role === "government" || profile?.role === "enterprise") && (
+              {profile?.tier === "enterprise" && (
+                <Link href="/enterprise" className="flex items-center gap-2 text-purple-400" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Users className="w-4 h-4" />
+                  Enterprise Dashboard
+                </Link>
+              )}
+              {(isAdmin || profile?.role === "government" || profile?.hasAnalyticsAccess || profile?.institutionType === "pemerintah") && (
                 <Link href="/admin/analytics" className="flex items-center gap-2 text-gold" onClick={() => setIsMobileMenuOpen(false)}>
                   <TrendingUp className="w-4 h-4" />
                   Government Analytics

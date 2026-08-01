@@ -17,6 +17,9 @@ export interface UserProfile {
   createdAt: string;
   subscriptionStartedAt: string | null;
   subscriptionExpiresAt: string | null;
+  hasAnalyticsAccess: boolean;
+  institutionName: string | null;
+  institutionType: string | null;
 }
 
 interface AuthContextType {
@@ -72,7 +75,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from("users")
-        .select("email, full_name, is_premium, role, tier, created_at, subscription_started_at, subscription_expires_at")
+        .select("email, full_name, is_premium, role, tier, created_at, subscription_started_at, subscription_expires_at, has_analytics_access, institution_name, institution_type")
         .eq("id", userId)
         .single();
 
@@ -99,6 +102,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         tier: profileData?.role === "admin" ? "admin" : (profileData?.tier || "free"),
         subscriptionStartedAt: profileData?.subscription_started_at || null,
         subscriptionExpiresAt: profileData?.subscription_expires_at || null,
+        hasAnalyticsAccess: profileData?.has_analytics_access || false,
+        institutionName: profileData?.institution_name || null,
+        institutionType: profileData?.institution_type || null,
         consultationCount: count || 0,
         createdAt: profileData?.created_at || fallbackCreatedAt || new Date().toISOString()
       });

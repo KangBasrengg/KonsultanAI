@@ -17,7 +17,7 @@ import { exportConsultationPDF } from "@/lib/pdf-export";
 import UserDropdown from "@/components/konsultasi/UserDropdown";
 import HistoryPanel from "@/components/konsultasi/HistoryPanel";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LoadingScreen from "@/components/auth/LoadingScreen";
 import LimitModal from "@/components/ui/LimitModal";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,9 +64,14 @@ export default function KonsultasiPage() {
   });
 
   const [apiModel, setApiModel] = useState<'freemodel' | 'gemini'>('freemodel');
+  const searchParams = useSearchParams();
+  const caseId = searchParams.get("caseId");
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     messages: initialMessages,
+    body: {
+      caseId: caseId
+    },
     onError: (err) => {
       console.error("[Konsultasi] useChat error:", err.message);
     },
@@ -517,7 +522,7 @@ export default function KonsultasiPage() {
                 onClick={() => setShowHomeConfirm(true)}
                 className="text-xs font-semibold bg-navy-light hover:bg-putih/10 text-putih border border-putih/20 px-4 py-1.5 rounded-full transition-colors shrink-0"
               >
-                Ya (Ke Beranda)
+                Ya (Selesaikan Sesi)
               </button>
             </div>
           )}
@@ -579,7 +584,7 @@ export default function KonsultasiPage() {
                 </div>
                 <h3 className="text-xl font-bold text-putih mb-2">Peringatan</h3>
                 <p className="text-putih/70 text-sm mb-8 leading-relaxed">
-                  Jika Anda kembali ke beranda Anda akan menutup sesi konsultasi kronologi ini.
+                  Jika Anda yakin sesi ini sudah selesai atau ingin bertanya bidang hukum yang berbeda, Anda dapat menyelesaikan sesi konsultasi ini.
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -588,13 +593,17 @@ export default function KonsultasiPage() {
                   >
                     Batal
                   </button>
-                  <Link
-                    href="/"
-                    onClick={() => setShowHomeConfirm(false)}
+                  <button
+                    onClick={() => {
+                      setShowHomeConfirm(false);
+                      sessionStorage.removeItem("konsultasi_chat_messages");
+                      sessionStorage.removeItem("intake_kronologi");
+                      router.push("/intake");
+                    }}
                     className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors text-center"
                   >
-                    Ya
-                  </Link>
+                    Ya, Selesaikan
+                  </button>
                 </div>
               </motion.div>
             </div>

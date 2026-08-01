@@ -550,6 +550,43 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                     </AnimatePresence>
                   </div>
 
+                  {/* Terms of Service Checkbox (register only) */}
+                  <AnimatePresence>
+                    {!isLogin && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="pt-1 pb-1"
+                      >
+                        <label className="flex items-start gap-2 cursor-pointer group">
+                          <div className="relative flex items-center justify-center mt-0.5">
+                            <input
+                              type="checkbox"
+                              name="agree_terms"
+                              required={!isLogin}
+                              className="peer appearance-none w-4 h-4 border border-putih/30 rounded bg-navy-dark checked:bg-gold checked:border-gold transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-gold/50"
+                            />
+                            <svg
+                              className="absolute w-3 h-3 text-navy pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-[12px] text-putih/60 leading-tight select-none pt-[1px]">
+                            Saya menyetujui{" "}
+                            <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">Syarat & Ketentuan</a>
+                            {" "}serta Kebijakan Privasi KonsultanAI.
+                          </span>
+                        </label>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Submit button */}
                   <button
                     type="submit"

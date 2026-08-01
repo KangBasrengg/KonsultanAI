@@ -151,8 +151,8 @@ function extractText(msg: any): string {
 export async function POST(req: Request) {
   try {
     // 1. Parse request body
-    const { messages, modelType } = await req.json();
-    console.log("[Chat API] Received messages count:", messages?.length, "Model Type:", modelType);
+    const { messages, modelType, caseId } = await req.json();
+    console.log("[Chat API] Received messages count:", messages?.length, "caseId:", caseId);
 
     // 2. Initialize AI provider based on modelType
     const isNativeGemini = true; // Forced to always use Gemini Native
@@ -217,33 +217,86 @@ export async function POST(req: Request) {
 
         const { data: profile } = await supabase
           .from("users")
-          .select("is_premium, role")
+          .select("is_premium, role, token_balance, tier, subscription_expires_at")
           .eq("id", user.id)
           .single();
-        isPremium = profile?.is_premium || false;
+        let isPremium = profile?.is_premium || false;
         isAdmin = profile?.role === "admin";
+        let tier = (profile?.tier || "free").toLowerCase();
+        const tokenBalance = profile?.token_balance || 0;
 
-        if (!isAdmin && !isPremium) {
-          const FREE_LIMIT = 3;
-          
-          const threeDaysAgo = new Date();
-          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+        // Check expiration
+        if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date() && !isAdmin) {
+          tier = "free";
+          isPremium = false;
+          // Opportunistic downgrade
+          supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
+        }
 
-          const { count } = await supabase
-            .from("consultations")
-            .select("*", { count: "exact", head: true })
-            .eq("user_id", user.id)
-            .gte("created_at", threeDaysAgo.toISOString());
-          
-          if (count !== null && count >= FREE_LIMIT && !isFollowUp) {
-            return new Response(JSON.stringify({ 
-              error: "Limit_Exceeded", 
-              message: `Limit penggunaan tercapai (${FREE_LIMIT}x generate gratis). Limit akan di-reset setiap 3 hari sekali. Upgrade ke Premium untuk melanjutkan konsultasi tanpa batas.` 
-            }), { status: 403, headers: { "Content-Type": "application/json" } });
+        if (!isAdmin && tier !== "enterprise") {
+          let deductionType: "token" | "none" = "none";
+
+          if (tier === "pro" || tier === "professional") {
+            const PRO_LIMIT = 10;
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const { count } = await supabase
+              .from("consultations")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", user.id)
+              .gte("created_at", startOfMonth.toISOString());
+            
+            if (count !== null && count >= PRO_LIMIT && !isFollowUp) {
+              if (tokenBalance <= 0) {
+                return new Response(JSON.stringify({ 
+                  error: "Limit_Exceeded", 
+                  message: `Limit paket Pro Anda (${PRO_LIMIT}x/bulan) telah tercapai. Silakan Top-Up Kuota untuk melanjutkan.` 
+                }), { status: 403, headers: { "Content-Type": "application/json" } });
+              } else {
+                deductionType = "token";
+              }
+            }
+          } else if (tier === "enterprise_member") {
+            // Enterprise members STRICTLY use tokens for every new consultation. No free limits.
+            if (!isFollowUp) {
+              if (tokenBalance <= 0) {
+                return new Response(JSON.stringify({ 
+                  error: "Limit_Exceeded", 
+                  message: `Saldo token instansi Anda habis. Silakan hubungi Admin instansi Anda untuk menambah token.` 
+                }), { status: 403, headers: { "Content-Type": "application/json" } });
+              } else {
+                deductionType = "token";
+              }
+            }
+          } else {
+            // Free users
+            const FREE_LIMIT = 3;
+            const { count } = await supabase
+              .from("consultations")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", user.id);
+            
+            if (count !== null && count >= FREE_LIMIT && !isFollowUp) {
+              if (tokenBalance <= 0) {
+                return new Response(JSON.stringify({ 
+                  error: "Limit_Exceeded", 
+                  message: `Kuota uji coba gratis Anda (${FREE_LIMIT}x) telah habis. Silakan Top-Up Kuota atau Upgrade ke Premium untuk melanjutkan.` 
+                }), { status: 403, headers: { "Content-Type": "application/json" } });
+              } else {
+                deductionType = "token";
+              }
+            }
           }
 
           // Don't claim a slot for follow-up requests (they don't create a new history row)
           if (!isFollowUp) {
+            // Deduct token if free/pro limits are exhausted
+            if (deductionType === "token") {
+              await supabase.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
+            }
+
             // Claim a slot BEFORE calling AI to prevent race condition
             const { data: placeholder, error: insertErr } = await supabase
               .from("consultations")
@@ -257,6 +310,20 @@ export async function POST(req: Request) {
               placeholderId = placeholder?.id || null;
             }
           }
+          
+          // Asynchronously save the user's message to chat_messages table
+          const sessionId = caseId || placeholderId;
+          if (sessionId && userId) {
+            supabase.from("chat_messages").insert({
+              session_id: sessionId,
+              user_id: userId,
+              role: "user",
+              content: lastUserMessage
+            }).then(({ error }) => {
+              if (error) console.error("[Chat API] Failed to save user message:", error);
+            });
+          }
+
         }
       }
     } catch (authError) {
@@ -312,11 +379,27 @@ export async function POST(req: Request) {
           }
         } else {
           // AI failed — remove the placeholder so it doesn't waste a slot
-          if (placeholderId) {
+          if (placeholderId && !isFollowUp) {
             try {
               const supabase = await createClient();
               await supabase.from("consultations").delete().eq("id", placeholderId);
             } catch (_) { /* best-effort cleanup */ }
+          }
+        }
+        
+        // Asynchronously save the AI's response to chat_messages table
+        const sessionId = caseId || placeholderId;
+        if (text && sessionId && userId) {
+          try {
+            const supabase = await createClient();
+            await supabase.from("chat_messages").insert({
+              session_id: sessionId,
+              user_id: userId,
+              role: "assistant",
+              content: text
+            });
+          } catch (e) {
+            console.error("[Chat API] Failed to save assistant message:", e);
           }
         }
       },

@@ -81,4 +81,4 @@ Aplikasi ini di-build dengan standar produksi:
 *   Validasi otorisasi lintas *role* (Admin, User, Advokat, Pemerintah).
 
 ---
-*Dibangun dengan ❤️ untuk hukum Indonesia yang lebih adil dan transparan oleh Muhammad Nuril & Bahrul Ilmi.*
+*Dibangun dengan ❤️ untuk hukum Indonesia yang lebih adil dan transparan oleh Hoodtech.*

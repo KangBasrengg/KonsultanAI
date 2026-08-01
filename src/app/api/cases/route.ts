@@ -17,6 +17,7 @@ Anda WAJIB merespons dalam format JSON yang valid (tanpa markdown code block) de
   "severity": <number 1-5>,
   "recommendation": "<AI_ANALYSIS | LEARNING_FIRST | ADVOKAT_URGENT | TEMPLATES>",
   "analysis": "<string - analisis awal kasus dalam bahasa Indonesia yang mudah dipahami, 2-3 paragraf>",
+  "anonymized_chronology": "<string - ringkasan kronologi kasus yang 100% DISENSOR dari data pribadi (nama orang, PT, alamat spesifik dihapus)>",
   "recommended_modules": ["<module_id_1>", "<module_id_2>"],
   "recommended_templates": ["<template_id_1>", "<template_id_2>"],
   "follow_up_questions": ["<pertanyaan lanjutan 1>", "<pertanyaan lanjutan 2>"]
@@ -67,30 +68,36 @@ export async function POST(req: Request) {
       return Response.json({ error: "Anda harus login terlebih dahulu." }, { status: 401 });
     }
 
-    // Check free trial limit (3 intake form for free users)
     const { data: profile } = await supabase
       .from("users")
-      .select("is_premium, role, tier")
+      .select("is_premium, role, tier, token_balance, subscription_expires_at")
       .eq("id", user.id)
       .single();
 
     const isAdmin = profile?.role === "admin";
+    let tier = (profile?.tier || "free").toLowerCase();
+    const tokenBalance = profile?.token_balance || 0;
 
-    if (!isAdmin && profile?.tier !== "premium" && profile?.tier !== "pro" && profile?.tier !== "enterprise") {
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date() && !isAdmin) {
+      tier = "free";
+      supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
+    }
 
+    if (!isAdmin && tier !== "premium" && tier !== "pro" && tier !== "professional" && tier !== "enterprise") {
       const { count } = await supabase
         .from("cases")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gte("created_at", threeDaysAgo.toISOString());
+        .eq("user_id", user.id);
 
-      if (count !== null && count >= 3) {
+      if (count !== null && count >= 3 && tokenBalance <= 0) {
         return Response.json({
           error: "Limit_Exceeded",
-          message: "Limit uji coba gratis Anda telah habis (3x). Limit akan di-reset setiap 3 hari sekali. Silakan upgrade paket untuk akses tanpa batas."
+          message: "Kuota uji coba gratis Anda (3x) telah habis. Silakan Top-Up Kuota atau upgrade paket untuk akses tanpa batas."
         }, { status: 403 });
+      }
+
+      if (count !== null && count >= 3) {
+         await supabase.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
       }
     }
 
@@ -273,6 +280,9 @@ Berikan triage dalam format JSON sesuai instruksi.`;
           wilayah_kabupaten: finalKabupaten,
           wilayah_provinsi: finalProvinsi,
           has_advokat: formData.sudah_advokat,
+          summary: triageData.anonymized_chronology,
+          recommendation: triageData.analysis,
+          case_id: caseRecord.id,
         });
     } catch (analyticsError) {
       console.warn("[Cases API] Analytics insert failed (non-critical):", analyticsError);

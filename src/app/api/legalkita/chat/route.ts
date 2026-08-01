@@ -80,28 +80,34 @@ export async function POST(req: Request) {
       if (user) {
         userId = user.id;
 
-        const { data: profile } = await supabase.from("users").select("tier, role").eq("id", userId).single();
+        const { data: profile } = await supabase.from("users").select("tier, role, token_balance, subscription_expires_at").eq("id", userId).single();
         const isAdmin = profile?.role === "admin";
-        const tier = profile?.tier || "free";
+        let tier = (profile?.tier || "free").toLowerCase();
+        const tokenBalance = profile?.token_balance || 0;
 
-        if (!isAdmin && tier !== "pro" && tier !== "enterprise") {
-          const limit = tier === "basic" ? 10 : 3;
-          const startOfMonth = new Date();
-          startOfMonth.setDate(1);
-          startOfMonth.setHours(0, 0, 0, 0);
+        if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date() && !isAdmin) {
+          tier = "free";
+          supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", userId).then();
+        }
+
+        if (!isAdmin && tier !== "pro" && tier !== "enterprise" && tier !== "professional") {
+          const limit = 3;
 
           const { count } = await supabase
             .from("consultations")
             .select("*", { count: "exact", head: true })
             .eq("user_id", userId)
-            .like("chronology", "[LegalKita%")
-            .gte("created_at", startOfMonth.toISOString());
+            .like("chronology", "[LegalKita%");
           
-          if (count !== null && count >= limit) {
+          if (count !== null && count >= limit && tokenBalance <= 0) {
             return new Response(JSON.stringify({ 
               error: "Limit_Exceeded", 
-              message: `Limit ${limit} konsultasi/bulan untuk tier ${tier} telah tercapai. Silakan upgrade paket Anda.` 
+              message: `Kuota uji coba gratis Anda (${limit}x) telah habis. Silakan Top-Up Kuota atau Upgrade ke paket Premium.` 
             }), { status: 403, headers: { "Content-Type": "application/json" } });
+          }
+
+          if (count !== null && count >= limit) {
+             await supabase.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", userId);
           }
         }
       }

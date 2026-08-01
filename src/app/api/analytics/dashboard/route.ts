@@ -13,12 +13,12 @@ export async function GET(req: Request) {
     // Verify user role
     const { data: profile } = await supabase
       .from("users")
-      .select("role, tier")
+      .select("role, tier, has_analytics_access, institution_type")
       .eq("id", user.id)
       .single();
 
-    if (!profile || (profile.role !== "admin" && profile.role !== "government" && profile.role !== "enterprise")) {
-      return NextResponse.json({ error: "Access denied. Requires Government or Enterprise Business Tier." }, { status: 403 });
+    if (!profile || (profile.role !== "admin" && profile.role !== "government" && !profile.has_analytics_access && profile.institution_type !== "pemerintah")) {
+      return NextResponse.json({ error: "Access denied. Requires Government or Analytics Access." }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
     const endDate = searchParams.get("end_date");
 
     // Build query for case_analytics
-    let query = supabase.from("case_analytics").select("*");
+    let query = supabase.from("case_analytics").select("*").order("created_at", { ascending: false });
     
     if (wilayah && wilayah !== "all") {
       // Allow searching by province or kabupaten and sanitize to prevent PostgREST injection

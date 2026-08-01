@@ -27,7 +27,15 @@ export async function POST(request: Request) {
     // Use centralized pricing config (single source of truth)
     const normalizedPlan = (planName || '').toString().toLowerCase().trim();
     const isAnnual = normalizedPlan.includes('tahunan') || normalizedPlan.includes('annual');
-    const price = getPlanPrice(planName, isAnnual);
+    let price = getPlanPrice(planName, isAnnual);
+
+    if (normalizedPlan.includes('top-up kuota')) {
+      const match = planName.match(/\((\d+)\s+token\)/i);
+      if (match) {
+        const tokenCount = parseInt(match[1], 10);
+        price = tokenCount * 5000;
+      }
+    }
 
     if (price === null) {
       return NextResponse.json({ error: `Invalid plan: ${planName}` }, { status: 400 });

@@ -12,6 +12,7 @@ export default function PricingSection() {
   const { user, openAuthModal } = useAuth();
   const router = useRouter();
   const [isAnnual, setIsAnnual] = useState(false);
+  const [tokenCount, setTokenCount] = useState(4);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -100,17 +101,39 @@ export default function PricingSection() {
               <h3 className="text-xl font-bold mb-2 text-putih">{plan.name}</h3>
               <p className="text-sm text-putih/60 mb-6 min-h-[4.5rem]">{plan.description}</p>
 
-              <div className="mb-8">
-                <div className="flex items-baseline gap-1 whitespace-nowrap">
-                  <span className="text-3xl xl:text-4xl font-bold text-gold tracking-tight">{isAnnual ? plan.displayAnnual : plan.displayMonthly}</span>
-                  {plan.priceMonthly > 0 && <span className="text-putih/50 text-sm">/bulan</span>}
+              <div className="mb-4">
+                <div className="flex flex-wrap items-baseline gap-1">
+                  <span className={`${plan.name === "Enterprise" ? "text-2xl xl:text-3xl" : "text-3xl xl:text-4xl"} font-bold text-gold tracking-tight`}>
+                    {plan.name === "Top-Up Kuota" ? `Rp ${(tokenCount * 5000).toLocaleString('id-ID')}` : (isAnnual ? plan.displayAnnual : plan.displayMonthly)}
+                  </span>
+                  {plan.priceMonthly > 0 && <span className="text-putih/50 text-sm">{plan.name === "Top-Up Kuota" ? " / bayar" : "/bulan"}</span>}
                 </div>
-                {isAnnual && plan.priceMonthly > 0 && (
+                {isAnnual && plan.priceMonthly > 0 && plan.name !== "Top-Up Kuota" && (
                   <p className={`text-xs mt-1 font-medium ${plan.name === "Enterprise" ? "text-putih/40 italic" : "text-green-400"}`}>
                     Ditagih {plan.displayAnnualTotal} per tahun
                   </p>
                 )}
               </div>
+              
+              {plan.name === "Top-Up Kuota" && (
+                <div className="mb-6 flex flex-col gap-2 bg-navy/50 p-3 rounded-lg border border-putih/10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-putih">Jumlah Kuota:</span>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setTokenCount(Math.max(4, tokenCount - 1))}
+                        className="w-8 h-8 rounded bg-navy-light text-putih hover:text-gold flex items-center justify-center font-bold text-lg"
+                      >-</button>
+                      <span className="text-lg font-bold w-6 text-center">{tokenCount}</span>
+                      <button 
+                        onClick={() => setTokenCount(tokenCount + 1)}
+                        className="w-8 h-8 rounded bg-navy-light text-putih hover:text-gold flex items-center justify-center font-bold text-lg"
+                      >+</button>
+                    </div>
+                  </div>
+                  <span className="text-xs text-putih/40 text-right">Rp 5.000 / Kuota (Min. 4)</span>
+                </div>
+              )}
 
               <ul className="space-y-4 mb-8 flex-1">
                 {plan.features.map((feat, fIdx) => (
@@ -131,7 +154,8 @@ export default function PricingSection() {
                     if (!user) {
                       openAuthModal("login");
                     } else {
-                      router.push(`/chat?plan=${encodeURIComponent(plan.name)}&cycle=${isAnnual ? "annual" : "monthly"}`);
+                      const finalPlanName = plan.name === "Top-Up Kuota" ? `Top-Up Kuota (${tokenCount} Token)` : plan.name;
+                      router.push(`/chat?plan=${encodeURIComponent(finalPlanName)}&cycle=${isAnnual ? "annual" : "monthly"}`);
                     }
                   }}
                   className={`w-full py-3 rounded-xl font-bold transition-all mt-auto ${plan.highlight

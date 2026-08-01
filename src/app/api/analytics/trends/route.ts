@@ -12,11 +12,11 @@ export async function GET(req: Request) {
 
     const { data: profile } = await supabase
       .from("users")
-      .select("role")
+      .select("role, has_analytics_access, institution_type")
       .eq("id", user.id)
       .single();
 
-    if (!profile || (profile.role !== "admin" && profile.role !== "government" && profile.role !== "enterprise")) {
+    if (!profile || (profile.role !== "admin" && profile.role !== "government" && !profile.has_analytics_access && profile.institution_type !== "pemerintah")) {
       return NextResponse.json({ error: "Access denied." }, { status: 403 });
     }
 

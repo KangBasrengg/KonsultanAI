@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Send, AlertCircle, FileText, Bot, Scale, BookOpen, Clock, ShieldCheck } from "lucide-react";
@@ -41,6 +41,22 @@ export default function IntakeFormPage() {
     sudah_advokat: false,
     sudah_lapor_polisi: false
   });
+
+  useEffect(() => {
+    // Check if there's an ongoing chat session
+    const saved = sessionStorage.getItem("konsultasi_chat_messages");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 1) {
+          // There are actual messages beyond the initial greeting
+          router.replace("/konsultasi");
+        }
+      } catch (e) {
+        console.error("Failed to parse saved messages", e);
+      }
+    }
+  }, [router]);
 
   const handleInputChange = (field: keyof IntakeFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
