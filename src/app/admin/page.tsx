@@ -29,6 +29,8 @@ interface UserData {
   institution_type?: string | null;
   has_analytics_access?: boolean;
   token_balance?: number;
+  parent_id?: string | null;
+  subscription_expires_at?: string | null;
 }
 
 interface ChatData {

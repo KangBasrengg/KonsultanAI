@@ -206,7 +206,7 @@ export default function EnterpriseDashboard() {
             </Link>
             <div>
               <h1 className="font-bold text-xl text-gold">Enterprise Dashboard</h1>
-              <p className="text-xs text-putih/50">{profile?.institution_name || profile?.full_name || "Manajemen Instansi"}</p>
+              <p className="text-xs text-putih/50">{profile?.institutionName || profile?.fullName || "Instansi"}</p>
             </div>
           </div>
           <div className="bg-gold/10 border border-gold/20 px-4 py-2 rounded-xl flex items-center gap-2">

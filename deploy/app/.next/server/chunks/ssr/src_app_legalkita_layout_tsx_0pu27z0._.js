@@ -1,3 +1,0 @@
-module.exports=[215453,a=>{"use strict";var b=a.i(907997);a.s(["default",0,function({children:a}){return(0,b.jsx)(b.Fragment,{children:a})},"metadata",0,{title:"LegalKita - Asisten Hukum AI untuk UMKM | KonsultanAI",description:"LegalKita membantu UMKM Indonesia membuat kontrak kerja, perjanjian sewa, review dokumen hukum, dan tanya jawab regulasi secara instan menggunakan teknologi AI.",openGraph:{title:"LegalKita - Asisten Hukum AI untuk UMKM",description:"Buat kontrak dalam 2 menit, review risiko dokumen, dan konsultasi hukum instan. Khusus didesain untuk UMKM Indonesia.",type:"website",url:"https://konsultan-ai.com/legalkita"}}])},709724,a=>{a.n(a.i(215453))}];
-
-//# sourceMappingURL=src_app_legalkita_layout_tsx_0pu27z0._.js.map

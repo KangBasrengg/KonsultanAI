@@ -34,7 +34,7 @@ function getMessageText(msg: any): string {
   return "";
 }
 
-export default function KonsultasiPage() {
+function KonsultasiContent() {
   const [initialMessages] = useState<UIMessage[]>(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("konsultasi_chat_messages");
@@ -69,6 +69,7 @@ export default function KonsultasiPage() {
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     messages: initialMessages,
+    // @ts-ignore - ai-sdk react typing doesn't include body in some versions but it works
     body: {
       caseId: caseId
     },
@@ -764,3 +765,12 @@ export default function KonsultasiPage() {
   );
 }
 
+import { Suspense } from "react";
+
+export default function KonsultasiPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <KonsultasiContent />
+    </Suspense>
+  );
+}
