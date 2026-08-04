@@ -155,7 +155,7 @@ export default function PricingSection() {
                       openAuthModal("login");
                     } else {
                       const finalPlanName = plan.name === "Top-Up Kuota" ? `Top-Up Kuota (${tokenCount} Token)` : plan.name;
-                      router.push(`/chat?plan=${encodeURIComponent(finalPlanName)}&cycle=${isAnnual ? "annual" : "monthly"}`);
+                      router.push(`/checkout?plan=${encodeURIComponent(finalPlanName)}&cycle=${isAnnual ? "annual" : "monthly"}`);
                     }
                   }}
                   className={`w-full py-3 rounded-xl font-bold transition-all mt-auto ${plan.highlight

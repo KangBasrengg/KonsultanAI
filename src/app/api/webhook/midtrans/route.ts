@@ -102,8 +102,78 @@ export async function POST(request: Request) {
       && (fraudStatus === 'accept' || !fraudStatus);
     const isFailed = transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire';
 
-    // --- ORD- : Subscription/Plan checkout (from /api/checkout) ---
-    if (orderId.startsWith('ORD-')) {
+    // --- INV- : New Transactions Table (E-commerce Flow) ---
+    if (orderId.startsWith('INV-')) {
+      if (isSuccess) {
+        // Find transaction
+        const { data: transactions } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('order_id', orderId)
+          .eq('status', 'PENDING')
+          .limit(1);
+
+        if (transactions && transactions.length > 0) {
+          const transaction = transactions[0];
+          
+          // 1. Mark as PAID
+          await supabase.from('transactions')
+            .update({ status: 'PAID', updated_at: new Date().toISOString() })
+            .eq('id', transaction.id);
+
+          const isTopUp = transaction.plan_name.toLowerCase().includes('top-up kuota');
+
+          if (isTopUp) {
+            // Match (X Token)
+            const match = transaction.plan_name.match(/\((\d+)\s+token\)/i);
+            const tokensToAdd = match ? parseInt(match[1], 10) : (transaction.amount / 5000); // fallback
+
+            const { data: userData } = await supabase.from('users').select('token_balance').eq('id', transaction.user_id).single();
+            const currentBalance = userData?.token_balance || 0;
+
+            await supabase.from('users')
+              .update({ token_balance: currentBalance + tokensToAdd })
+              .eq('id', transaction.user_id);
+              
+            console.log(`[Webhook] INV Top-Up processed: user=${transaction.user_id}, tokens added=${tokensToAdd}, new balance=${currentBalance + tokensToAdd}`);
+            await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Top-Up Kuota', `${tokensToAdd} Token`);
+          } else {
+            // Subscription Upgrade
+            const isAnnual = transaction.plan_name.toLowerCase().includes('tahunan') || transaction.plan_name.toLowerCase().includes('annual');
+            const daysToAdd = isAnnual ? 365 : 30;
+            const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+
+            const updatePayload: any = { 
+              tier: transaction.plan_name, 
+              is_premium: true,
+              subscription_started_at: new Date().toISOString(),
+              subscription_expires_at: expiresAt 
+            };
+
+            if (transaction.plan_name.toLowerCase().includes('enterprise')) {
+              updatePayload.token_balance = isAnnual ? (18 * 12) : 18;
+            }
+
+            await supabase.from('users')
+              .update(updatePayload)
+              .eq('id', transaction.user_id);
+
+            console.log(`[Webhook] INV Subscription processed: user=${transaction.user_id}, plan=${transaction.plan_name}`);
+            await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Langganan Paket (Subscription)', transaction.plan_name);
+          }
+        } else {
+          console.log(`[Webhook] Idempotency skip: No PENDING transaction found for INV: ${orderId}.`);
+        }
+      } else if (isFailed) {
+        await supabase.from('transactions')
+          .update({ status: transactionStatus.toUpperCase(), updated_at: new Date().toISOString() })
+          .eq('order_id', orderId);
+        console.log(`[Webhook] INV payment failed/expired for ${orderId}`);
+      }
+    }
+
+    // --- ORD- : Legacy Subscription/Plan checkout (backward compatibility) ---
+    else if (orderId.startsWith('ORD-')) {
       // Format: ORD-{timestamp}-{chatId_8char}
       const chatIdFragment = orderId.split('-').slice(2).join('-'); // 8 char fragment
 

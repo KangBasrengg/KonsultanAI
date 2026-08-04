@@ -18,55 +18,56 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { chatId, planName, userEmail, userName } = await request.json();
+    const { planName, amount, userEmail, userName } = await request.json();
 
-    if (!chatId || !planName) {
+    if (!planName || !amount) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Use centralized pricing config (single source of truth)
-    const normalizedPlan = (planName || '').toString().toLowerCase().trim();
-    const isAnnual = normalizedPlan.includes('tahunan') || normalizedPlan.includes('annual');
-    let price = getPlanPrice(planName, isAnnual);
-
-    if (normalizedPlan.includes('top-up kuota')) {
-      const match = planName.match(/\((\d+)\s+token\)/i);
-      if (match) {
-        const tokenCount = parseInt(match[1], 10);
-        price = tokenCount * 5000;
-      }
-    }
-
-    if (price === null) {
-      return NextResponse.json({ error: `Invalid plan: ${planName}` }, { status: 400 });
-    }
-    
-    if (price === 0) {
+    if (amount === 0) {
         return NextResponse.json({ token: 'free' });
     }
 
-    // Midtrans order_id has a max length of 50 characters
-    const orderId = `ORD-${Date.now()}-${chatId.substring(0, 8)}`;
+    // Generate a unique order_id for transactions table
+    const orderId = `INV-${Date.now()}-${user.id.substring(0, 8)}`;
 
     const parameter = {
       transaction_details: {
         order_id: orderId,
-        gross_amount: price
+        gross_amount: amount
       },
       customer_details: {
         first_name: userName || 'Customer',
         email: userEmail || 'customer@example.com'
       },
       item_details: [{
-        id: `PLAN-${planName.replace(/\s+/g, '-').toUpperCase()}`,
-        price: price,
+        id: `PLAN-${planName.replace(/[\s\(\)]+/g, '-').substring(0, 30).toUpperCase()}`,
+        price: amount,
         quantity: 1,
-        name: `KonsultanAI - ${planName}`
+        name: `KonsultanAI - ${planName}`.substring(0, 50)
       }]
     };
 
     const transaction = await snap.createTransaction(parameter);
     
+    // Save to transactions table
+    const { error: insertError } = await supabase
+      .from('transactions')
+      .insert({
+        order_id: orderId,
+        user_id: user.id,
+        plan_name: planName,
+        amount: amount,
+        status: 'PENDING',
+        snap_token: transaction.token
+      });
+
+    if (insertError) {
+      console.error('Failed to save transaction to DB:', insertError);
+      // We can throw or continue, but better to return error if we can't save it
+      return NextResponse.json({ error: 'Failed to initialize transaction record' }, { status: 500 });
+    }
+
     return NextResponse.json({
       token: transaction.token,
       orderId: orderId

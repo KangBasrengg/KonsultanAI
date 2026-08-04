@@ -29,10 +29,6 @@ interface Message {
 function ChatContent() {
   const { user, isVerifying } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const basePlan = searchParams.get("plan");
-  const cycle = searchParams.get("cycle");
-  const plan = basePlan && cycle === "annual" ? `${basePlan} (Tahunan)` : basePlan;
   const supabase = createClient();
 
   const [chats, setChats] = useState<Chat[]>([]);
@@ -42,7 +38,6 @@ function ChatContent() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [isPaying, setIsPaying] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -84,37 +79,27 @@ function ChatContent() {
       let currentActiveId = null;
 
       // 2. Determine active chat or create a new one
-      if (plan) {
-        // Came from pricing: look for an open chat with the exact same plan
-        const openChat = currentChats.find(c => c.status === "open" && c.plan === plan);
-        if (openChat) {
-          currentActiveId = openChat.id;
-        } else {
-          // Create new chat
-          const { data: newChat, error: insertError } = await supabase
-            .from("chats")
-            .insert({
-              user_id: user.id,
-              plan: plan,
-              status: "open"
-            })
-            .select("*")
-            .single();
-          
-          if (insertError) {
-            console.error("Error creating chat:", insertError);
-            showNotification("Gagal membuat transaksi baru.", "error");
-          }
-          
-          if (newChat) {
-            currentChats = [newChat as Chat, ...currentChats];
-            currentActiveId = newChat.id;
-          }
-        }
+      if (currentChats.length > 0) {
+        currentActiveId = currentChats[0].id;
       } else {
-        // Just visited /chat directly
-        if (currentChats.length > 0) {
-          currentActiveId = currentChats[0].id;
+        // Create initial default chat
+        const { data: newChat, error: insertError } = await supabase
+          .from("chats")
+          .insert({
+            user_id: user.id,
+            plan: "Konsultasi Hukum",
+            status: "open"
+          })
+          .select("*")
+          .single();
+        
+        if (insertError) {
+          console.error("Error creating chat:", insertError);
+        }
+        
+        if (newChat) {
+          currentChats = [newChat as Chat];
+          currentActiveId = newChat.id;
         }
       }
 
@@ -148,7 +133,7 @@ function ChatContent() {
       supabase.removeChannel(chatChannel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, isVerifying, plan]);
+  }, [user?.id, isVerifying]);
 
   // Fetch messages & subscribe to realtime once activeChatId is set
   useEffect(() => {
@@ -267,110 +252,7 @@ function ChatContent() {
     }
   };
 
-  // Calculate price based on plan name
-  const getPlanPrice = (planName: string): number => {
-    const normalized = (planName || '').toLowerCase().trim();
-    const isAnnual = normalized.includes('tahunan') || normalized.includes('annual');
-
-    if (normalized.includes('pro') || normalized.includes('premium')) return isAnnual ? 1548000 : 149000;
-    if (normalized.includes('enterprise')) return isAnnual ? 5340000 : 525000;
-    return 0;
-  };
-
-  const handlePayment = async () => {
-    if (!activeChatId || !user || !activeChat) return;
-
-    // Free Trial bypass
-    if (activeChat.plan === "Free Trial") {
-      setIsPaying(true);
-      try {
-        await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
-        
-        // Upgrade User Plan (Free Trial does NOT grant premium)
-        await supabase.from("users").update({ 
-          tier: activeChat.plan,
-          is_premium: false 
-        }).eq("id", user.id);
-        
-        await supabase.from("messages").insert({
-          chat_id: activeChatId,
-          sender_id: user.id, // using user.id as fallback, but ideally admin id
-          content: `Admin: Terima kasih telah mengaktifkan ${activeChat.plan}! Layanan Anda sudah aktif. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.`
-        });
-        
-        showNotification(`${activeChat.plan} berhasil diaktifkan!`, "success");
-        if (typeof (window as any).refreshProfile === 'function') (window as any).refreshProfile();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsPaying(false);
-      }
-      return;
-    }
-
-    setIsPaying(true);
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chatId: activeChatId,
-          planName: activeChat.plan,
-          userEmail: user.email,
-          userName: user.user_metadata?.full_name || user.email?.split('@')[0]
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) throw new Error(data.error || 'Failed to get payment token');
-
-      if (window.snap) {
-        window.snap.pay(data.token, {
-          onSuccess: async function (result: any) {
-            console.log('Payment success:', result);
-            
-            // 1. Update chat status
-            await supabase.from("chats").update({ status: "resolved", updated_at: new Date().toISOString() }).eq("id", activeChatId);
-            
-            // 2. Server-side Webhook will handle the plan upgrade
-            // We do not update 'users' table here to prevent client-side manipulation via DevTools.
-
-            // 3. Send automated thank you message
-            await supabase.from("messages").insert({
-              chat_id: activeChatId,
-              sender_id: user.id,
-              content: `Admin: Terima kasih atas pembayaran Anda untuk ${activeChat.plan}. Transaksi berhasil (Order ID: ${result.order_id}). Akun Anda telah diupgrade otomatis! Selamat menikmati layanan kami.`
-            });
-            
-            showNotification("Pembayaran berhasil! Transaksi selesai dan plan diperbarui.", "success");
-            
-            // 4. Force refresh profile globally if possible
-            if (typeof (window as any).refreshProfile === 'function') (window as any).refreshProfile();
-          },
-          onPending: function (result: any) {
-            console.log('Payment pending:', result);
-            showNotification("Menunggu pembayaran. Silakan selesaikan pembayaran Anda.", "info");
-          },
-          onError: function (result: any) {
-            console.error('Payment error:', result);
-            showNotification("Pembayaran gagal. Silakan coba lagi.", "error");
-          },
-          onClose: function () {
-            console.log('Payment popup closed');
-            showNotification("Pembayaran dibatalkan atau belum diselesaikan.", "info");
-          }
-        });
-      } else {
-        showNotification("Sistem pembayaran belum siap. Silakan refresh halaman.", "error");
-      }
-    } catch (err) {
-      console.error('Payment initialization error:', err);
-      showNotification("Gagal memproses pembayaran. Silakan coba lagi nanti.", "error");
-    } finally {
-      setIsPaying(false);
-    }
-  };
+  // Note: Payments and pricing calculations are now handled via /checkout page.
 
   const activeChat = chats.find(c => c.id === activeChatId);
 
@@ -452,28 +334,19 @@ function ChatContent() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-gold shrink-0" />
-                    <p className="text-sm font-medium">Transaksi: <span className="text-gold">{activeChat?.plan}</span></p>
+                    <p className="text-sm font-medium">Konsultasi: <span className="text-gold">{activeChat?.plan}</span></p>
                   </div>
                   {activeChat?.status === "resolved" && (
                     <span className="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded-lg border border-green-500/20">
-                      Transaksi Selesai
+                      Selesai
                     </span>
                   )}
                   {activeChat?.status === "open" && (
-                    <button
-                      onClick={handlePayment}
-                      disabled={isPaying}
-                      className="text-xs font-bold bg-gold text-navy px-3 py-1.5 rounded-lg hover:bg-gold-light transition-colors shadow-lg disabled:opacity-50"
-                    >
-                      {isPaying ? "Memproses..." : "Bayar Sekarang"}
-                    </button>
+                    <span className="text-xs bg-orange-500/10 text-orange-400 px-2 py-1 rounded-lg border border-orange-500/20">
+                      Aktif
+                    </span>
                   )}
                 </div>
-                {activeChat?.status === "open" && (
-                  <p className="text-xs text-putih/50 mt-1">
-                    Silakan klik "Bayar Sekarang" untuk membayar via Midtrans, atau unggah bukti transfer manual.
-                  </p>
-                )}
               </div>
 
               {/* Messages */}
@@ -485,8 +358,8 @@ function ChatContent() {
                       <Shield className="w-4 h-4 text-gold" />
                     </div>
                     <div className="bg-navy-light/50 border border-putih/20 rounded-2xl rounded-tl-sm p-4 text-sm text-putih max-w-[80%] shadow-lg">
-                      Halo! Terima kasih telah memilih <strong>{activeChat?.plan}</strong>. <br/><br/>
-                      Silakan lakukan pembayaran dan unggah bukti transfer di sini. Admin akan merespons melalui chat ini.
+                      Halo! Anda berada di ruang konsultasi <strong>{activeChat?.plan}</strong>. <br/><br/>
+                      Silakan ketik pertanyaan atau masalah hukum Anda, dan KonsultanAI akan membantu Anda.
                     </div>
                   </div>
 
@@ -623,13 +496,6 @@ function ChatContent() {
 export default function UserChatPage() {
   return (
     <>
-      <Script
-        src={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY?.startsWith('SB-')
-          ? "https://app.sandbox.midtrans.com/snap/snap.js"
-          : "https://app.midtrans.com/snap/snap.js"}
-        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-        strategy="lazyOnload"
-      />
       <Suspense fallback={<LoadingScreen />}>
         <ChatContent />
       </Suspense>
