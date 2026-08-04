@@ -3,11 +3,7 @@ import midtransClient from 'midtrans-client';
 import { createClient } from '@/lib/supabase/server';
 import { getPlanPrice } from '@/lib/pricing';
 
-const snap = new midtransClient.Snap({
-  isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
-});
+// We instantiate snap inside the handler to ensure env vars are loaded.
 
 export async function POST(request: Request) {
   try {
@@ -27,6 +23,12 @@ export async function POST(request: Request) {
     if (amount === 0) {
         return NextResponse.json({ token: 'free' });
     }
+
+    const snap = new midtransClient.Snap({
+      isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+    });
 
     // Generate a unique order_id for transactions table
     const orderId = `INV-${Date.now()}-${user.id.substring(0, 8)}`;
