@@ -121,7 +121,43 @@ function CheckoutContent() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-12 flex justify-center">
+      <main className="flex-1 container mx-auto px-4 py-12 flex flex-col md:flex-row justify-center gap-8">
+        
+        {/* Kolom Kiri: Manfaat */}
+        <div className="w-full max-w-md bg-navy-light/20 border border-putih/10 rounded-3xl p-8 h-fit">
+          <h2 className="text-xl font-bold mb-6 text-gold flex items-center gap-2">
+            <Shield className="w-5 h-5" /> Keuntungan Paket Anda
+          </h2>
+          
+          <ul className="space-y-4 text-sm text-putih/80">
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+              <span>Akses prioritas ke layanan <strong>KonsultanAI</strong> tanpa waktu tunggu.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+              <span>Keamanan tingkat tinggi dengan enkripsi ujung-ke-ujung (end-to-end encryption).</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+              <span>Analisis hukum mendalam didukung oleh model AI termutakhir.</span>
+            </li>
+            {plan.includes("Pro") && (
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+                <span>Pembuatan Draft Dokumen Hukum otomatis tanpa batas.</span>
+              </li>
+            )}
+            {plan.includes("Top-Up") && (
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+                <span>Token tidak hangus dan dapat digunakan kapan saja.</span>
+              </li>
+            )}
+          </ul>
+        </div>
+
+        {/* Kolom Kanan: Rincian Pembayaran */}
         <div className="w-full max-w-lg">
           <div className="bg-navy-light/30 border border-putih/20 rounded-3xl p-8 backdrop-blur-sm shadow-2xl">
             <h2 className="text-2xl font-bold mb-8 text-center border-b border-putih/10 pb-6">Rincian Pembayaran</h2>
@@ -161,6 +197,14 @@ function CheckoutContent() {
                 <><CheckCircle className="w-5 h-5" /> Bayar Sekarang</>
               )}
             </button>
+            <div className="mt-6 p-4 bg-merah/10 border border-merah/20 rounded-xl">
+              <p className="text-xs text-merah-light font-medium flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Disclaimer:</strong> Pembayaran yang sudah dilakukan tidak dapat dikembalikan (non-refundable). Jika Anda mengalami masalah dengan transaksi, silakan hubungi admin di menu <Link href="/chat" className="underline hover:text-putih">Konsultasi AI (Chat)</Link>.
+                </span>
+              </p>
+            </div>
             <p className="text-center text-[10px] text-putih/40 mt-4 flex items-center justify-center gap-1">
               <Shield className="w-3 h-3" /> Transaksi Aman & Terenkripsi
             </p>
