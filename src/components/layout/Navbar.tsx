@@ -131,7 +131,7 @@ export default function Navbar() {
 
                     <Link href="/chat" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">
                       <MessageSquare className="w-4 h-4" />
-                      Konsultasi AI (Chat)
+                      Hubungi Admin (Live Chat)
                     </Link>
 
                     <Link href="/legalkita" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-putih/80 hover:bg-putih/5 hover:text-gold transition-colors">

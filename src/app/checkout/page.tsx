@@ -201,7 +201,7 @@ function CheckoutContent() {
               <p className="text-xs text-merah-light font-medium flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Disclaimer:</strong> Pembayaran yang sudah dilakukan tidak dapat dikembalikan (non-refundable). Jika Anda mengalami masalah dengan transaksi, silakan hubungi admin di menu <Link href="/chat" className="underline hover:text-putih">Konsultasi AI (Chat)</Link>.
+                  <strong>Disclaimer:</strong> Pembayaran yang sudah dilakukan tidak dapat dikembalikan (non-refundable). Jika Anda mengalami masalah dengan transaksi, silakan hubungi admin di menu <Link href="/chat" className="underline hover:text-putih">Hubungi Admin (Live Chat)</Link>.
                 </span>
               </p>
             </div>
