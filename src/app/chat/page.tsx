@@ -106,7 +106,7 @@ function ChatContent() {
             showNotification("Gagal membuat transaksi baru.", "error");
           }
           
-          if (newChat && !cancelled) {
+          if (newChat) {
             currentChats = [newChat as Chat, ...currentChats];
             currentActiveId = newChat.id;
           }
