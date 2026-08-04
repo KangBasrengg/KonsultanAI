@@ -67,11 +67,16 @@ function ChatContent() {
 
     const initChats = async () => {
       // 1. Fetch all existing chats for this user
-      const { data: existingChats } = await supabase
+      const { data: existingChats, error: fetchError } = await supabase
         .from("chats")
         .select("*")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
+
+      if (fetchError) {
+        console.error("Error fetching chats:", fetchError);
+        showNotification("Gagal memuat riwayat transaksi.", "error");
+      }
 
       if (cancelled) return;
 
@@ -86,7 +91,7 @@ function ChatContent() {
           currentActiveId = openChat.id;
         } else {
           // Create new chat
-          const { data: newChat } = await supabase
+          const { data: newChat, error: insertError } = await supabase
             .from("chats")
             .insert({
               user_id: user.id,
@@ -95,6 +100,11 @@ function ChatContent() {
             })
             .select("*")
             .single();
+          
+          if (insertError) {
+            console.error("Error creating chat:", insertError);
+            showNotification("Gagal membuat transaksi baru.", "error");
+          }
           
           if (newChat && !cancelled) {
             currentChats = [newChat as Chat, ...currentChats];
@@ -614,9 +624,9 @@ export default function UserChatPage() {
   return (
     <>
       <Script
-        src={process.env.MIDTRANS_IS_PRODUCTION === 'true'
-          ? "https://app.midtrans.com/snap/snap.js"
-          : "https://app.sandbox.midtrans.com/snap/snap.js"}
+        src={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY?.startsWith('SB-')
+          ? "https://app.sandbox.midtrans.com/snap/snap.js"
+          : "https://app.midtrans.com/snap/snap.js"}
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="lazyOnload"
       />

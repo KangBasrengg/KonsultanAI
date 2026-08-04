@@ -148,7 +148,7 @@ export default function PricingSection() {
                 ))}
               </ul>
 
-              {plan.cta === "Berlangganan" ? (
+              {plan.cta === "Berlangganan" || plan.cta === "Beli Kuota" ? (
                 <button
                   onClick={() => {
                     if (!user) {

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getPlanPrice } from '@/lib/pricing';
 
 const snap = new midtransClient.Snap({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+  isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
 });
@@ -72,8 +72,9 @@ export async function POST(request: Request) {
       orderId: orderId
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Midtrans API Error:', error);
-    return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 });
+    const errorMessage = error?.message || error?.ApiResponse?.message || JSON.stringify(error) || 'Failed to create transaction';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
