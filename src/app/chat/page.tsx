@@ -85,8 +85,8 @@ function ChatContent() {
 
       // 2. Determine active chat or create a new one
       if (plan) {
-        // Came from pricing: look for an open chat
-        const openChat = currentChats.find(c => c.status === "open");
+        // Came from pricing: look for an open chat with the exact same plan
+        const openChat = currentChats.find(c => c.status === "open" && c.plan === plan);
         if (openChat) {
           currentActiveId = openChat.id;
         } else {
