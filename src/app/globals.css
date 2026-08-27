@@ -1,7 +1,13 @@
+/* =========================================
+   1. TAILWIND CONFIGURATION
+   ========================================= */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* =========================================
+   2. THEME VARIABLES
+   ========================================= */
 @theme {
   --color-navy: var(--theme-navy);
   --color-navy-light: var(--theme-navy-light);
@@ -14,36 +20,32 @@
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* =========================================
+   3. BASE STYLES & COLOR PALETTE
+   ========================================= */
 @layer base {
   :root, .dark {
-    --theme-navy: #0b132b;
-    --theme-navy-light: #1c2541;
-    --theme-navy-dark: #060a17;
+    /* Primary Colors */
+    --theme-navy: #0b1a2e;
+    --theme-navy-light: #16263e;
+    --theme-navy-dark: #06111f;
+    
+    /* Accent Colors */
     --theme-gold: #d4af37;
     --theme-gold-light: #f3e5ab;
     --theme-gold-dark: #aa8c2c;
     --theme-merah: #da251d;
     --theme-putih: #ffffff;
     
+    /* System Colors */
     --background: var(--theme-navy);
-    --foreground: var(--theme-putih);
-  }
-
-  .light {
-    --theme-navy: #f8fafc;
-    --theme-navy-light: #ffffff;
-    --theme-navy-dark: #e2e8f0;
-    --theme-gold: #a16207;       /* Tailwind yellow-700 */
-    --theme-gold-light: #ca8a04; /* Tailwind yellow-600 */
-    --theme-gold-dark: #854d0e;  /* Tailwind yellow-800 */
-    --theme-merah: #da251d;
-    --theme-putih: #0b132b;      /* Original dark navy text for light mode */
-    
-    --background: radial-gradient(circle, #aabee8, #adc1ea, #b0c3eb, #b4c6ed, #b7c9ee);
     --foreground: var(--theme-putih);
   }
 }
 
+/* =========================================
+   4. GLOBAL HTML/BODY STYLES
+   ========================================= */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem; /* Accounts for fixed navbar height */
@@ -55,7 +57,9 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom scrollbar */
+/* =========================================
+   5. CUSTOM SCROLLBAR
+   ========================================= */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -81,301 +85,64 @@ body {
   background: #64748b;
 }
 
-/* ========================================
-   LIGHT MODE — Comprehensive text & UI fixes
-   ======================================== */
+/* =========================================
+   6. COMPONENT CLASSES (Extracted from UI)
+   ========================================= */
+@layer components {
+  /* --- Hero Section --- */
+  .hero-section {
+    @apply relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden;
+  }
+  .hero-bg-top {
+    @apply absolute top-0 w-full h-[500px] bg-gradient-to-b from-navy-light/40 to-transparent dark:from-navy-light/40;
+  }
+  .hero-bg-glow {
+    @apply absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px];
+  }
+  .hero-container {
+    @apply container mx-auto px-6 lg:px-12;
+  }
+  .hero-content {
+    @apply max-w-2xl text-left pt-10;
+  }
+  .hero-badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full bg-navy-light border border-gold/30 text-gold mb-8 dark:bg-navy-light;
+  }
+  .hero-title {
+    @apply text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 leading-tight text-putih;
+  }
+  .hero-title-highlight {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold-light;
+  }
+  .hero-description {
+    @apply text-base md:text-lg text-putih/80 mb-10 leading-relaxed;
+  }
 
-/* Force readable prose colors in light mode */
-.light .prose {
-  --tw-prose-body: #1e293b;
-  --tw-prose-headings: #0f172a;
-  --tw-prose-lead: #334155;
-  --tw-prose-links: #854d0e;
-  --tw-prose-bold: #0f172a;
-  --tw-prose-counters: #475569;
-  --tw-prose-bullets: #475569;
-  --tw-prose-hr: #cbd5e1;
-  --tw-prose-quotes: #0f172a;
-  --tw-prose-quote-borders: #cbd5e1;
-  --tw-prose-captions: #64748b;
-  --tw-prose-code: #0f172a;
-  --tw-prose-pre-code: #e2e8f0;
-  --tw-prose-pre-bg: #1e293b;
-  --tw-prose-th-borders: #cbd5e1;
-  --tw-prose-td-borders: #e2e8f0;
-}
+  /* --- Buttons --- */
+  .hero-buttons-wrapper {
+    @apply flex flex-col sm:flex-row items-center justify-start gap-4;
+  }
+  .btn-primary {
+    @apply w-full sm:w-auto px-8 py-4 rounded-full bg-gold text-navy font-bold text-lg hover:bg-gold-light transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.4)];
+  }
+  .btn-secondary {
+    @apply w-full sm:w-auto px-8 py-4 rounded-full bg-navy-light border border-putih/20 text-putih font-semibold hover:bg-putih/10 transition-colors flex items-center justify-center gap-2;
+  }
 
-/* === Navbar & Header Fixes === */
-.light nav,
-.light .nav-area {
-  color: #1e293b;
-}
-
-/* Navbar background when scrolled in light mode */
-.light nav.bg-navy\/90 {
-  background-color: rgba(248, 250, 252, 0.95) !important;
-}
-
-/* === General text-putih overrides for light mode === */
-/* text-putih uses the CSS var which auto-swaps, so it becomes dark in light mode — this is correct.
-   However, opacity variants and backgrounds need help. */
-
-/* Make backgrounds with putih/N% opacity adapt */
-.light .bg-putih\/5,
-.light .bg-putih\/10 {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-.light .bg-putih\/20 {
-  background-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Make borders with putih/N% visible in light mode */
-.light [class*="border-putih"] {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-.light [class*="border-white"] {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-/* Allow gold hover borders to still show through */
-.light [class*="hover\:border-gold"]:hover {
-  border-color: var(--theme-gold) !important;
-}
-
-/* Add subtle shadow to cards and rounded containers in light mode */
-.light [class*="rounded-2xl"][class*="border"],
-.light [class*="rounded-xl"][class*="border"],
-.light [class*="rounded-3xl"][class*="border"] {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* Make divide lines visible in light mode */
-.light [class*="divide-putih"] > * + * {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Restore hover interactivity in light mode */
-.light a:hover,
-.light button:hover {
-  transition: all 0.2s ease;
-}
-
-/* === CRITICAL: Fix text-navy being invisible in light mode ===
-   In light mode, --theme-navy maps to the BG color (#f8fafc),
-   so text-navy would be light-on-light. Override text uses. */
-.light .text-navy {
-  color: #0f172a !important; /* slate-900 */
-}
-.light .text-navy\/40 {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-.light .text-navy\/50 {
-  color: rgba(15, 23, 42, 0.5) !important;
-}
-.light .text-navy\/60 {
-  color: rgba(15, 23, 42, 0.6) !important;
-}
-.light .text-navy\/70 {
-  color: rgba(15, 23, 42, 0.7) !important;
-}
-.light .text-navy\/80 {
-  color: rgba(15, 23, 42, 0.8) !important;
-}
-
-/* === Section backgrounds in light mode === */
-.light .bg-navy {
-  background-color: #f8fafc !important;
-}
-.light .bg-navy-light {
-  background-color: #ffffff !important;
-}
-.light .bg-navy-dark {
-  background-color: #e2e8f0 !important;
-}
-.light .bg-navy-light\/20,
-.light .bg-navy-light\/30,
-.light .bg-navy-light\/40,
-.light .bg-navy-light\/50 {
-  background-color: rgba(255, 255, 255, 0.7) !important;
-}
-.light .bg-navy-dark\/50 {
-  background-color: rgba(226, 232, 240, 0.5) !important;
-}
-.light .bg-navy\/90 {
-  background-color: rgba(248, 250, 252, 0.9) !important;
-}
-
-/* === Hero & Landing page dark-themed sections in light mode === */
-/* UserGuideSection cards with hardcoded dark bg */
-.light .bg-\[\#1a1207\] {
-  background-color: #fef3c7 !important; /* amber-100 */
-}
-.light .bg-\[\#071222\] {
-  background-color: #dbeafe !important; /* blue-100 */
-}
-.light .bg-\[\#071a14\] {
-  background-color: #d1fae5 !important; /* emerald-100 */
-}
-
-/* Fix text-white in light mode for sections that use it */
-.light .bg-\[\#1a1207\] .text-white,
-.light .bg-\[\#1a1207\] .text-white\/70 {
-  color: #78350f !important; /* amber-900 */
-}
-.light .bg-\[\#071222\] .text-white,
-.light .bg-\[\#071222\] .text-white\/70 {
-  color: #1e3a5f !important; /* blue-900 */
-}
-.light .bg-\[\#071a14\] .text-white,
-.light .bg-\[\#071a14\] .text-white\/70 {
-  color: #064e3b !important; /* emerald-900 */
-}
-
-/* Fix text-white/60 and text-white/80 */
-.light .bg-\[\#1a1207\] .text-white\/60 { color: #92400e !important; }
-.light .bg-\[\#071222\] .text-white\/60 { color: #1e40af !important; }
-.light .bg-\[\#071a14\] .text-white\/60 { color: #065f46 !important; }
-
-.light .bg-\[\#1a1207\] .text-white\/80 { color: #78350f !important; }
-.light .bg-\[\#071222\] .text-white\/80 { color: #1e3a5f !important; }
-.light .bg-\[\#071a14\] .text-white\/80 { color: #064e3b !important; }
-
-/* === Feature cards bg fix for light mode === */
-.light .bg-gold\/5 { background-color: rgba(161, 98, 7, 0.05) !important; }
-.light .bg-gold\/10 { background-color: rgba(161, 98, 7, 0.08) !important; }
-.light .bg-gold\/20 { background-color: rgba(161, 98, 7, 0.12) !important; }
-
-/* === Fix border-gold opacity === */
-.light .border-gold\/20,
-.light .border-gold\/30,
-.light .border-gold\/40 {
-  border-color: rgba(161, 98, 7, 0.25) !important;
-}
-
-/* === Pricing section fix === */
-.light .bg-navy-dark {
-  background-color: #f1f5f9 !important;
-}
-
-/* Force all green status colors to gold (#a16207) in light mode for better contrast */
-.light .text-green-400,
-.light .text-green-500 {
-  color: #15803d !important; /* green-700 for light mode */
-}
-.light .bg-green-500\/10 {
-  background-color: rgba(21, 128, 61, 0.1) !important;
-}
-.light .bg-green-500\/20 {
-  background-color: rgba(21, 128, 61, 0.2) !important;
-}
-
-/* === Demo section chat fix === */
-.light .bg-navy .text-sm {
-  color: var(--foreground);
-}
-
-/* === Select/Option dropdown fix for light mode === */
-.light select,
-.light select option {
-  color: #1e293b;
-  background-color: #ffffff;
-}
-
-/* === Footer in light mode === */
-/* Removed aggressive footer overrides to allow footer text to be naturally dark in light mode */
-
-/* === Konsultasi (Chat page) in light mode === */
-.light .bg-navy-dark {
-  background-color: #e2e8f0 !important;
-}
-
-/* Chat bubbles readability */
-.light .bg-gold\/10 {
-  background-color: rgba(161, 98, 7, 0.08) !important;
-}
-.light .text-putih\/90 {
-  color: #1e293b !important;
-}
-.light .text-putih\/80 {
-  color: #334155 !important;
-}
-.light .text-putih\/70 {
-  color: #475569 !important;
-}
-.light .text-putih\/60 {
-  color: #64748b !important;
-}
-.light .text-putih\/50 {
-  color: #94a3b8 !important;
-}
-.light .text-putih\/40 {
-  color: #94a3b8 !important;
-}
-.light .text-putih\/30 {
-  color: #cbd5e1 !important;
-}
-
-/* Ensure the textarea placeholder in light mode */
-.light textarea::placeholder,
-.light input::placeholder {
-  color: #94a3b8 !important;
-}
-
-/* === LegalKita cards — tags in light mode === */
-.light .bg-amber-900\/60 {
-  background-color: rgba(120, 53, 15, 0.15) !important;
-}
-.light .bg-blue-900\/60 {
-  background-color: rgba(30, 58, 138, 0.1) !important;
-}
-.light .bg-emerald-900\/60 {
-  background-color: rgba(6, 78, 59, 0.1) !important;
-}
-.light .text-amber-300 { color: #92400e !important; }
-.light .text-blue-300 { color: #1e40af !important; }
-.light .text-emerald-300 { color: #065f46 !important; }
-
-/* === Fix gradient text being invisible in light mode === */
-.light .from-gold {
-  --tw-gradient-from: #a16207;
-}
-.light .to-gold-light {
-  --tw-gradient-to: #854d0e;
-}
-.light .from-amber-500 {
-  --tw-gradient-from: #d97706;
-}
-.light .from-amber-400 {
-  --tw-gradient-from: #ca8a04;
-}
-
-/* === Badge/tag overrides === */
-.light .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.15) !important; }
-.light .text-red-400 { color: #dc2626 !important; }
-.light .border-red-500\/30 { border-color: rgba(239, 68, 68, 0.3) !important; }
-.light .bg-blue-500\/20 { background-color: rgba(59, 130, 246, 0.15) !important; }
-.light .text-blue-400 { color: #2563eb !important; }
-
-/* === Blur effects fix === */
-.light .bg-gold\/5 {
-  background-color: rgba(161, 98, 7, 0.04) !important;
-}
-
-/* Fix gradient background decorations visibility */
-.light .from-navy-light\/40 {
-  --tw-gradient-from: rgba(255, 255, 255, 0.4);
-}
-.light .from-navy {
-  --tw-gradient-from: #f8fafc;
-}
-.light .via-gold\/50 {
-  --tw-gradient-via: rgba(161, 98, 7, 0.5);
-}
-
-/* === Stat section border fix === */
-.light .border-y {
-  border-color: rgba(0, 0, 0, 0.1);
-}
-.light .divide-x > * + * {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* --- Hero Features --- */
+  .hero-features-grid {
+    @apply mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl;
+  }
+  .hero-feature-card {
+    @apply flex flex-col items-start p-5 rounded-2xl bg-navy-light/40 border border-putih/10 backdrop-blur-sm;
+  }
+  .hero-feature-icon {
+    @apply p-3 bg-gold/10 text-gold rounded-xl mb-4;
+  }
+  .hero-feature-title {
+    @apply font-semibold text-lg mb-2 text-putih;
+  }
+  .hero-feature-desc {
+    @apply text-sm text-putih/60;
+  }
 }

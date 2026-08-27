@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import GlobalBackground from "@/components/layout/GlobalBackground";
 import Script from "next/script";
 
 const poppins = Poppins({
@@ -74,6 +75,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-full flex flex-col font-sans">
         <ThemeProvider>
           <AuthProvider>
+            <GlobalBackground />
             {children}
           </AuthProvider>
         </ThemeProvider>

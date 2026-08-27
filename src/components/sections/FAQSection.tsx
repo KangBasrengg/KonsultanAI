@@ -31,10 +31,11 @@ export default function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="py-24">
+    <section className="py-24 relative">
       <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Pertanyaan <span className="text-gold">Umum</span></h2>
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 text-putih">Pertanyaan <span className="text-gold">Umum</span></h2>
+          <p className="text-putih/60 text-sm md:text-base">Hal-hal yang sering ditanyakan seputar layanan kami.</p>
         </div>
 
         <div className="space-y-4">

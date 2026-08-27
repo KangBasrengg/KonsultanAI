@@ -38,11 +38,11 @@ export default function Features() {
   ];
 
   return (
-    <section id="fitur" className="py-24 bg-navy-light/30">
+    <section id="fitur" className="py-24 relative z-10">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Keunggulan <span className="text-gold">Produk</span></h2>
-          <p className="text-putih/70 text-lg">Platform kami dirancang khusus untuk memenuhi kebutuhan hukum masyarakat Indonesia yang praktis dan efisien.</p>
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 text-putih">Keunggulan <span className="text-gold">Produk</span></h2>
+          <p className="text-putih/60 text-sm md:text-base">Platform kami dirancang khusus untuk memenuhi kebutuhan hukum masyarakat Indonesia yang praktis dan efisien.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -53,13 +53,13 @@ export default function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="p-8 rounded-2xl bg-navy border border-putih/15 hover:border-gold/40 transition-colors group cursor-pointer shadow-sm"
+              className="p-6 rounded-2xl bg-navy-light/30 border border-gold/10 hover:border-gold/30 hover:-translate-y-2 hover:scale-[1.02] hover:bg-gold/5 hover:shadow-[0_20px_40px_-15px_rgba(212,175,55,0.2)] transition-all duration-300 group cursor-pointer"
             >
-              <div className="w-12 h-12 rounded-lg bg-navy-light flex items-center justify-center text-gold mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-gold mb-5 bg-gold/10 group-hover:scale-110 group-hover:bg-gold group-hover:text-navy transition-all duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-putih">{feature.title}</h3>
-              <p className="text-putih/60 leading-relaxed">{feature.desc}</p>
+              <h3 className="text-lg font-bold mb-2 text-putih">{feature.title}</h3>
+              <p className="text-putih/60 text-sm leading-relaxed">{feature.desc}</p>
             </motion.div>
           ))}
         </div>

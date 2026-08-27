@@ -44,7 +44,7 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 group">
           <div className="relative w-11 h-11 group-hover:scale-105 transition-transform bg-navy-light border border-putih/20 rounded-xl shadow-md overflow-hidden" suppressHydrationWarning>
             <Image src="/images/logo-128.webp" alt="KonsultanAI Logo" fill sizes="44px" priority className="object-cover" suppressHydrationWarning />
           </div>

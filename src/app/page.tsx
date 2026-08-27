@@ -16,7 +16,7 @@ const Footer = dynamic(() => import("@/components/layout/Footer"));
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen relative">
       <Suspense fallback={null}>
         <AuthTrigger />
       </Suspense>

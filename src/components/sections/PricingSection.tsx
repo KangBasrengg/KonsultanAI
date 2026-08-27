@@ -31,11 +31,11 @@ export default function PricingSection() {
   const plans = PLANS;
 
   return (
-    <section id="harga" className="py-24 bg-navy-light/20">
+    <section id="harga" className="py-24 relative z-10">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-putih">Pilih Paket <span className="text-gold">Sesuai Kebutuhan</span></h2>
-          <p className="text-putih/70 text-lg mb-8">Konsultasi hukum kini tidak lagi mahal. Dapatkan akses ke AI Legal Assistant dengan harga terjangkau.</p>
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 text-putih">Pilih Paket <span className="text-gold">Sesuai Kebutuhan</span></h2>
+          <p className="text-putih/60 text-sm md:text-base mb-8">Mulai dari gratis hingga paket profesional untuk analisis tanpa batas.</p>
           
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4">
@@ -103,7 +103,7 @@ export default function PricingSection() {
 
               <div className="mb-4">
                 <div className="flex flex-wrap items-baseline gap-1">
-                  <span className={`${plan.name === "Enterprise" ? "text-2xl xl:text-3xl" : "text-3xl xl:text-4xl"} font-bold text-gold tracking-tight`}>
+                  <span className={`${plan.name === "Enterprise" ? "text-lg xl:text-xl" : "text-xl xl:text-2xl"} font-bold text-gold tracking-tight`}>
                     {plan.name === "Top-Up Kuota" ? `Rp ${(tokenCount * 5000).toLocaleString('id-ID')}` : (isAnnual ? plan.displayAnnual : plan.displayMonthly)}
                   </span>
                   {plan.priceMonthly > 0 && <span className="text-putih/50 text-sm">{plan.name === "Top-Up Kuota" ? " / bayar" : "/bulan"}</span>}
@@ -124,7 +124,9 @@ export default function PricingSection() {
                         onClick={() => setTokenCount(Math.max(4, tokenCount - 1))}
                         className="w-8 h-8 rounded bg-navy-light text-putih hover:text-gold flex items-center justify-center font-bold text-lg"
                       >-</button>
-                      <span className="text-lg font-bold w-6 text-center">{tokenCount}</span>
+                      <span className="text-xl font-bold text-putih tracking-tight">
+                        {tokenCount}
+                      </span>
                       <button 
                         onClick={() => setTokenCount(tokenCount + 1)}
                         className="w-8 h-8 rounded bg-navy-light text-putih hover:text-gold flex items-center justify-center font-bold text-lg"
