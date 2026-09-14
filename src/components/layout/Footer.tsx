@@ -78,7 +78,7 @@ export default function Footer() {
                   </div>
                   <div>
                     <p className="font-medium text-xs text-putih">Hoodtech</p>
-                    <p className="text-[10px]">Lihat Portofolio</p>
+                    <p className="text-[10px]">Tentang Kami</p>
                   </div>
                 </a>
               </li>

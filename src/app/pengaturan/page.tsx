@@ -83,7 +83,28 @@ export default function SettingsPage() {
       .limit(5);
       
     if (data) {
-      setHistory(data);
+      const enrichedHistory = await Promise.all(
+        data.map(async (item: any) => {
+          if (!item.ai_analysis || item.ai_analysis.trim() === "") {
+            try {
+              const { data: fallbackMsg } = await supabase
+                .from("chat_messages")
+                .select("content")
+                .eq("session_id", item.id)
+                .eq("role", "assistant")
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+              if (fallbackMsg?.content) {
+                return { ...item, ai_analysis: fallbackMsg.content };
+              }
+            } catch (_) {}
+          }
+          return item;
+        })
+      );
+      setHistory(enrichedHistory);
     }
   };
 

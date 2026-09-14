@@ -1,12 +1,28 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import dns from "node:dns";
 
 try {
   dns.setDefaultResultOrder("ipv4first");
 } catch (e) {}
+
+function getAdminSupabaseClient() {
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  try {
+    const cfContext = getCloudflareContext();
+    if (cfContext?.env) {
+      url = url || (cfContext.env as any).NEXT_PUBLIC_SUPABASE_URL;
+      key = key || (cfContext.env as any).SUPABASE_SERVICE_ROLE_KEY || (cfContext.env as any).NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    }
+  } catch (_) {}
+  return createSupabaseClient(url!, key!, {
+    auth: { persistSession: false }
+  });
+}
 
 // System Prompt — Universal Indonesian Legal AI Assistant
 const SYSTEM_PROMPT = `
@@ -207,20 +223,22 @@ export async function POST(req: Request) {
     let isAdmin = false;
     let userId: string | null = null;
     let placeholderId: string | null = null; // For race-condition-safe limit enforcement
+    let activeSessionId: string | null = caseId || null;
+    const supabaseAdmin = getAdminSupabaseClient();
     
     try {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const supabaseUser = await createServerClient();
+      const { data: { user } } = await supabaseUser.auth.getUser();
       
       if (user) {
         userId = user.id;
 
-        const { data: profile } = await supabase
+        const { data: profile } = await supabaseAdmin
           .from("users")
           .select("is_premium, role, token_balance, tier, subscription_expires_at")
           .eq("id", user.id)
           .single();
-        let isPremium = profile?.is_premium || false;
+        isPremium = profile?.is_premium || false;
         isAdmin = profile?.role === "admin";
         let tier = (profile?.tier || "free").toLowerCase();
         const tokenBalance = profile?.token_balance || 0;
@@ -230,7 +248,7 @@ export async function POST(req: Request) {
           tier = "free";
           isPremium = false;
           // Opportunistic downgrade
-          supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
+          supabaseAdmin.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
         }
 
         if (!isAdmin && tier !== "enterprise") {
@@ -242,7 +260,7 @@ export async function POST(req: Request) {
             startOfMonth.setDate(1);
             startOfMonth.setHours(0, 0, 0, 0);
 
-            const { count } = await supabase
+            const { count } = await supabaseAdmin
               .from("consultations")
               .select("*", { count: "exact", head: true })
               .eq("user_id", user.id)
@@ -273,7 +291,7 @@ export async function POST(req: Request) {
           } else {
             // Free users
             const FREE_LIMIT = 3;
-            const { count } = await supabase
+            const { count } = await supabaseAdmin
               .from("consultations")
               .select("*", { count: "exact", head: true })
               .eq("user_id", user.id);
@@ -294,11 +312,11 @@ export async function POST(req: Request) {
           if (!isFollowUp) {
             // Deduct token if free/pro limits are exhausted
             if (deductionType === "token") {
-              await supabase.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
+              await supabaseAdmin.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
             }
 
             // Claim a slot BEFORE calling AI to prevent race condition
-            const { data: placeholder, error: insertErr } = await supabase
+            const { data: placeholder, error: insertErr } = await supabaseAdmin
               .from("consultations")
               .insert({ user_id: user.id, chronology: lastUserMessage || "Sesi Konsultasi Baru", ai_analysis: "" })
               .select("id")
@@ -308,22 +326,35 @@ export async function POST(req: Request) {
               console.error("[Chat API] Failed to claim slot:", insertErr);
             } else {
               placeholderId = placeholder?.id || null;
+              activeSessionId = placeholderId;
             }
           }
-          
-          // Asynchronously save the user's message to chat_messages table
-          const sessionId = caseId || placeholderId;
-          if (sessionId && userId) {
-            supabase.from("chat_messages").insert({
-              session_id: sessionId,
-              user_id: userId,
-              role: "user",
-              content: lastUserMessage
-            }).then(({ error }) => {
-              if (error) console.error("[Chat API] Failed to save user message:", error);
-            });
-          }
+        }
 
+        // If follow-up and activeSessionId not passed, link to user's latest consultation
+        if (!activeSessionId && isFollowUp && userId) {
+          const { data: latest } = await supabaseAdmin
+            .from("consultations")
+            .select("id")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+          if (latest?.id) {
+            activeSessionId = latest.id;
+          }
+        }
+
+        // Asynchronously save the user's message to chat_messages table
+        if (activeSessionId && userId) {
+          supabaseAdmin.from("chat_messages").insert({
+            session_id: activeSessionId,
+            user_id: userId,
+            role: "user",
+            content: lastUserMessage
+          }).then(({ error }) => {
+            if (error) console.error("[Chat API] Failed to save user message:", error);
+          });
         }
       }
     } catch (authError) {
@@ -355,48 +386,46 @@ export async function POST(req: Request) {
       model: aiProvider.chat(isNativeGemini ? "gemini-3.1-flash-lite" : "gpt-5.6-luna"),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
-      onFinish: async ({ text, finishReason }) => {
-        if (text && lastUserMessage && userId && (finishReason === 'stop' || finishReason === 'length')) {
+      onFinish: async ({ text }) => {
+        const trimmedText = text?.trim();
+        if (trimmedText && userId) {
           try {
-            const supabase = await createClient();
-
             if (placeholderId) {
               // Update the pre-claimed placeholder row with actual data
-              await supabase.from("consultations")
-                .update({ chronology: lastUserMessage, ai_analysis: text })
+              const { error: updateErr } = await supabaseAdmin.from("consultations")
+                .update({ chronology: lastUserMessage, ai_analysis: trimmedText })
                 .eq("id", placeholderId);
+              if (updateErr) console.error("[Chat API] Failed to update placeholder:", updateErr);
             } else if (!isFollowUp) {
               // Premium/admin users: just insert normally for NEW questions
-              const { error } = await supabase.from("consultations").insert({
+              const { error: insertErr } = await supabaseAdmin.from("consultations").insert({
                 user_id: userId,
                 chronology: lastUserMessage,
-                ai_analysis: text,
+                ai_analysis: trimmedText,
               });
-              if (error) console.error("[Chat API] Failed to save:", error);
+              if (insertErr) console.error("[Chat API] Failed to save new consultation:", insertErr);
             }
           } catch (saveError) {
             console.error("[Chat API] DB save error:", saveError);
           }
         } else {
-          // AI failed — remove the placeholder so it doesn't waste a slot
+          // AI failed or produced empty text — remove placeholder so it doesn't leave an empty record
           if (placeholderId && !isFollowUp) {
             try {
-              const supabase = await createClient();
-              await supabase.from("consultations").delete().eq("id", placeholderId);
+              await supabaseAdmin.from("consultations").delete().eq("id", placeholderId);
             } catch (_) { /* best-effort cleanup */ }
           }
         }
         
         // Asynchronously save the AI's response to chat_messages table
-        const sessionId = caseId || placeholderId;
-        if (text && sessionId && userId) {
+        const targetSessionId = activeSessionId || placeholderId;
+        if (trimmedText && targetSessionId && userId) {
           try {
-            const supabase = await createClient();
-            await supabase.from("chat_messages").insert({
-              session_id: sessionId,
+            await supabaseAdmin.from("chat_messages").insert({
+              session_id: targetSessionId,
               user_id: userId,
               role: "assistant",
-              content: text
+              content: trimmedText
             });
           } catch (e) {
             console.error("[Chat API] Failed to save assistant message:", e);

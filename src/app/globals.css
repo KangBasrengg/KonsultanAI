@@ -24,19 +24,20 @@
    3. BASE STYLES & COLOR PALETTE
    ========================================= */
 @layer base {
-  :root, .dark {
+  :root,
+  .dark {
     /* Primary Colors */
     --theme-navy: #0b1a2e;
     --theme-navy-light: #16263e;
     --theme-navy-dark: #06111f;
-    
+
     /* Accent Colors */
     --theme-gold: #d4af37;
     --theme-gold-light: #f3e5ab;
     --theme-gold-dark: #aa8c2c;
     --theme-merah: #da251d;
     --theme-putih: #ffffff;
-    
+
     /* System Colors */
     --background: var(--theme-navy);
     --foreground: var(--theme-putih);

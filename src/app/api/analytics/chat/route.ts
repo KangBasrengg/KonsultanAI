@@ -28,7 +28,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "case_id is required" }, { status: 400 });
     }
 
-    const { data: messages, error } = await supabase
+    let { data: messages, error } = await supabase
       .from("chat_messages")
       .select("*")
       .eq("session_id", caseId)
@@ -36,7 +36,62 @@ export async function GET(req: Request) {
 
     if (error) throw error;
 
-    return NextResponse.json({ messages });
+    // Fallback: if no direct messages with session_id = caseId, check consultation messages
+    if (!messages || messages.length === 0) {
+      const { data: caseData } = await supabase
+        .from("cases")
+        .select("user_id, created_at, kronologi")
+        .eq("id", caseId)
+        .single();
+
+      if (caseData) {
+        const minTime = new Date(new Date(caseData.created_at).getTime() - 120000).toISOString();
+        const maxTime = new Date(new Date(caseData.created_at).getTime() + 1800000).toISOString();
+
+        const { data: matchedConsultation } = await supabase
+          .from("consultations")
+          .select("id, chronology, ai_analysis, created_at")
+          .eq("user_id", caseData.user_id)
+          .gte("created_at", minTime)
+          .lte("created_at", maxTime)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (matchedConsultation) {
+          const { data: consultMessages } = await supabase
+            .from("chat_messages")
+            .select("*")
+            .eq("session_id", matchedConsultation.id)
+            .order("created_at", { ascending: true });
+
+          if (consultMessages && consultMessages.length > 0) {
+            messages = consultMessages;
+          } else if (matchedConsultation.ai_analysis) {
+            messages = [
+              {
+                id: `u-${matchedConsultation.id}`,
+                session_id: caseId,
+                user_id: caseData.user_id,
+                role: "user",
+                content: matchedConsultation.chronology,
+                created_at: matchedConsultation.created_at
+              },
+              {
+                id: `a-${matchedConsultation.id}`,
+                session_id: caseId,
+                user_id: caseData.user_id,
+                role: "assistant",
+                content: matchedConsultation.ai_analysis,
+                created_at: matchedConsultation.created_at
+              }
+            ];
+          }
+        }
+      }
+    }
+
+    return NextResponse.json({ messages: messages || [] });
   } catch (error: any) {
     console.error("[Analytics Chat API] Error:", error.message);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

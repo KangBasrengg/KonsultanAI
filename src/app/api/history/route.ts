@@ -23,7 +23,29 @@ export async function GET() {
       });
     }
 
-    return new Response(JSON.stringify({ consultations: consultations || [] }), {
+    const enrichedConsultations = await Promise.all(
+      (consultations || []).map(async (item: any) => {
+        if (!item.ai_analysis || item.ai_analysis.trim() === "") {
+          try {
+            const { data: fallbackMsg } = await supabase
+              .from("chat_messages")
+              .select("content")
+              .eq("session_id", item.id)
+              .eq("role", "assistant")
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (fallbackMsg?.content) {
+              return { ...item, ai_analysis: fallbackMsg.content };
+            }
+          } catch (_) {}
+        }
+        return item;
+      })
+    );
+
+    return new Response(JSON.stringify({ consultations: enrichedConsultations }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {

@@ -65,7 +65,22 @@ function KonsultasiContent() {
 
   const [apiModel, setApiModel] = useState<'freemodel' | 'gemini'>('freemodel');
   const searchParams = useSearchParams();
-  const caseId = searchParams.get("caseId");
+  const [caseId, setCaseId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return searchParams.get("caseId") || sessionStorage.getItem("intake_case_id") || null;
+    }
+    return searchParams.get("caseId");
+  });
+
+  useEffect(() => {
+    const qCaseId = searchParams.get("caseId");
+    if (qCaseId) {
+      setCaseId(qCaseId);
+    } else if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("intake_case_id");
+      if (stored) setCaseId(stored);
+    }
+  }, [searchParams]);
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     messages: initialMessages,
@@ -153,7 +168,9 @@ function KonsultasiContent() {
           autoPrompt += ` Sertakan juga tata cara dan prosedur melapor ke polisi.`;
         }
         
-        sendMessage({ text: autoPrompt }).catch((err) => {
+        const sendOptions = caseId ? { body: { caseId } } : undefined;
+        // @ts-ignore
+        sendMessage({ text: autoPrompt }, sendOptions).catch((err) => {
           console.error("[Konsultasi] Auto-send from intake failed:", err);
         });
       }
@@ -162,7 +179,7 @@ function KonsultasiContent() {
       console.warn("[Konsultasi] Failed to read intake data:", e);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isVerifying]);
+  }, [user, isVerifying, caseId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -173,7 +190,9 @@ function KonsultasiContent() {
     const userMessage = input.trim();
     setInput("");
     try {
-      await sendMessage({ text: userMessage });
+      const sendOptions = caseId ? { body: { caseId } } : undefined;
+      // @ts-ignore
+      await sendMessage({ text: userMessage }, sendOptions);
     } catch (e) {
       // The error is already handled by useChat's onError, but we catch it here to prevent Unhandled Promise Rejection
       console.warn("sendMessage caught error:", e);

@@ -503,6 +503,7 @@ export default function IntakeFormPage() {
                         onClick={() => {
                           // Store kronologi + intake metadata in sessionStorage so konsultasi page can auto-send
                           try {
+                            sessionStorage.setItem('intake_case_id', triageResult.case_id);
                             sessionStorage.setItem('intake_kronologi', formData.kronologi);
                             sessionStorage.setItem('intake_case_type', `${formData.case_type} (${formData.sub_category})`);
                             sessionStorage.setItem('intake_sudah_advokat', formData.sudah_advokat ? 'ya' : 'tidak');
