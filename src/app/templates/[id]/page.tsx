@@ -32,10 +32,12 @@ export default function TemplateViewerPage({ params }: { params: Promise<{ id: s
     if (!user) return true;
     if (profile?.role === "admin" || profile?.role === "advokat") return false;
 
-    const userTier = (profile?.tier || "free").toLowerCase();
-    const tiers = ["free", "pro", "professional", "enterprise"];
-    const reqIndex = tiers.indexOf(requiredTier.toLowerCase());
-    const userIndex = tiers.indexOf(userTier);
+    const userTier = (profile?.tier || "free").toLowerCase().replace("-", "");
+    const tiers = ["free", "topup kuota", "pro", "enterprise"];
+    const normalizedUserTier = userTier.includes("topup") ? "topup kuota" : (userTier === "professional" ? "pro" : userTier);
+
+    const reqIndex = tiers.indexOf(requiredTier);
+    const userIndex = tiers.indexOf(normalizedUserTier);
 
     return reqIndex > userIndex;
   };

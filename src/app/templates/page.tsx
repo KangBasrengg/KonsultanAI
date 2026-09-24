@@ -23,11 +23,13 @@ export default function TemplatesPage() {
   });
 
   const getTierColor = (tier: string) => {
-    switch(tier) {
+    switch(tier.toLowerCase()) {
       case 'free': return 'bg-green-100 text-gold border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20';
-      case 'enterprise': return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20';
+      case 'topup kuota':
+      case 'top-up kuota': return 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
+      case 'pro':
       case 'professional': return 'bg-yellow-100 text-gold border-yellow-200 dark:bg-gold/10 dark:text-gold dark:border-gold/20';
-      case 'business': return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20';
+      case 'enterprise': return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20';
       default: return 'bg-slate-100 text-slate-600 dark:bg-putih/10 dark:text-putih/60';
     }
   };
@@ -36,10 +38,12 @@ export default function TemplatesPage() {
     if (!user) return requiredTier !== "free";
     if (profile?.role === "admin" || profile?.role === "advokat") return false;
     
-    const userTier = profile?.tier || "free";
-    const tiers = ["free", "professional", "enterprise"];
+    const userTier = (profile?.tier || "free").toLowerCase().replace("-", "");
+    const tiers = ["free", "topup kuota", "pro", "enterprise"];
+    const normalizedUserTier = userTier.includes("topup") ? "topup kuota" : (userTier === "professional" ? "pro" : userTier);
+    const normalizedReqTier = requiredTier.toLowerCase().includes("topup") ? "topup kuota" : (requiredTier === "professional" ? "pro" : requiredTier.toLowerCase());
     
-    return tiers.indexOf(requiredTier) > tiers.indexOf(userTier);
+    return tiers.indexOf(normalizedReqTier) > tiers.indexOf(normalizedUserTier);
   };
 
   return (

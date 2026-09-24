@@ -185,7 +185,7 @@ export interface LegalTemplate {
   category: TemplateCategory;
   title: string;
   description: string;
-  tier_required: 'free' | 'professional' | 'enterprise';
+  tier_required: 'free' | 'topup kuota' | 'pro' | 'enterprise';
   placeholders: TemplatePlaceholder[];
   content: string; // Markdown with placeholders like [NAMA_PENGGUGAT]
 }

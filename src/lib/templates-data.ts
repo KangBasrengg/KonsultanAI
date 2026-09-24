@@ -52,7 +52,7 @@ Hormat saya,
     category: "perjanjian",
     title: "Surat Perjanjian Pinjam Meminjam Uang",
     description: "Template dasar perjanjian utang piutang antar individu untuk melindungi hak hukum.",
-    tier_required: "professional",
+    tier_required: "pro",
     placeholders: [
       { key: "HARI_TANGGAL", label: "Hari dan Tanggal", type: "text", required: true },
       { key: "NAMA_PIHAK_1", label: "Nama Pihak Pertama (Peminjam)", type: "text", required: true },
@@ -108,7 +108,7 @@ Demikian Surat Perjanjian ini dibuat dan ditandatangani oleh kedua belah pihak d
     category: "kuasa",
     title: "Surat Kuasa Insidentil (Keluarga)",
     description: "Template surat kuasa khusus bagi keluarga untuk mewakili di pengadilan tanpa advokat.",
-    tier_required: "professional",
+    tier_required: "pro",
     placeholders: [
       { key: "NAMA_PEMBERI", label: "Nama Pemberi Kuasa", type: "text", required: true },
       { key: "ALAMAT_PEMBERI", label: "Alamat Pemberi", type: "text", required: true },
