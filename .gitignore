@@ -56,6 +56,22 @@ deployV2/
 create-deploy-tar.js
 Bin/
 ~$*
-d e p l o y / 
- 
- 
+
+# trash & local scratch files
+trash/
+*.pdf
+generate-portfolio.js
+generate-proposal-pdf.js
+generate-supporting-docs.js
+portfolio*.html
+portofolio*.html
+brosur*.html
+proposal*.html
+surat*.html
+cover_letter_*.txt
+recommendation_letter_*.txt
+video_script_*.txt
+public/images/nuril-photo.jpg
+public/images/hoodtech-screenshot.png
+public/images/konsultan-consultation.png
+public/images/konsultan-landing.png
