@@ -13,9 +13,19 @@ declare module 'midtrans-client' {
   class Snap {
     constructor(options: SnapOptions);
     createTransaction(parameter: Record<string, any>): Promise<TransactionResult>;
+    transaction: {
+      status(orderId: string): Promise<Record<string, any>>;
+    };
   }
 
-  export default { Snap };
+  class CoreApi {
+    constructor(options: SnapOptions);
+    transaction: {
+      status(orderId: string): Promise<Record<string, any>>;
+    };
+  }
+
+  export default { Snap, CoreApi };
 }
 
 interface Window {

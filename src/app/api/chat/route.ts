@@ -368,11 +368,12 @@ export async function POST(req: Request) {
     }
 
     // 5. Convert UIMessages (parts format) to ModelMessages (AI SDK format)
-    // Truncate to last 10 messages to prevent exceeding token limits on long conversations
-    const MAX_CONTEXT_MESSAGES = 10;
-    const truncatedMessages = messages.length > MAX_CONTEXT_MESSAGES
-      ? messages.slice(-MAX_CONTEXT_MESSAGES)
-      : messages;
+    // Always preserve the initial prompt/chronology (messages[0]) + last N messages to prevent context loss
+    const MAX_CONTEXT_MESSAGES = 12;
+    let truncatedMessages = messages;
+    if (messages.length > MAX_CONTEXT_MESSAGES) {
+      truncatedMessages = [messages[0], ...messages.slice(-(MAX_CONTEXT_MESSAGES - 1))];
+    }
 
     // Convert to strict core message format manually to bypass AI SDK's
     // Responses API lookups which cause "Not Found" errors on non-OpenAI endpoints

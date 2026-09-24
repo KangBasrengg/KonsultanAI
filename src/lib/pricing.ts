@@ -98,7 +98,7 @@ export const PLANS: PlanPricing[] = [
     description: "Solusi enterprise untuk instansi pemerintah, perusahaan berskala besar, dan firma hukum.",
     features: [
       { name: "Semua Fitur Professional", inc: true },
-      { name: "18 Token / Bulan (Bisa Top-Up)", inc: true },
+      { name: "50 Token / Bulan (Bisa Top-Up)", inc: true },
       { name: "Akses Tim (5 Akun Cabang)", inc: true },
       { name: "Manajemen Kuota Karyawan", inc: true },
       { name: "AI Contract Review", inc: true },

@@ -168,7 +168,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
           }
           const reason = fetchError?.cause?.code || fetchError?.cause?.message || fetchError?.message || "Network Error";
           console.error("[Cases API] Final fetch error:", reason, fetchError);
-          throw new Error(`Gagal terhubung ke server Google AI (Alasan teknis server hosting: ${reason}). Mohon info ke CS Jagoan Hosting agar dibukakan koneksi Outbound/DNS ke Google.`);
+          throw new Error("Gagal terhubung ke server AI karena gangguan koneksi jaringan. Silakan coba beberapa saat lagi.");
         }
         console.warn(`[Cases API] Fetch error attempt ${attempt + 1}/${MAX_RETRIES + 1}, retrying...`, fetchError?.message);
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));

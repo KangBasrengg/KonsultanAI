@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, FileText, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Download, FileText, CheckCircle2, Lock } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import Navbar from "@/components/layout/Navbar";
@@ -10,24 +10,35 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { getTemplateById } from "@/lib/templates-data";
 
 export default function TemplateViewerPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
   const { user, profile } = useAuth();
-  const [formData, setFormData] = useState<Record<string, string>>({});
-  const [isExporting, setIsExporting] = useState(false);
   const resolvedParams = use(params);
-
   const template = getTemplateById(resolvedParams.id);
 
-  useEffect(() => {
-    // Initial state setup for placeholders
-    if (template) {
-      const initial: Record<string, string> = {};
-      template.placeholders.forEach(p => {
-        initial[p.key] = "";
-      });
-      setFormData(initial);
-    }
-  }, [template]);
+  const [formData, setFormData] = useState<Record<string, string>>(() => {
+    if (!template) return {};
+    const initial: Record<string, string> = {};
+    template.placeholders.forEach(p => {
+      initial[p.key] = "";
+    });
+    return initial;
+  });
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const isLocked = () => {
+    if (!template) return false;
+    const requiredTier = template.tier_required;
+    if (!requiredTier || requiredTier === "free") return false;
+    if (!user) return true;
+    if (profile?.role === "admin" || profile?.role === "advokat") return false;
+
+    const userTier = (profile?.tier || "free").toLowerCase();
+    const tiers = ["free", "pro", "professional", "enterprise"];
+    const reqIndex = tiers.indexOf(requiredTier.toLowerCase());
+    const userIndex = tiers.indexOf(userTier);
+
+    return reqIndex > userIndex;
+  };
 
   if (!template) {
     return (
@@ -38,6 +49,40 @@ export default function TemplateViewerPage({ params }: { params: Promise<{ id: s
       </main>
     );
   }
+
+  if (isLocked()) {
+    return (
+      <main className="min-h-screen flex flex-col transition-colors duration-300">
+        <Navbar />
+        <div className="flex-1 container mx-auto px-4 py-28 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white dark:bg-navy-light/60 border border-slate-200 dark:border-putih/10 rounded-3xl p-8 text-center shadow-2xl backdrop-blur-md">
+            <div className="w-16 h-16 bg-gold/10 text-gold rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-navy dark:text-putih mb-2">Template Terkunci</h2>
+            <p className="text-sm text-navy/60 dark:text-putih/60 mb-6 leading-relaxed">
+              Template <span className="font-semibold text-gold">{template.title}</span> merupakan dokumen hukum yang hanya dapat diakses oleh pengguna paket <span className="font-semibold uppercase text-gold">{template.tier_required}</span>.
+            </p>
+            <div className="space-y-3">
+              <Link
+                href="/checkout?plan=Pro"
+                className="w-full flex items-center justify-center gap-2 bg-gold text-white dark:text-navy py-3.5 rounded-xl font-bold hover:bg-gold-light transition-all shadow-lg shadow-gold/20"
+              >
+                Upgrade Paket
+              </Link>
+              <Link
+                href="/templates"
+                className="w-full flex items-center justify-center gap-2 bg-slate-100 dark:bg-putih/10 text-navy dark:text-putih py-3 rounded-xl font-medium hover:bg-slate-200 dark:hover:bg-putih/20 transition-all text-sm"
+              >
+                Kembali ke Koleksi
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
 
   // Replace placeholders in content
   let parsedContent = template.content;

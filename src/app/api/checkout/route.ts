@@ -16,13 +16,34 @@ export async function POST(request: Request) {
 
     const { planName, amount, userEmail, userName } = await request.json();
 
-    if (!planName || !amount) {
+    if (!planName || amount === undefined || amount === null) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     if (amount === 0) {
-        return NextResponse.json({ token: 'free' });
+      return NextResponse.json({ token: 'free' });
     }
+
+    // Validate price on server to prevent client-side price tampering
+    let expectedPrice: number | null = null;
+    if (planName.toLowerCase().includes("top-up kuota")) {
+      const match = planName.match(/\((\d+)\s+token\)/i);
+      const tokenCount = match ? parseInt(match[1], 10) : 0;
+      if (tokenCount < 4) {
+        return NextResponse.json({ error: 'Minimal pembelian Top-Up Kuota adalah 4 token.' }, { status: 400 });
+      }
+      expectedPrice = tokenCount * 5000;
+    } else {
+      const isAnnual = planName.toLowerCase().includes('tahunan') || planName.toLowerCase().includes('annual');
+      expectedPrice = getPlanPrice(planName, isAnnual);
+    }
+
+    if (expectedPrice === null || expectedPrice !== Number(amount)) {
+      return NextResponse.json({ 
+        error: 'Nominal pembayaran tidak valid atau tidak sesuai dengan tarif resmi paket.' 
+      }, { status: 400 });
+    }
+
 
     const snap = new midtransClient.Snap({
       isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),

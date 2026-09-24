@@ -151,7 +151,7 @@ export async function POST(request: Request) {
             };
 
             if (transaction.plan_name.toLowerCase().includes('enterprise')) {
-              updatePayload.token_balance = isAnnual ? (18 * 12) : 18;
+              updatePayload.token_balance = isAnnual ? (50 * 12) : 50;
             }
 
             await supabase.from('users')
@@ -226,7 +226,7 @@ export async function POST(request: Request) {
 
             // If it's an Enterprise plan, give them their monthly token quota
             if (chat.plan.toLowerCase().includes('enterprise')) {
-              updatePayload.token_balance = isAnnual ? (18 * 12) : 18;
+              updatePayload.token_balance = isAnnual ? (50 * 12) : 50;
             }
 
             await supabase.from('users')

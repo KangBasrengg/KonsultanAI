@@ -5,9 +5,15 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/konsultasi/', '/api/'], // Sembunyikan halaman privat dan API
+      disallow: [
+        '/konsultasi/',
+        '/pengaturan/',
+        '/chat/',
+        '/konsultasi-advokat/',
+        '/admin/',
+        '/api/',
+      ],
     },
-    // Ganti dengan URL domain Vercel kamu nanti
     sitemap: 'https://konsultan-ai.com/sitemap.xml',
   }
 }

@@ -15,6 +15,16 @@ const RATE_LIMIT_CHAT_MAX = 10 // stricter limit for AI chat
 
 function checkRateLimit(key: string, maxRequests: number): boolean {
   const now = Date.now()
+
+  // Passive cleanup to prevent memory leak safely across serverless/worker runtimes
+  if (rateLimitMap.size > 200) {
+    for (const [k, v] of rateLimitMap.entries()) {
+      if (now - v.lastReset > RATE_LIMIT_WINDOW_MS * 2) {
+        rateLimitMap.delete(k)
+      }
+    }
+  }
+
   const entry = rateLimitMap.get(key)
 
   if (!entry || now - entry.lastReset > RATE_LIMIT_WINDOW_MS) {
@@ -26,18 +36,13 @@ function checkRateLimit(key: string, maxRequests: number): boolean {
   return entry.count <= maxRequests
 }
 
-// Periodically clean up old entries to prevent memory leak
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of rateLimitMap.entries()) {
-    if (now - entry.lastReset > RATE_LIMIT_WINDOW_MS * 2) {
-      rateLimitMap.delete(key)
-    }
-  }
-}, RATE_LIMIT_WINDOW_MS * 5)
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
   // --- Rate Limiting for API routes ---
   if (pathname.startsWith('/api/')) {
@@ -58,7 +63,7 @@ export async function middleware(request: NextRequest) {
 
     // Webhook endpoint should not require auth — pass through
     if (pathname.startsWith('/api/webhook/')) {
-      return NextResponse.next()
+      return response
     }
   }
 
@@ -67,7 +72,7 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = adminRoutes.some(r => pathname.startsWith(r))
 
   if (isProtectedRoute || isAdminRoute) {
-    // Create a Supabase client that can read cookies from the request
+    // Create a Supabase client that can read and forward refreshed cookies
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -77,7 +82,13 @@ export async function middleware(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            // We'll set these on the response below
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            response = NextResponse.next({
+              request,
+            })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
           },
         },
       }
@@ -86,9 +97,11 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      // Redirect unauthenticated users to home with login trigger
+      // Redirect unauthenticated users to home with login trigger and forward cookies
       const redirectUrl = new URL('/?login=true', request.url)
-      return NextResponse.redirect(redirectUrl)
+      const redirectResponse = NextResponse.redirect(redirectUrl)
+      response.cookies.getAll().forEach(c => redirectResponse.cookies.set(c.name, c.value))
+      return redirectResponse
     }
 
     // For admin routes, verify role
@@ -106,12 +119,14 @@ export async function middleware(request: NextRequest) {
       }
 
       if (!isAllowed) {
-        return NextResponse.redirect(new URL('/', request.url))
+        const redirectResponse = NextResponse.redirect(new URL('/', request.url))
+        response.cookies.getAll().forEach(c => redirectResponse.cookies.set(c.name, c.value))
+        return redirectResponse
       }
     }
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

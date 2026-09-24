@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import midtransClient from "midtrans-client";
 
 // POST: Confirm payment & create consultation room
 // Called from frontend after Midtrans onSuccess callback
@@ -38,8 +39,37 @@ export async function POST(request: Request) {
       });
     }
 
-    // 2. Update booking status (with optimistic locking)
-    const { data: updatedBooking, error: updateErr } = await supabase
+    // 2. Strict Midtrans Payment Verification
+    const targetOrderId = orderId || booking.payment_order_id;
+    if (!targetOrderId) {
+      return NextResponse.json({ error: "Order ID pembayaran tidak ditemukan." }, { status: 400 });
+    }
+
+    const snap = new midtransClient.Snap({
+      isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+    });
+
+    try {
+      const statusResponse = await snap.transaction.status(targetOrderId);
+      const isPaid = (statusResponse.transaction_status === 'settlement' || statusResponse.transaction_status === 'capture')
+        && (statusResponse.fraud_status === 'accept' || !statusResponse.fraud_status);
+
+      if (!isPaid) {
+        return NextResponse.json({ 
+          error: `Pembayaran belum terkonfirmasi oleh Midtrans (Status saat ini: ${statusResponse.transaction_status || 'menunggu'}).` 
+        }, { status: 402 });
+      }
+    } catch (midtransErr: any) {
+      console.error("[Booking Confirm] Failed to verify Midtrans status:", midtransErr);
+      return NextResponse.json({ 
+        error: "Gagal memverifikasi status pembayaran ke Midtrans. Mohon tunggu beberapa saat lalu coba lagi." 
+      }, { status: 400 });
+    }
+
+    // 3. Update booking status (with optimistic locking)
+    const { error: updateErr } = await supabase
       .from("bookings")
       .update({ 
         payment_status: "paid", 
