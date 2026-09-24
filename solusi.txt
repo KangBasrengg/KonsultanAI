@@ -1,0 +1,195 @@
+================================================================================
+PANDUAN KONFIGURASI EKSTERNAL AUTHENTICATION & DATABASE (BAGIAN A)
+KONSULTANAI - SUPABASE & GOOGLE OAUTH SETUP GUIDE
+================================================================================
+
+Dokumen ini berisi panduan langkah-demi-langkah untuk konfigurasi eksternal
+pada Supabase Dashboard dan Google Cloud Console guna memastikan sistem
+autentikasi (Email/Password, Google OAuth, Reset Password, dan Redirect)
+berjalan 100% lancar tanpa error di lingkungan Development maupun Production.
+
+--------------------------------------------------------------------------------
+1. KONFIGURASI URL & REDIRECT DI SUPABASE DASHBOARD
+--------------------------------------------------------------------------------
+Masalah yang dicegah: Error redirect OAuth gagal, loop login, atau ditolak
+karena redirect URL tidak diizinkan oleh Supabase.
+
+Langkah:
+1. Buka dashboard proyek Supabase: https://supabase.com/dashboard
+2. Masuk ke menu: Authentication -> URL Configuration
+3. Atur konfigurasi berikut:
+
+   a. Site URL:
+      - Untuk tahap Development:
+        http://localhost:3000
+      - Untuk Live Production:
+        https://konsultan-ai.com (sesuaikan dengan domain utama Anda)
+
+   b. Redirect URLs (Tambahkan semua daftar di bawah ini):
+      Tambahkan daftar URL redirect yang diizinkan (klik "Add URL"):
+      - http://localhost:3000/**
+      - http://localhost:3000/api/auth/callback
+      - http://localhost:3000/pengaturan
+      - https://konsultan-ai.com/**
+      - https://konsultan-ai.com/api/auth/callback
+      - https://konsultan-ai.com/pengaturan
+
+      Catatan: Penggunaan wildcard `/**` sangat penting agar redirect dinamis
+      ke halaman sebelumnya (seperti /templates/..., /cases/..., /pricing)
+      serta reset password (/pengaturan?reset=true) tidak diblokir Supabase.
+
+4. Klik "Save" di bagian bawah.
+
+--------------------------------------------------------------------------------
+2. PENGATURAN KONFIRMASI EMAIL & RATE LIMIT SUPABASE
+--------------------------------------------------------------------------------
+Masalah yang dicegah: Munculnya pesan error "over_email_send_rate_limit" atau
+"too many requests" saat register atau reset password akun percobaan. Supabase Free
+Tier membatasi pengiriman email bawaan hanya 3-4 email per jam.
+
+Langkah Rekomendasi:
+
+A. Saat Masa Development / Testing:
+   1. Buka: Authentication -> Providers -> Email
+   2. Matikan opsi "Confirm email" (Uncheck toggle)
+   3. Klik "Save"
+   * Keuntungan: Pengguna yang mendaftar akan langsung aktif dan login otomatis
+     tanpa menunggu email konfirmasi, sehingga terbebas dari limit email bawaan.
+
+B. Saat Live Production:
+   1. Jangan gunakan SMTP default Supabase untuk aplikasi publik berskala bisnis.
+   2. Hubungkan Custom SMTP:
+      - Buka: Project Settings -> Authentication -> SMTP Settings
+      - Aktifkan "Enable Custom SMTP"
+      - Masukkan kredensial provider email profesional seperti:
+        * Resend (sangat direkomendasikan, ada free tier 3.000 email/bulan)
+        * SendGrid
+        * Mailgun
+        * Amazon SES
+      - Sender email: no-reply@konsultan-ai.com
+      - Sender name: KonsultanAI
+   3. Aktifkan kembali toggle "Confirm email" jika ingin verifikasi email wajib.
+
+--------------------------------------------------------------------------------
+3. KONFIGURASI GOOGLE CLOUD CONSOLE (OAUTH 2.0 CLIENT ID)
+--------------------------------------------------------------------------------
+Masalah yang dicegah: Error `redirect_uri_mismatch` (Error 400) dari Google saat
+pengguna menekan tombol "Lanjutkan dengan Google".
+
+Langkah:
+1. Buka Google Cloud Console: https://console.cloud.google.com/
+2. Pilih proyek Google Cloud yang Anda gunakan.
+3. Masuk ke: APIs & Services -> Credentials
+4. Di bagian "OAuth 2.0 Client IDs", klik nama Web Client Anda untuk mengedit.
+5. Konfigurasi URIs:
+
+   a. Authorized JavaScript origins:
+      - http://localhost:3000
+      - https://<PROJECT-REF-ANDA>.supabase.co
+      - https://konsultan-ai.com (domain live production Anda)
+
+   b. Authorized redirect URIs (SANGAT PENTING):
+      Masukkan URL callback Supabase:
+      - https://<PROJECT-REF-ANDA>.supabase.co/auth/v1/callback
+
+      *PERHATIAN PENTING*:
+      Jangan masukkan `http://localhost:3000/api/auth/callback` di Google Cloud
+      Console! Google OAuth harus mengarahkan kembali ke server auth Supabase
+      terlebih dahulu (`https://<PROJECT-REF>.supabase.co/auth/v1/callback`),
+      baru kemudian Supabase mengarahkan token ke Next.js app Anda.
+
+6. Klik "Save".
+7. Pastikan Client ID dan Client Secret yang didapat dari Google Cloud Console
+   sudah diinput ke Supabase Dashboard di:
+   Authentication -> Providers -> Google (Aktifkan toggle dan masukkan ID & Secret).
+
+--------------------------------------------------------------------------------
+4. SCRIPT PERBAIKAN TRIGGER DATABASE SQL (HANDLE_NEW_USER)
+--------------------------------------------------------------------------------
+Masalah yang dicegah: Akun yang login via Google OAuth memiliki format data nama
+berbeda (Google mengirim `name`, sedangkan form manual mengirim `full_name`).
+Trigger bawaan yang hanya mengecek `full_name` dapat mengakibatkan nilai NULL
+atau kegagalan insert jika ada benturan record.
+
+Langkah Perbaikan:
+1. Buka Supabase Dashboard -> SQL Editor
+2. Jalankan script SQL di bawah ini:
+
+-- =============================================================================
+-- SQL FIX: Robust handle_new_user Trigger for Email/Password & Google OAuth
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+DECLARE
+  v_full_name text;
+BEGIN
+  -- Ambil nama lengkap dari metadata Google OAuth atau metadata Sign-Up manual
+  -- Fallback ke prefix email jika nama tidak tersedia di metadata
+  v_full_name := COALESCE(
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'name',
+    split_part(new.email, '@', 1)
+  );
+
+  INSERT INTO public.users (id, email, full_name, is_premium, created_at)
+  VALUES (
+    new.id,
+    new.email,
+    v_full_name,
+    false,
+    COALESCE(new.created_at, timezone('utc'::text, now()))
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(EXCLUDED.full_name, public.users.full_name);
+
+  RETURN new;
+EXCEPTION
+  WHEN others THEN
+    -- Mencegah transaksi auth rollback jika terjadi anomali pada tabel users
+    RAISE WARNING 'handle_new_user error for user %: %', new.id, SQLERRM;
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Pastikan Trigger terpasang dengan benar pada auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- =============================================================================
+
+--------------------------------------------------------------------------------
+5. PENJELASAN ERROR DEV: "Invalid Refresh Token: Refresh Token Not Found"
+--------------------------------------------------------------------------------
+Pertanyaan Anda:
+"Saat aku npm run dev lokal ada error ini apakah wajar?
+ Console AuthApiError: Invalid Refresh Token: Refresh Token Not Found"
+
+Jawaban:
+SANGAT WAJAR dan AMAN. Berikut alasannya:
+1. Penyebab: Browser Anda (di localhost:3000) masih menyimpan sisa cookie session
+   lama dari sesi sebelum server Next.js di-restart, atau token sesi di local
+   storage browser telah kadaluarsa / di-revoke di Supabase.
+2. Penanganan Otomatis: Di file `src/components/auth/AuthProvider.tsx`, sudah ada
+   logika penanganan error ini:
+   `if (error) { await supabase.auth.signOut().catch(() => {}); }`
+   Ketika Supabase mendeteksi refresh token tidak ditemukan, aplikasi otomatis
+   menghapus sisa cookie usang tersebut dan mengembalikan state pengguna menjadi
+   guest / unauthenticated tanpa membuat aplikasi crash.
+3. Cara Menghilangkan Pesan di Console Lokal:
+   - Buka DevTools di browser (tekan F12)
+   - Buka tab "Application" -> "Storage"
+   - Klik "Clear site data" pada `http://localhost:3000`
+   - Refresh browser Anda (F5). Pesan error tersebut tidak akan muncul lagi.
+
+================================================================================
+STATUS BAGIAN B (CODEBASE):
+Bagian B (aplikasi web KonsultanAI) telah selesai diperbarui dengan:
+1. Error translation bahasa Indonesia yang ramah pada AuthModal.
+2. Dynamic return redirect (pengguna tetap berada di halaman semula setelah login).
+3. Alur "Lupa Password?" lengkap dengan pengiriman link reset via Supabase.
+================================================================================
