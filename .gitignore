@@ -47,12 +47,9 @@ next-env.d.ts
 .dev.vars
 
 # deploy artifacts
-deploy.zip
-deploy.tar.gz
-newdeploy.tar.gz
-deploy*.tar.gz
-release.tar.gz
-release*.tar.gz
+*.tar.gz
+*.zip
+*.tgz
 deploy-temp/
 deploy-package/
 deploy/
@@ -61,12 +58,21 @@ create-deploy-tar.js
 Bin/
 ~$*
 
+# docs & local documentation
+docs/
+
 # trash & local scratch files
 trash/
 *.pdf
+*.doc
+*.docx
+*.docm
+*.odt
 generate-portfolio.js
 generate-proposal-pdf.js
 generate-supporting-docs.js
+generate-technical-docs.js
+fix*.tar.gz
 portfolio*.html
 portofolio*.html
 brosur*.html
