@@ -2,12 +2,6 @@ import { NextResponse } from "next/server";
 import midtransClient from "midtrans-client";
 import { createClient } from "@/lib/supabase/server";
 
-const snap = new midtransClient.Snap({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
-});
-
 // POST: Activate listing (pay Rp50.000 for 30 days)
 export async function POST(request: Request) {
   try {
@@ -34,6 +28,13 @@ export async function POST(request: Request) {
     const durationDays = durationSetting ? parseInt(durationSetting.value) : 30;
 
     const orderId = `LST-${Date.now()}-${advocate.id.substring(0, 8)}`;
+
+    // Instantiate inside handler to ensure env vars are loaded (consistent with checkout/booking routes)
+    const snap = new midtransClient.Snap({
+      isProduction: !process.env.MIDTRANS_SERVER_KEY?.startsWith('SB-'),
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+    });
 
     const parameter = {
       transaction_details: {

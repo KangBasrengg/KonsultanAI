@@ -107,21 +107,11 @@ export async function POST(request: Request) {
 
     if (roomErr) throw roomErr;
 
-    // 4. Update advocate balance (add earning)
-    const { data: currentAdvocate } = await supabase
-      .from("advocates")
-      .select("balance")
-      .eq("id", booking.advocate_id)
-      .single();
-
-    if (currentAdvocate) {
-      await supabase
-        .from("advocates")
-        .update({ 
-          balance: currentAdvocate.balance + booking.advocate_earning 
-        })
-        .eq("id", booking.advocate_id);
-    }
+    // 4. Update advocate balance atomically (prevents race condition with concurrent bookings)
+    await supabase.rpc("add_advocate_earning", {
+      p_advocate_id: booking.advocate_id,
+      p_amount: booking.advocate_earning
+    });
 
     // 5. Send initial system message
     // Get advocate's user_id for sender

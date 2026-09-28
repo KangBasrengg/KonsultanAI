@@ -168,8 +168,6 @@ export async function POST(req: Request) {
   try {
     // 1. Parse request body
     const { messages, modelType, caseId } = await req.json();
-    console.log("[Chat API] Received messages count:", messages?.length, "caseId:", caseId);
-
     // 2. Initialize AI provider based on modelType
     const isNativeGemini = true; // Forced to always use Gemini Native
     const envVarName = isNativeGemini ? "GOOGLE_GEMINI_API_KEY" : "GEMINI_API_KEY";
@@ -185,7 +183,6 @@ export async function POST(req: Request) {
         console.warn("[Chat API] getCloudflareContext failed", e);
       }
     }
-    console.log(`[Chat API] API key available for ${isNativeGemini ? 'Gemini' : 'Freemodel'}:`, !!apiKey);
     
     const aiProvider = createOpenAI({
       baseURL: isNativeGemini ? "https://generativelanguage.googleapis.com/v1beta/openai" : "https://api.freemodel.dev/v1",
@@ -243,12 +240,11 @@ export async function POST(req: Request) {
         let tier = (profile?.tier || "free").toLowerCase();
         const tokenBalance = profile?.token_balance || 0;
 
-        // Check expiration
+        // Check expiration — await to ensure downgrade is persisted before proceeding
         if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date() && !isAdmin) {
           tier = "free";
           isPremium = false;
-          // Opportunistic downgrade
-          supabaseAdmin.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
+          await supabaseAdmin.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id);
         }
 
         if (!isAdmin && tier !== "enterprise") {
@@ -310,9 +306,15 @@ export async function POST(req: Request) {
 
           // Don't claim a slot for follow-up requests (they don't create a new history row)
           if (!isFollowUp) {
-            // Deduct token if free/pro limits are exhausted
+            // Deduct token atomically via database function to prevent race conditions
             if (deductionType === "token") {
-              await supabaseAdmin.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
+              const { data: deducted } = await supabaseAdmin.rpc("deduct_token", { p_user_id: user.id, p_amount: 1 });
+              if (!deducted) {
+                return new Response(JSON.stringify({
+                  error: "Limit_Exceeded",
+                  message: "Saldo token Anda habis. Silakan Top-Up Kuota untuk melanjutkan."
+                }), { status: 403, headers: { "Content-Type": "application/json" } });
+              }
             }
 
             // Claim a slot BEFORE calling AI to prevent race condition
@@ -359,6 +361,9 @@ export async function POST(req: Request) {
       }
     } catch (authError) {
       console.error("[Chat API] Auth check failed:", authError);
+      return new Response(JSON.stringify({
+        error: "Gagal memverifikasi autentikasi. Silakan login ulang dan coba lagi.",
+      }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
     if (!apiKey) {

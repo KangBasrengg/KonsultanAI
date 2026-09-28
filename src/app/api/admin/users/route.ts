@@ -54,7 +54,7 @@ export async function GET() {
     );
 
     return new Response(JSON.stringify({ users: usersWithStats }), {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { 
@@ -155,20 +155,29 @@ export async function DELETE(req: Request) {
       return new Response(JSON.stringify({ error: "ID Pengguna wajib disertakan" }), { status: 400 });
     }
 
+    // Use same cookie-based auth as GET/PATCH for consistency
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
+    // Verify admin role
+    const { data: adminData } = await supabase.from("users").select("role").eq("id", user.id).single();
+    if (!adminData || adminData.role !== "admin") {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    }
+
+    // Prevent admin from deleting themselves
+    if (userId === user.id) {
+      return new Response(JSON.stringify({ error: "Tidak dapat menghapus akun Anda sendiri" }), { status: 400 });
+    }
+
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-
-    // Verify admin
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) return new Response("Unauthorized", { status: 401 });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (authError || !user) return new Response("Unauthorized", { status: 401 });
-    const { data: adminData } = await supabaseAdmin.from("users").select("role").eq("id", user.id).single();
-    if (!adminData || adminData.role !== "admin") return new Response("Forbidden", { status: 403 });
 
     // Delete user from auth (this automatically cascades to users table if foreign keys are set up, 
     // but we can just use admin auth API to delete the user completely)
@@ -185,3 +194,4 @@ export async function DELETE(req: Request) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
+

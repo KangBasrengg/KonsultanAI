@@ -80,7 +80,7 @@ export async function POST(req: Request) {
 
     if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date() && !isAdmin) {
       tier = "free";
-      supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id).then();
+      await supabase.from("users").update({ tier: "free", is_premium: false, subscription_expires_at: null }).eq("id", user.id);
     }
 
     if (!isAdmin && tier !== "premium" && tier !== "pro" && tier !== "professional" && tier !== "enterprise") {
@@ -97,7 +97,13 @@ export async function POST(req: Request) {
       }
 
       if (count !== null && count >= 3) {
-         await supabase.from("users").update({ token_balance: tokenBalance - 1 }).eq("id", user.id);
+        const { data: deducted } = await supabase.rpc("deduct_token", { p_user_id: user.id, p_amount: 1 });
+        if (!deducted) {
+          return Response.json({
+            error: "Limit_Exceeded",
+            message: "Saldo token Anda habis. Silakan Top-Up Kuota untuk melanjutkan."
+          }, { status: 403 });
+        }
       }
     }
 

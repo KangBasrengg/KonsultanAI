@@ -46,7 +46,7 @@ export async function GET() {
     );
 
     return new Response(JSON.stringify({ consultations: enrichedConsultations }), {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { 

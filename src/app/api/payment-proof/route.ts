@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     // Send email notification to admin
     const mailOptions = {
       from: `"KonsultanAI Payment" <${process.env.SMTP_USER || 'admin@konsultan-ai.com'}>`,
-      to: 'muhammadnuril155@gmail.com',
+      to: process.env.ADMIN_EMAIL || 'muhammadnuril155@gmail.com',
       subject: `🔔 Bukti Pembayaran Baru - ${paymentTypeLabel} ${planName || ''}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 600px; margin: 0 auto; background: #0a1628; color: #ffffff; border-radius: 16px; overflow: hidden;">

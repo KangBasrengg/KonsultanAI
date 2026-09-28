@@ -67,11 +67,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- Auth Protection for protected page routes ---
+  // --- Auth Protection ---
+  // API routes that do NOT require auth (public endpoints)
+  const publicApiRoutes = ['/api/webhook/', '/api/auth/', '/api/legalkita/review']
+  const isPublicApi = publicApiRoutes.some(r => pathname.startsWith(r))
+
   const isProtectedRoute = protectedRoutes.some(r => pathname.startsWith(r))
   const isAdminRoute = adminRoutes.some(r => pathname.startsWith(r))
+  const isProtectedApi = pathname.startsWith('/api/') && !isPublicApi
 
-  if (isProtectedRoute || isAdminRoute) {
+  if (isProtectedRoute || isAdminRoute || isProtectedApi) {
     // Create a Supabase client that can read and forward refreshed cookies
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -97,7 +102,14 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      // Redirect unauthenticated users to home with login trigger and forward cookies
+      // API routes: return 401 JSON (no redirect)
+      if (isProtectedApi) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401, headers: { 'Cache-Control': 'no-store' } }
+        )
+      }
+      // Page routes: redirect unauthenticated users to home with login trigger
       const redirectUrl = new URL('/?login=true', request.url)
       const redirectResponse = NextResponse.redirect(redirectUrl)
       response.cookies.getAll().forEach(c => redirectResponse.cookies.set(c.name, c.value))

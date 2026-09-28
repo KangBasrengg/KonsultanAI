@@ -128,14 +128,9 @@ export async function POST(request: Request) {
             const match = transaction.plan_name.match(/\((\d+)\s+token\)/i);
             const tokensToAdd = match ? parseInt(match[1], 10) : (transaction.amount / 5000); // fallback
 
-            const { data: userData } = await supabase.from('users').select('token_balance').eq('id', transaction.user_id).single();
-            const currentBalance = userData?.token_balance || 0;
+            await supabase.rpc("add_tokens", { p_user_id: transaction.user_id, p_amount: tokensToAdd });
 
-            await supabase.from('users')
-              .update({ token_balance: currentBalance + tokensToAdd })
-              .eq('id', transaction.user_id);
-              
-            console.log(`[Webhook] INV Top-Up processed: user=${transaction.user_id}, tokens added=${tokensToAdd}, new balance=${currentBalance + tokensToAdd}`);
+            console.log(`[Webhook] INV Top-Up processed: user=${transaction.user_id}, tokens added=${tokensToAdd}`);
             await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Top-Up Kuota', `${tokensToAdd} Token`);
           } else {
             // Subscription Upgrade
@@ -201,15 +196,9 @@ export async function POST(request: Request) {
             const match = chat.plan.match(/\((\d+)\s+token\)/i);
             const tokensToAdd = match ? parseInt(match[1], 10) : 4;
 
-            // Fetch current balance
-            const { data: userData } = await supabase.from('users').select('token_balance').eq('id', chat.user_id).single();
-            const currentBalance = userData?.token_balance || 0;
+            await supabase.rpc("add_tokens", { p_user_id: chat.user_id, p_amount: tokensToAdd });
 
-            await supabase.from('users')
-              .update({ token_balance: currentBalance + tokensToAdd })
-              .eq('id', chat.user_id);
-              
-            console.log(`[Webhook] Top-Up processed: user=${chat.user_id}, tokens added=${tokensToAdd}, new balance=${currentBalance + tokensToAdd}`);
+            console.log(`[Webhook] Top-Up processed: user=${chat.user_id}, tokens added=${tokensToAdd}`);
             await sendPaymentNotificationEmail(orderId, body.gross_amount, 'Top-Up Kuota', `${tokensToAdd} Token`);
           } else {
             // Upgrade user plan and set expiration date

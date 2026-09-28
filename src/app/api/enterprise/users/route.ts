@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 
-// Initialize Supabase Admin Client for Auth Management (creating users)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper: create Supabase Admin Client inside handlers (not module scope)
+// to avoid crashes if env vars aren't available at import time and to pick up rotated keys.
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function GET(request: Request) {
   try {
@@ -26,7 +29,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Akses ditolak. Fitur ini khusus untuk paket Enterprise.' }, { status: 403 });
     }
 
-    // Get sub-accounts (using supabaseAdmin to bypass RLS since users can only see their own row normally)
+    // Get sub-accounts (using admin client to bypass RLS since users can only see their own row normally)
+    const supabaseAdmin = getAdminClient();
     const { data: employees, error } = await supabaseAdmin
       .from('users')
       .select('id, email, token_balance, created_at, full_name')
@@ -82,6 +86,7 @@ export async function POST(request: Request) {
     }
 
     // Create user in Supabase Auth
+    const supabaseAdmin = getAdminClient();
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: password,
@@ -100,9 +105,12 @@ export async function POST(request: Request) {
     // Supabase trigger will automatically create a row in public.users.
     // We just need to update it with parent_id and allocated tokens.
     
-    // Decrease parent token, increase child token, set parent_id
+    // Decrease parent token atomically
     if (tokensToAllocate > 0) {
-      await supabaseAdmin.from('users').update({ token_balance: (profile?.token_balance || 0) - tokensToAllocate }).eq('id', user.id);
+      const { data: deducted } = await supabaseAdmin.rpc("deduct_token", { p_user_id: user.id, p_amount: tokensToAllocate });
+      if (!deducted) {
+        return NextResponse.json({ error: 'Saldo token Anda tidak mencukupi untuk dialokasikan.' }, { status: 400 });
+      }
     }
 
     let updateResult = await supabaseAdmin.from('users').update({
@@ -172,9 +180,25 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Saldo token karyawan tidak mencukupi untuk ditarik.' }, { status: 400 });
     }
 
-    // Apply transfers
-    await supabaseAdmin.from('users').update({ token_balance: parentBalance - amount }).eq('id', user.id);
-    await supabaseAdmin.from('users').update({ token_balance: employeeBalance + amount }).eq('id', employee_id);
+    // Apply transfers atomically to prevent race condition
+    const supabaseAdmin = getAdminClient();
+    if (amount > 0) {
+      // Parent → Employee
+      const { data: success } = await supabaseAdmin.rpc("transfer_tokens", {
+        p_from_id: user.id, p_to_id: employee_id, p_amount: amount
+      });
+      if (!success) {
+        return NextResponse.json({ error: 'Saldo token Anda tidak mencukupi.' }, { status: 400 });
+      }
+    } else {
+      // Employee → Parent (take back)
+      const { data: success } = await supabaseAdmin.rpc("transfer_tokens", {
+        p_from_id: employee_id, p_to_id: user.id, p_amount: Math.abs(amount)
+      });
+      if (!success) {
+        return NextResponse.json({ error: 'Saldo token karyawan tidak mencukupi untuk ditarik.' }, { status: 400 });
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -199,10 +223,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Karyawan tidak ditemukan.' }, { status: 404 });
     }
 
-    // Refund tokens to parent
+    const supabaseAdmin = getAdminClient();
+
+    // Refund tokens to parent atomically
     if (employeeProfile.token_balance > 0) {
-      const { data: parentProfile } = await supabase.from('users').select('token_balance').eq('id', user.id).single();
-      await supabaseAdmin.from('users').update({ token_balance: (parentProfile?.token_balance || 0) + employeeProfile.token_balance }).eq('id', user.id);
+      await supabaseAdmin.rpc("add_tokens", { p_user_id: user.id, p_amount: employeeProfile.token_balance });
     }
 
     // Delete user from Auth (also triggers cascade delete in public.users depending on schema, or we manually delete)
@@ -235,6 +260,7 @@ export async function PATCH(request: Request) {
     }
 
     // Update in Auth
+    const supabaseAdmin = getAdminClient();
     const authUpdatePayload: any = {
       user_metadata: { full_name: full_name }
     };

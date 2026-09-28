@@ -32,7 +32,7 @@ export async function GET() {
       consultationCount: count || 0,
       createdAt: profile?.created_at || user.created_at,
     }), {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { 
