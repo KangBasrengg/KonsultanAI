@@ -17,6 +17,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const handleLogout = async () => {
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+    await logout();
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -180,7 +186,7 @@ export default function Navbar() {
                     </Link>
                     
                     <button
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-merah hover:bg-merah/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
@@ -264,7 +270,7 @@ export default function Navbar() {
                 Pengaturan
               </Link>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="flex items-center justify-center gap-2 text-merah border border-merah/20 bg-merah/5 py-3 rounded-xl font-bold mt-2 hover:bg-merah/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User, SupabaseClient } from "@supabase/supabase-js";
 import AuthModal from "./AuthModal";
@@ -61,6 +62,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [authModalView, setAuthModalView] = useState<"login" | "register">("login");
 
   const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
 
   // Use a ref to track current user ID to avoid unnecessary state updates
   const currentUserIdRef = useRef<string | null>(null);
@@ -212,12 +214,21 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
-    currentUserIdRef.current = null;
-    setUser(null);
-    setProfile(null);
-    window.location.href = "/";
-  }, [supabase]);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("[AuthProvider] Sign out error:", error);
+    } finally {
+      // Always clear local state, even if signOut throws
+      currentUserIdRef.current = null;
+      setUser(null);
+      setProfile(null);
+      // Invalidate the Next.js Router Cache (RSC) so server components
+      // re-fetch and no stale authenticated data lingers
+      router.refresh();
+      router.push("/");
+    }
+  }, [supabase, router]);
 
   const refreshProfile = useCallback(async () => {
     if (currentUserIdRef.current && user) {
