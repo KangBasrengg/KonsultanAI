@@ -61,8 +61,7 @@ export async function POST(req: Request) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000);
         try {
-          const headers = { ...options?.headers, "Connection": "close" };
-          return await fetch(url, { ...options, headers, signal: controller.signal });
+          return await fetch(url, { ...options, signal: controller.signal });
         } catch (err: any) {
           if (err.name === "AbortError") throw new Error("Koneksi AI timeout.");
           throw err;
@@ -139,7 +138,12 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      headers: {
+        "X-Accel-Buffering": "no",
+        "Cache-Control": "no-cache, no-transform",
+      },
+    });
   } catch (error: any) {
     console.error("[LegalKita Chat]", error?.message);
     return new Response(JSON.stringify({ error: "Terjadi kesalahan." }), { status: 500, headers: { "Content-Type": "application/json" } });

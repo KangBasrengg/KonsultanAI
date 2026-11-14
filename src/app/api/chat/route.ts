@@ -194,8 +194,7 @@ export async function POST(req: Request) {
         const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 menit timeout untuk streaming panjang
         
         try {
-          const headers = { ...options?.headers, "Connection": "close" };
-          return await fetch(url, { ...options, headers, signal: controller.signal });
+          return await fetch(url, { ...options, signal: controller.signal });
         } catch (err: any) {
           if (err.name === 'AbortError') {
             throw new Error(`Koneksi ke AI (${isNativeGemini ? 'Gemini' : 'Freemodel'}) terputus karena terlalu lama (timeout).`);
@@ -440,7 +439,12 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      headers: {
+        "X-Accel-Buffering": "no",
+        "Cache-Control": "no-cache, no-transform",
+      },
+    });
   } catch (error: any) {
     console.error("[Chat API] Error:", error?.message || error);
     
