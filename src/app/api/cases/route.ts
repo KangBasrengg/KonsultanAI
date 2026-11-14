@@ -158,7 +158,7 @@ Berikan triage dalam format JSON sesuai instruksi.`;
             "Connection": "close"
           },
           body: JSON.stringify({
-            model: "gemini-3.1-flash-lite",
+            model: "gemini-3.5-flash-lite",
             messages: [
               { role: "system", content: TRIAGE_SYSTEM_PROMPT },
               { role: "user", content: triagePrompt }
