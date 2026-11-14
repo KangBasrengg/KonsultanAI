@@ -1,6 +1,6 @@
 // Types for PRD v2.5: Intake Form + Cases + Templates
 
-export type CaseType = 'pidana' | 'perdata' | 'keluarga' | 'bisnis' | 'teknologi';
+export type CaseType = 'pidana' | 'perdata' | 'keluarga' | 'bisnis' | 'teknologi' | 'politik';
 export type UrgencyLevel = 'immediate' | 'normal' | 'planning';
 export type TriageRecommendation = 'AI_ANALYSIS' | 'LEARNING_FIRST' | 'ADVOKAT_URGENT' | 'TEMPLATES';
 export type CaseStatus = 'open' | 'in_progress' | 'closed' | 'abandoned';
@@ -70,6 +70,16 @@ export const CASE_SUB_CATEGORIES: Record<CaseType, { value: string; label: strin
     { value: 'ecommerce', label: 'Sengketa E-Commerce' },
     { value: 'teknologi_lainnya', label: 'Lainnya' },
   ],
+  politik: [
+    { value: 'wawasan_politik', label: 'Wawasan & Dinamika Politik Terkini' },
+    { value: 'pemilu_pilkada', label: 'Hukum Pemilu, Pilkada & Sengketa Suara' },
+    { value: 'partai_politik', label: 'Partai Politik, Regulasi & Keanggotaan' },
+    { value: 'kebijakan_publik', label: 'Kebijakan Publik, Perda & Regulasi Pemerintah' },
+    { value: 'etika_pejabat', label: 'Etika, Korupsi & Hukum Pejabat Publik' },
+    { value: 'kebebasan_berpendapat', label: 'Kebebasan Berpendapat, Hak Sipil & Politik' },
+    { value: 'tata_negara', label: 'Hukum Tata Negara & Konstitusi (MK/MA/DPR)' },
+    { value: 'politik_lainnya', label: 'Lainnya' },
+  ],
 };
 
 export const CASE_TYPE_OPTIONS: { value: CaseType; label: string; icon: string }[] = [
@@ -78,6 +88,7 @@ export const CASE_TYPE_OPTIONS: { value: CaseType; label: string; icon: string }
   { value: 'keluarga', label: 'Hukum Keluarga', icon: '👨‍👩‍👧' },
   { value: 'bisnis', label: 'Hukum Bisnis & Komersial', icon: '💼' },
   { value: 'teknologi', label: 'Teknologi & Siber', icon: '💻' },
+  { value: 'politik', label: 'Politik & Tata Negara', icon: '🏛️' },
 ];
 
 export const URGENCY_OPTIONS: { value: UrgencyLevel; label: string; desc: string; color: string }[] = [

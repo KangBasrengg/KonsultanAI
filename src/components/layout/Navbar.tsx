@@ -63,7 +63,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/tentang" className={`transition-colors ${pathname === '/tentang' ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`}>Tentang</Link>
           <Link href="/intake" className={`transition-colors ${pathname === '/intake' ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`}>Konsultasi AI</Link>
-          <Link href="/learning" className={`transition-colors ${pathname === '/learning' || pathname?.startsWith('/learning/') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`}>Learning Center</Link>
+          <Link href="/berita-politik" className={`transition-colors ${pathname === '/berita-politik' || pathname?.startsWith('/berita-politik') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`}>Berita Politik</Link>
 
           <Link href="/legalkita" className={`transition-colors flex items-center gap-1 ${pathname === '/legalkita' || pathname?.startsWith('/legalkita/') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`}>
             <Briefcase className="w-3.5 h-3.5" />
@@ -228,7 +228,7 @@ export default function Navbar() {
         >
           <Link href="/tentang" className={`${pathname === '/tentang' ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`} onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
           <Link href="/intake" className={`${pathname === '/intake' ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`} onClick={() => setIsMobileMenuOpen(false)}>Konsultasi AI</Link>
-          <Link href="/learning" className={`${pathname === '/learning' || pathname?.startsWith('/learning/') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`} onClick={() => setIsMobileMenuOpen(false)}>Learning Center</Link>
+          <Link href="/berita-politik" className={`${pathname === '/berita-politik' || pathname?.startsWith('/berita-politik') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`} onClick={() => setIsMobileMenuOpen(false)}>Berita Politik</Link>
 
           <Link href="/legalkita" className={`flex items-center gap-1.5 ${pathname === '/legalkita' || pathname?.startsWith('/legalkita/') ? 'text-gold font-semibold' : 'text-putih/80 hover:text-gold'}`} onClick={() => setIsMobileMenuOpen(false)}>
             <Briefcase className="w-3.5 h-3.5" />
