@@ -66,16 +66,26 @@ export default function BeritaPolitikClient({ initialNews }: Props) {
     setIsSyncing(true);
     setSyncMessage("");
     try {
-      const res = await fetch("/api/cron/political-news?secret=konsultanai_cron_2026");
-      const data = await res.json();
+      const res = await fetch("/api/cron/political-news?secret=konsultanai_cron_2026", {
+        cache: "no-store",
+      });
+      const text = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setSyncMessage(`Server mengembalikan respons tidak valid (HTTP ${res.status}).`);
+        return;
+      }
+
       if (data.success) {
         setSyncMessage(`Sinkronisasi sukses: ${data.added_count} berita baru ditarik.`);
-        setTimeout(() => window.location.reload(), 1500);
+        setTimeout(() => window.location.reload(), 1200);
       } else {
         setSyncMessage(data.error || "Gagal sinkronisasi berita.");
       }
-    } catch {
-      setSyncMessage("Gagal terhubung ke server cron.");
+    } catch (err: any) {
+      setSyncMessage(`Gagal terhubung ke server cron: ${err?.message || "Network Error"}`);
     } finally {
       setIsSyncing(false);
     }

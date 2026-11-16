@@ -69,7 +69,7 @@ export async function middleware(request: NextRequest) {
 
   // --- Auth Protection ---
   // API routes that do NOT require auth (public endpoints)
-  const publicApiRoutes = ['/api/webhook/', '/api/auth/', '/api/legalkita/review']
+  const publicApiRoutes = ['/api/webhook/', '/api/auth/', '/api/legalkita/review', '/api/cron/']
   const isPublicApi = publicApiRoutes.some(r => pathname.startsWith(r))
 
   const isProtectedRoute = protectedRoutes.some(r => pathname.startsWith(r))

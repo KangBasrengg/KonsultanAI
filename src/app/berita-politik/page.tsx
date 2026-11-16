@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import BeritaPolitikClient, { PoliticalNewsItem } from "./BeritaPolitikClient";
+import { ipv4Fetch } from "@/lib/ipv4-fetch";
 
 export const metadata: Metadata = {
   title: "Berita & Wawasan Politik Indonesia | KonsultanAI",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60; // Revalidate cache every 60 seconds
+export const dynamic = "force-dynamic";
 
 const POLITIK_CATEGORY_ID = "c1200000-0000-0000-0000-000000000012";
 
@@ -38,7 +39,9 @@ function extractExcerpt(content: string): string {
 
 export default async function BeritaPolitikPage() {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, supabaseKey);
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, supabaseKey, {
+    global: { fetch: ipv4Fetch },
+  });
 
   const { data: rawMaterials } = await supabase
     .from("legal_materials")
