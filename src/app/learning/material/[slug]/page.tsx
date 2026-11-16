@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import LearningMaterialClient from "./LearningMaterialClient";
+import { POLITIK_CATEGORY_ID } from "@/lib/political-news";
 
 export const revalidate = 0; // Dynamic component since it relies on user session
 
@@ -60,7 +61,7 @@ export default async function MaterialPage({ params }: Props) {
   // 1. Fetch all materials to match the slug
   const { data: allMaterials, error: matListError } = await supabaseAdmin
     .from("legal_materials")
-    .select("id, title");
+    .select("id, title, category_id");
 
   if (matListError || !allMaterials) {
     notFound();
@@ -81,6 +82,10 @@ export default async function MaterialPage({ params }: Props) {
   if (!matchedMat) {
     console.error("Material not found for slug:", decodedSlug, "Available slugs:", allMaterials.map(m => m.title.toLowerCase().replace(/&/g, 'dan').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')));
     notFound();
+  }
+
+  if (matchedMat.category_id === POLITIK_CATEGORY_ID) {
+    redirect(`/berita-politik/${decodedSlug}`);
   }
 
   // Fetch the full material details

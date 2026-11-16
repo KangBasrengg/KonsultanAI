@@ -21,11 +21,11 @@ export default function UserGuideSection() {
       cta: "Konsultasi AI Sekarang",
     },
     {
-      title: "Ingin Tambah Wawasan?",
-      desc: "Akses pustaka materi hukum, studi kasus, dan panduan lengkap dari para ahli untuk membekali pengetahuan legal Anda.",
+      title: "Update Berita Politik?",
+      desc: "Ikuti rangkuman berita politik terkini, dinamika kebijakan publik, dan telaah hukum tata negara Indonesia setiap hari.",
       icon: <GraduationCap className="w-5 h-5 md:w-6 md:h-6" />,
-      href: "/learning",
-      cta: "Ke Learning Center",
+      href: "/berita-politik",
+      cta: "Buka Berita Politik",
     }
   ];
 

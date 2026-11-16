@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { templates } from '@/lib/templates-data'
+import { POLITIK_CATEGORY_ID, toNewsSlug } from '@/lib/political-news'
 
 const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -110,31 +111,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const supabase = createClient(supabaseUrl, supabaseAdminKey)
 
-    // Fetch categories for sitemap
-    const { data: categories } = await supabase.from('legal_categories').select('name')
+    // Fetch categories for sitemap (exclude political news category since it has its own portal)
+    const { data: categories } = await supabase
+      .from('legal_categories')
+      .select('id, name')
+      .neq('id', POLITIK_CATEGORY_ID)
     const categoryRoutes: MetadataRoute.Sitemap = (categories || []).map((cat) => ({
-      url: `${baseUrl}/learning/category/${cat.name
-        .toLowerCase()
-        .replace(/&/g, 'dan')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '')}`,
+      url: `${baseUrl}/learning/category/${toNewsSlug(cat.name)}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     }))
 
     // Fetch materials for sitemap
-    const { data: materials } = await supabase.from('legal_materials').select('title')
-    const materialRoutes: MetadataRoute.Sitemap = (materials || []).map((mat) => ({
-      url: `${baseUrl}/learning/material/${mat.title
-        .toLowerCase()
-        .replace(/&/g, 'dan')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '')}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    }))
+    const { data: materials } = await supabase.from('legal_materials').select('title, category_id')
+    const materialRoutes: MetadataRoute.Sitemap = (materials || []).map((mat) => {
+      const slug = toNewsSlug(mat.title)
+      const isPolitics = mat.category_id === POLITIK_CATEGORY_ID
+      return {
+        url: isPolitics ? `${baseUrl}/berita-politik/${slug}` : `${baseUrl}/learning/material/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: isPolitics ? 'daily' : 'monthly',
+        priority: isPolitics ? 0.85 : 0.7,
+      }
+    })
 
     return [...staticRoutes, ...templateRoutes, ...categoryRoutes, ...materialRoutes]
   } catch (err) {

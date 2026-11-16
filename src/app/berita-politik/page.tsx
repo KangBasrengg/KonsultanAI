@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import BeritaPolitikClient, { PoliticalNewsItem } from "./BeritaPolitikClient";
 import { ipv4Fetch } from "@/lib/ipv4-fetch";
+import {
+  POLITIK_CATEGORY_ID,
+  toNewsSlug,
+  extractNewsTag,
+  extractNewsExcerpt,
+} from "@/lib/political-news";
 
 export const metadata: Metadata = {
   title: "Berita & Wawasan Politik Indonesia | KonsultanAI",
@@ -15,28 +21,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const POLITIK_CATEGORY_ID = "c1200000-0000-0000-0000-000000000012";
-
-function extractTag(content: string): string {
-  const match = content.match(/Kategori:\s*([^•\n]+)/i);
-  if (match) return match[1].trim();
-  if (content.includes("Tata Negara")) return "Hukum Tata Negara";
-  if (content.includes("Kebijakan")) return "Kebijakan Publik";
-  if (content.includes("Pemilu") || content.includes("Pilkada")) return "Pemilu & Pilkada";
-  if (content.includes("DPR") || content.includes("Parlemen")) return "Parlemen";
-  return "Politik & Regulasi";
-}
-
-function extractExcerpt(content: string): string {
-  const cleaned = content
-    .replace(/^#+.*$/gm, "")
-    .replace(/\*.*?\*/g, "")
-    .replace(/\[.*?\]\(.*?\)/g, "")
-    .trim();
-  const sentences = cleaned.split(/(?<=[.?!])\s+/);
-  return sentences.slice(0, 2).join(" ").substring(0, 220) + "...";
-}
-
 export default async function BeritaPolitikPage() {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, supabaseKey, {
@@ -49,23 +33,14 @@ export default async function BeritaPolitikPage() {
     .eq("category_id", POLITIK_CATEGORY_ID)
     .order("created_at", { ascending: false });
 
-  const newsItems: PoliticalNewsItem[] = (rawMaterials || []).map((item) => {
-    const slug = item.title
-      .toLowerCase()
-      .replace(/&/g, "dan")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
-
-    return {
-      id: item.id,
-      title: item.title,
-      slug,
-      tag: extractTag(item.content || ""),
-      excerpt: extractExcerpt(item.content || ""),
-      createdAt: item.created_at,
-    };
-  });
+  const newsItems: PoliticalNewsItem[] = (rawMaterials || []).map((item) => ({
+    id: item.id,
+    title: item.title,
+    slug: toNewsSlug(item.title),
+    tag: extractNewsTag(item.content || ""),
+    excerpt: extractNewsExcerpt(item.content || ""),
+    createdAt: item.created_at,
+  }));
 
   return <BeritaPolitikClient initialNews={newsItems} />;
 }
-

@@ -204,7 +204,7 @@ export default function BeritaPolitikClient({ initialNews }: Props) {
               </div>
 
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-putih group-hover:text-gold transition-colors leading-snug mb-4">
-                <Link href={`/learning/material/${featured.slug}`}>
+                <Link href={`/berita-politik/${featured.slug}`}>
                   {featured.title}
                 </Link>
               </h2>
@@ -215,7 +215,7 @@ export default function BeritaPolitikClient({ initialNews }: Props) {
 
               <div className="flex items-center gap-4">
                 <Link
-                  href={`/learning/material/${featured.slug}`}
+                  href={`/berita-politik/${featured.slug}`}
                   className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-navy px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-gold/20"
                 >
                   <span>Baca Analisis Hukum Lengkap</span>
@@ -259,7 +259,7 @@ export default function BeritaPolitikClient({ initialNews }: Props) {
                     </div>
 
                     <h3 className="font-bold text-lg text-putih group-hover:text-gold transition-colors line-clamp-2 leading-snug mb-3">
-                      <Link href={`/learning/material/${item.slug}`}>
+                      <Link href={`/berita-politik/${item.slug}`}>
                         {item.title}
                       </Link>
                     </h3>
@@ -271,7 +271,7 @@ export default function BeritaPolitikClient({ initialNews }: Props) {
 
                   <div className="pt-4 border-t border-putih/10 flex items-center justify-between">
                     <Link
-                      href={`/learning/material/${item.slug}`}
+                      href={`/berita-politik/${item.slug}`}
                       className="text-xs font-semibold text-gold inline-flex items-center gap-1.5 hover:gap-2 transition-all"
                     >
                       <span>Baca Telaah</span>

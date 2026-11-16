@@ -538,11 +538,11 @@ export default function IntakeFormPage() {
 
                       {(triageResult.recommendation === 'LEARNING_FIRST' || triageResult.recommended_modules.length > 0) && (
                         <Link 
-                          href="/learning"
+                          href="/berita-politik"
                           className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border border-slate-200 dark:border-putih/20 bg-white dark:bg-navy-light hover:bg-slate-50 dark:hover:bg-putih/5 hover:border-blue-400/50 transition-all text-center group"
                         >
                           <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Modul Hukum</span>
+                          <span className="font-semibold text-xs text-navy dark:text-putih leading-tight">Berita Politik</span>
                         </Link>
                       )}
 
